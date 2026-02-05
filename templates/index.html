@@ -2,319 +2,259 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-<title>Tibia – EXP Tracker</title>
+<title>APO Podkarpacki OTS Tracker</title>
 
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 body {
-  font-family: Arial, sans-serif;
-  background:#111;
-  color:#eee;
-  max-width:1100px;
-  margin:auto;
-  padding:20px;
+  margin: 0;
+  font-family: 'Cinzel', serif;
+  background:
+    linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.85)),
+    url("/static/bg.jpg") center / cover no-repeat fixed;
+  color: #e6d8a8;
 }
-h1,h2 { color:#6cf; }
-button {
-  padding:10px 14px;
-  margin:6px 6px 6px 0;
-  cursor:pointer;
+
+.hero {
+  text-align: center;
+  padding: 60px 20px 40px;
 }
-input {
-  padding:8px;
+
+.hero h1 {
+  font-size: 48px;
+  letter-spacing: 3px;
+  color: #d4af37;
+  text-shadow: 0 0 10px rgba(212,175,55,0.6), 2px 2px 4px #000;
+  margin: 0;
 }
+
+.hero h2 {
+  margin-top: 10px;
+  font-size: 16px;
+  letter-spacing: 2px;
+  color: #aaa;
+  text-shadow: 1px 1px 2px #000;
+}
+
+.container {
+  max-width: 1100px;
+  margin: auto;
+  padding: 20px;
+}
+
 .box {
-  background:#1b1b1b;
-  padding:10px;
-  border-radius:6px;
-  margin-top:10px;
+  background: rgba(20,20,20,0.88);
+  border: 1px solid #c9a14a;
+  box-shadow: 0 0 12px rgba(201,161,74,0.25);
+  border-radius: 6px;
+  padding: 14px;
+  margin-top: 16px;
 }
-.good { color:#6f6; }
-.warn { color:#fc6; }
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 18px;
+  margin-bottom: 8px;
+  color: #d4af37;
+}
+
+.section-title img {
+  width: 24px;
+  height: 24px;
+  image-rendering: pixelated;
+}
+
+button, input {
+  background: #1a1a1a;
+  color: #e6d8a8;
+  border: 1px solid #c9a14a;
+  padding: 8px 12px;
+  font-family: 'Cinzel', serif;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:hover {
+  background: #2a2a2a;
+}
+
+.exp-bar {
+  height: 14px;
+  background: #2a2a2a;
+  border: 1px solid #000;
+  margin-top: 8px;
+}
+
+#expFill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(to right, #c9a14a, #ffe082);
+  box-shadow: inset 0 0 5px #000;
+}
 
 table {
-  width:100%;
-  border-collapse:collapse;
-  margin-top:15px;
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
 }
-th,td {
-  border:1px solid #333;
-  padding:6px;
-  text-align:center;
+
+th, td {
+  border: 1px solid #333;
+  padding: 6px;
+  text-align: center;
 }
-th { background:#222; }
+
+th {
+  background: #1f1f1f;
+  color: #d4af37;
+}
 
 canvas {
-  background:#fff;
-  border-radius:6px;
-  margin-top:20px;
+  background: #111;
+  margin-top: 20px;
+  border-radius: 6px;
 }
 </style>
 </head>
 
 <body>
 
-<h1>🗡️ Tibia – EXP Tracker</h1>
+<div class="hero">
+  <h1>APO Podkarpacki OTS Tracker</h1>
+  <h2>by Zohanek</h2>
+</div>
+
+<div class="container">
+
+<div id="appStatus" class="box">⏳ Uruchamianie aplikacji…</div>
 
 <div class="box">
-  Nick postaci:
-  <input type="text" id="charName" placeholder="np. Zohanek">
+  <div class="section-title">
+    <img src="/static/icons/mage.png">
+    Postać
+  </div>
+  Nick:
+  <input id="charName" placeholder="np. Zohanek">
   <button id="setCharBtn">Ustaw</button>
+  <div id="charInfo">—</div>
 </div>
 
-<div class="box" id="charInfo">
-Postać: — | Level: — | Magic Level: —
+<div class="box">
+  <div class="section-title">
+    <img src="/static/icons/star.png">
+    EXP
+  </div>
+  <button id="refreshBtn">Odśwież EXP</button>
+  <div id="expStatus">—</div>
+  <div class="exp-bar">
+    <div id="expFill"></div>
+  </div>
 </div>
 
-<button id="refreshBtn">🔄 Odśwież EXP</button>
-<span class="warn">Auto-refresh co 60s</span>
-
-<div class="box good" id="expStatus">
-Aktualny EXP: —
+<div class="box">
+  <div class="section-title">
+    <img src="/static/icons/lightning.png">
+    Speed
+  </div>
+  <button id="startSpeedBtn">START SPEED</button>
+  <button id="stopSpeedBtn">STOP SPEED</button>
+  <div id="speedStatus">Speed nieaktywny</div>
 </div>
 
-<hr>
-
-<h2>⚡ Speed</h2>
-<button id="startSpeedBtn">▶️ START SPEED</button>
-<button id="stopSpeedBtn">⏹️ STOP SPEED</button>
-
-<div class="box warn" id="speedStatus">
-Speed nieaktywny
+<div class="box">
+  <div class="section-title">
+    <img src="/static/icons/scroll.png">
+    Dzień & Historia
+  </div>
+  <button id="startDayBtn">START DNIA</button>
+  <button id="endDayBtn">ZAKOŃCZ DZIEŃ</button>
+  <table>
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>EXP</th>
+        <th>Speed</th>
+        <th>Normal</th>
+      </tr>
+    </thead>
+    <tbody id="history"></tbody>
+  </table>
 </div>
 
-<hr>
-
-<h2>📅 Dzień</h2>
-<button id="startDayBtn">📅 START DNIA</button>
-<button id="endDayBtn">💾 ZAKOŃCZ DZIEŃ</button>
-
-<div class="box" id="dayStatus">
-Dzień nie rozpoczęty
-</div>
-
-<hr>
-
-<h2>📊 Historia dni</h2>
-<table>
-<thead>
-<tr>
-<th>Data</th>
-<th>EXP dzień</th>
-<th>EXP speed</th>
-<th>EXP normal</th>
-<th>Min speed</th>
-<th>Akcja</th>
-</tr>
-</thead>
-<tbody id="history"></tbody>
-</table>
-
-<h2>📈 Wykres EXP</h2>
 <canvas id="expChart"></canvas>
 
+</div>
+
 <script>
-// ===== POSTAĆ =====
 let characterName = localStorage.getItem("tibiaChar") || "";
 document.getElementById("charName").value = characterName;
 
-// ===== ZMIENNE =====
+let isFetching = false;
+let lastFetchedExp = null;
+
 let speedStartExp = null;
 let speedStartTime = null;
-let lastFetchedExp = null;
 
 let dayStartExp = null;
 let daySpeedExp = 0;
-let daySpeedMinutes = 0;
 
 let history = JSON.parse(localStorage.getItem("tibiaHistory")) || [];
 let chart = null;
 
-// ===== API =====
 async function fetchPlayer() {
-  if (!characterName) {
-    alert("Ustaw nick postaci");
-    throw new Error("Brak nicku");
-  }
-
   const res = await fetch(`/player/${characterName}`);
-  const data = await res.json();
-
-  if (data.error) {
-    alert("Nie udało się pobrać danych postaci");
-    throw new Error(data.error);
-  }
-
-  return data;
+  return await res.json();
 }
 
-// ===== ODSWIEŻANIE =====
 async function refreshExp() {
-  const data = await fetchPlayer();
-  lastFetchedExp = data.experience;
+  if (isFetching || !characterName) return;
+  isFetching = true;
 
-  document.getElementById("charInfo").innerText =
-    `Postać: ${data.name} | Level: ${data.level} | Magic Level: ${data.magic}`;
+  document.getElementById("appStatus").innerText =
+    "⏳ Łączenie z serwerem…";
 
-  document.getElementById("expStatus").innerText =
-    `Aktualny EXP: ${data.experience.toLocaleString()}`;
-}
+  try {
+    const data = await fetchPlayer();
+    lastFetchedExp = data.experience;
 
-// ===== SPEED =====
-async function startSpeed() {
-  const data = await fetchPlayer();
-  speedStartExp = data.experience;
-  speedStartTime = new Date();
-  lastFetchedExp = data.experience;
+    document.getElementById("charInfo").innerText =
+      `${data.name} | Level ${data.level} | ML ${data.magic}`;
 
-  document.getElementById("speedStatus").innerText =
-    "Speed rozpoczęty";
-}
+    document.getElementById("expStatus").innerText =
+      data.experience.toLocaleString();
 
-async function stopSpeed() {
-  if (speedStartExp === null || lastFetchedExp === null) {
-    alert("Zrób relog i odśwież EXP");
-    return;
+    document.getElementById("expFill").style.width =
+      Math.min(100, (data.experience % 10000000) / 100000) + "%";
+
+    document.getElementById("appStatus").innerText =
+      "🟢 Połączono z serwerem";
+  } catch {
+    document.getElementById("appStatus").innerText =
+      "🔴 Serwer się budzi… spróbuj za chwilę";
+  } finally {
+    isFetching = false;
   }
-
-  const minutes = Math.round((new Date() - speedStartTime) / 60000);
-  const gained = lastFetchedExp - speedStartExp;
-  const bonus = Math.round(gained * 0.5);
-  const total = gained + bonus;
-
-  daySpeedExp += total;
-  daySpeedMinutes += minutes;
-
-  document.getElementById("speedStatus").innerText =
-    `Speed: ${minutes} min | Razem EXP: ${total.toLocaleString()}`;
-
-  speedStartExp = null;
 }
 
-// ===== DZIEŃ =====
-async function startDay() {
-  const data = await fetchPlayer();
-  dayStartExp = data.experience;
-  daySpeedExp = 0;
-  daySpeedMinutes = 0;
-
-  document.getElementById("dayStatus").innerText =
-    `Dzień rozpoczęty | EXP start: ${dayStartExp.toLocaleString()}`;
-}
-
-async function endDay() {
-  if (dayStartExp === null) {
-    alert("Najpierw START DNIA");
-    return;
-  }
-
-  const data = await fetchPlayer();
-  const endExp = data.experience;
-
-  const total = endExp - dayStartExp;
-  const normal = total - daySpeedExp;
-  const date = new Date().toLocaleDateString();
-
-  history.push({ date, total, speed: daySpeedExp, normal, minutes: daySpeedMinutes });
-  localStorage.setItem("tibiaHistory", JSON.stringify(history));
-
-  renderHistory();
-  renderChart();
-
-  document.getElementById("dayStatus").innerText =
-    "Dzień zapisany ✔️";
-
-  dayStartExp = null;
-}
-
-// ===== HISTORIA =====
-function deleteDay(i) {
-  history.splice(i, 1);
-  localStorage.setItem("tibiaHistory", JSON.stringify(history));
-  renderHistory();
-  renderChart();
-}
-
-function renderHistory() {
-  const tbody = document.getElementById("history");
-  tbody.innerHTML = "";
-
-  history.forEach((d, i) => {
-    tbody.innerHTML += `
-      <tr>
-        <td>${d.date}</td>
-        <td class="good">${d.total.toLocaleString()}</td>
-        <td>${d.speed.toLocaleString()}</td>
-        <td>${d.normal.toLocaleString()}</td>
-        <td>${d.minutes}</td>
-        <td><button onclick="deleteDay(${i})">🗑️</button></td>
-      </tr>`;
-  });
-}
-
-// ===== WYKRES =====
-function renderChart() {
-  const labels = history.map(d => d.date);
-  const totalData = history.map(d => d.total);
-  const speedData = history.map(d => d.speed);
-  const normalData = history.map(d => d.normal);
-
-  if (chart) chart.destroy();
-
-  chart = new Chart(document.getElementById("expChart"), {
-    type: "bar",
-    data: {
-      labels,
-      datasets: [
-        { label: "EXP dzień", data: totalData, backgroundColor: "#4caf50" },
-        { label: "EXP speed", data: speedData, backgroundColor: "#2196f3" },
-        { label: "EXP normal", data: normalData, backgroundColor: "#ff9800" }
-      ]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        y: {
-          ticks: {
-            callback: v => v.toLocaleString()
-          }
-        }
-      }
-    }
-  });
-}
-
-// ===== EVENTY =====
 document.getElementById("setCharBtn").onclick = () => {
-  const input = document.getElementById("charName").value.trim();
-  if (!input) {
-    alert("Podaj nick postaci");
-    return;
-  }
-  characterName = input;
+  characterName = document.getElementById("charName").value.trim();
   localStorage.setItem("tibiaChar", characterName);
   refreshExp();
 };
 
 document.getElementById("refreshBtn").onclick = refreshExp;
-document.getElementById("startSpeedBtn").onclick = startSpeed;
-document.getElementById("stopSpeedBtn").onclick = stopSpeed;
-document.getElementById("startDayBtn").onclick = startDay;
-document.getElementById("endDayBtn").onclick = endDay;
 
-// ===== START =====
-renderHistory();
-renderChart();
-
-if (characterName) {
-  refreshExp();
-}
-
-// AUTO REFRESH
 setInterval(() => {
-  if (characterName) refreshExp();
-}, 60000);
+  if (!document.hidden && characterName) refreshExp();
+}, 120000);
+
+if (characterName) refreshExp();
 </script>
 
 </body>
