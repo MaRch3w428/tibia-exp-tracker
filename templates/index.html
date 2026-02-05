@@ -4,161 +4,105 @@
 <meta charset="UTF-8">
 <title>APO Podkarpacki OTS Tracker</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-/* ===== RESET / BASE ===== */
-* { box-sizing: border-box; }
-
-body {
-  margin: 0;
-  font-family: 'Cinzel', serif;
-  background: radial-gradient(circle at top, #1b1b1b, #000);
-  color: #e6d8a8;
-  overflow-x: hidden;
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:'Cinzel',serif;
+  background:radial-gradient(circle at top,#1a1a1a,#000);
+  color:#e6d8a8;
 }
 
-/* ===== INTRO ===== */
-#intro {
-  position: fixed;
-  inset: 0;
-  background: radial-gradient(circle, #111, #000);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-  animation: introFade 2.5s ease forwards;
+/* INTRO */
+#intro{
+  position:fixed;inset:0;
+  background:#000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:999;
+  animation:introFade 3s forwards;
+}
+#intro h1{
+  font-family:'Cinzel Decorative',serif;
+  font-size:44px;
+  color:#d4af37;
+  letter-spacing:4px;
+  text-shadow:0 0 20px rgba(212,175,55,.8);
+  animation:introText 3s forwards;
+}
+@keyframes introFade{0%,80%{opacity:1}100%{opacity:0;visibility:hidden}}
+@keyframes introText{0%{opacity:0;transform:scale(.7)}40%{opacity:1}100%{transform:scale(1.05)}}
+
+/* HEADER */
+header{text-align:center;padding:50px 20px 30px}
+header h1{
+  font-family:'Cinzel Decorative',serif;
+  font-size:48px;
+  color:#d4af37;
+  text-shadow:0 0 15px rgba(212,175,55,.7);
+  margin:0;
+}
+header span{color:#aaa;letter-spacing:2px}
+
+/* LAYOUT */
+.container{max-width:1100px;margin:auto;padding:20px}
+.card{
+  background:linear-gradient(#161616,#0d0d0d);
+  border:1px solid #c9a14a;
+  box-shadow:0 0 20px rgba(201,161,74,.25);
+  border-radius:8px;
+  padding:16px;
+  margin-bottom:20px;
+  animation:cardIn .6s ease;
+}
+@keyframes cardIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+
+/* TITLES + ICONS */
+.section-title{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:20px;
+  color:#d4af37;
+  margin-bottom:10px;
+}
+.icon{
+  width:26px;height:26px;
+  fill:#d4af37;
+  filter:drop-shadow(0 0 6px rgba(212,175,55,.7));
+  transition:.3s;
+}
+.section-title:hover .icon{
+  transform:scale(1.2) rotate(-5deg);
 }
 
-#intro h1 {
-  font-size: 42px;
-  color: #d4af37;
-  letter-spacing: 4px;
-  text-shadow: 0 0 15px rgba(212,175,55,.6);
-  animation: introText 2.5s ease forwards;
+/* CONTROLS */
+input,button{
+  background:#0f0f0f;
+  color:#e6d8a8;
+  border:1px solid #c9a14a;
+  padding:8px 14px;
+  font-family:'Cinzel',serif;
 }
+button{cursor:pointer}
+button:hover{
+  background:#222;
+  box-shadow:0 0 10px rgba(212,175,55,.4);
+}
+button:disabled{opacity:.5}
 
-@keyframes introFade {
-  0% { opacity: 1; }
-  80% { opacity: 1; }
-  100% { opacity: 0; visibility: hidden; }
-}
+/* TABLE */
+table{width:100%;border-collapse:collapse}
+th,td{border:1px solid #333;padding:6px;text-align:center}
+th{background:#1b1b1b;color:#d4af37}
 
-@keyframes introText {
-  0% { transform: scale(.8); opacity: 0; }
-  40% { transform: scale(1); opacity: 1; }
-  100% { transform: scale(1.05); }
-}
-
-/* ===== HEADER ===== */
-header {
-  text-align: center;
-  padding: 50px 20px 30px;
-}
-
-header h1 {
-  margin: 0;
-  font-size: 46px;
-  color: #d4af37;
-  letter-spacing: 3px;
-  text-shadow: 0 0 12px rgba(212,175,55,.6);
-}
-
-header span {
-  font-size: 14px;
-  color: #aaa;
-  letter-spacing: 2px;
-}
-
-/* ===== LAYOUT ===== */
-.container {
-  max-width: 1100px;
-  margin: auto;
-  padding: 20px;
-}
-
-.card {
-  background: linear-gradient(#161616, #0f0f0f);
-  border: 1px solid #c9a14a;
-  box-shadow: 0 0 18px rgba(201,161,74,.25);
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 20px;
-  animation: cardIn .6s ease forwards;
-}
-
-@keyframes cardIn {
-  from { opacity: 0; transform: translateY(15px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* ===== SECTION TITLE + ICON ===== */
-.section-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 20px;
-  color: #d4af37;
-  margin-bottom: 10px;
-}
-
-.icon {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: radial-gradient(circle, #ffe082, #c9a14a);
-  box-shadow: 0 0 8px rgba(212,175,55,.8);
-}
-
-/* ===== CONTROLS ===== */
-input, button {
-  background: #111;
-  color: #e6d8a8;
-  border: 1px solid #c9a14a;
-  padding: 8px 12px;
-  font-family: 'Cinzel', serif;
-}
-
-button {
-  cursor: pointer;
-  transition: .2s;
-}
-
-button:hover {
-  background: #222;
-}
-
-/* ===== STATUS ===== */
-#status {
-  font-size: 14px;
-  color: #aaa;
-}
-
-/* ===== TABLE ===== */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-}
-
-th, td {
-  border: 1px solid #333;
-  padding: 6px;
-  text-align: center;
-}
-
-th {
-  background: #1b1b1b;
-  color: #d4af37;
-}
-
-/* ===== CHART ===== */
-canvas {
-  background: #0b0b0b;
-  border-radius: 8px;
-  padding: 10px;
-}
+/* CHART */
+canvas{background:#0b0b0b;border-radius:8px;padding:10px}
 </style>
 </head>
 
@@ -175,9 +119,10 @@ canvas {
 
 <div class="container">
 
+<!-- POSTAĆ -->
 <div class="card">
   <div class="section-title">
-    <div class="icon"></div>
+    <svg class="icon" viewBox="0 0 24 24"><path d="M12 2a4 4 0 014 4c0 2.2-1.8 4-4 4s-4-1.8-4-4a4 4 0 014-4zm0 10c3.3 0 10 1.7 10 5v3H2v-3c0-3.3 6.7-5 10-5z"/></svg>
     Postać
   </div>
   Nick:
@@ -186,19 +131,42 @@ canvas {
   <div id="charInfo">—</div>
 </div>
 
+<!-- EXP -->
 <div class="card">
   <div class="section-title">
-    <div class="icon"></div>
+    <svg class="icon" viewBox="0 0 24 24"><path d="M12 2l2.5 7.5H22l-6 4.5L18.5 22 12 17.5 5.5 22 8 14 2 9.5h7.5z"/></svg>
     EXP
   </div>
-  <button onclick="refreshExp()">Odśwież</button>
+  <button onclick="refreshExp()">Odśwież EXP</button>
   <div id="expInfo">—</div>
   <div id="status"></div>
 </div>
 
+<!-- SPEED -->
 <div class="card">
   <div class="section-title">
-    <div class="icon"></div>
+    <svg class="icon" viewBox="0 0 24 24"><path d="M11 21h-1l1-7H7l6-12h1l-1 7h4z"/></svg>
+    Speed
+  </div>
+  <button id="startSpeedBtn" onclick="startSpeed()">START SPEED</button>
+  <button id="stopSpeedBtn" onclick="stopSpeed()" disabled>STOP SPEED</button>
+  <div id="speedInfo">—</div>
+</div>
+
+<!-- DZIEŃ -->
+<div class="card">
+  <div class="section-title">
+    <svg class="icon" viewBox="0 0 24 24"><path d="M3 3h18v18H3zM7 7h10v2H7zm0 4h10v2H7zm0 4h6v2H7z"/></svg>
+    Dzień
+  </div>
+  <button onclick="startDay()">START DNIA</button>
+  <button onclick="endDay()">ZAKOŃCZ DZIEŃ</button>
+</div>
+
+<!-- WYKRES -->
+<div class="card">
+  <div class="section-title">
+    <svg class="icon" viewBox="0 0 24 24"><path d="M3 3v18h18v-2H5V3zM7 15h2v2H7zm4-4h2v6h-2zm4-4h2v10h-2z"/></svg>
     Wykres EXP
   </div>
   <canvas id="expChart" height="120"></canvas>
@@ -211,81 +179,85 @@ let characterName = localStorage.getItem("char") || "";
 document.getElementById("charName").value = characterName;
 
 let history = JSON.parse(localStorage.getItem("expHistory")) || [];
-let chart;
+let chart=null;
+let speedStartExp=null, speedStartTime=null, dayStartExp=null;
 
-async function fetchPlayer() {
-  const res = await fetch(`/player/${characterName}`);
-  return await res.json();
+async function fetchPlayer(){
+  const r=await fetch(`/player/${characterName}`);
+  return await r.json();
 }
 
-function setChar() {
-  characterName = document.getElementById("charName").value.trim();
-  localStorage.setItem("char", characterName);
+function setChar(){
+  characterName=document.getElementById("charName").value.trim();
+  localStorage.setItem("char",characterName);
   refreshExp();
 }
 
-async function refreshExp() {
-  if (!characterName) return;
-
-  document.getElementById("status").innerText = "⏳ Łączenie z serwerem…";
-
-  try {
-    const d = await fetchPlayer();
-
-    document.getElementById("charInfo").innerText =
+async function refreshExp(){
+  if(!characterName)return;
+  document.getElementById("status").innerText="⏳ Łączenie…";
+  try{
+    const d=await fetchPlayer();
+    document.getElementById("charInfo").innerText=
       `${d.name} | Level ${d.level} | ML ${d.magic}`;
-
-    document.getElementById("expInfo").innerText =
+    document.getElementById("expInfo").innerText=
       `EXP: ${d.experience.toLocaleString()}`;
-
-    history.push({
-      time: new Date().toLocaleTimeString(),
-      exp: d.experience
-    });
-
-    localStorage.setItem("expHistory", JSON.stringify(history));
-    updateChart();
-
-    document.getElementById("status").innerText = "🟢 OK";
-  } catch {
-    document.getElementById("status").innerText =
-      "🔴 Serwer się budzi (Render free)…";
+    document.getElementById("status").innerText="🟢 OK";
+  }catch{
+    document.getElementById("status").innerText="🔴 Serwer się budzi…";
   }
 }
 
-function updateChart() {
-  const labels = history.map(h => h.time);
-  const data = history.map(h => h.exp);
+async function startSpeed(){
+  const d=await fetchPlayer();
+  speedStartExp=d.experience;
+  speedStartTime=Date.now();
+  startSpeedBtn.disabled=true;
+  stopSpeedBtn.disabled=false;
+  speedInfo.innerText="Speed aktywny…";
+}
 
-  if (!chart) {
-    chart = new Chart(document.getElementById("expChart"), {
-      type: 'line',
-      data: {
-        labels,
-        datasets: [{
-          label: 'EXP',
-          data,
-          borderColor: '#d4af37',
-          backgroundColor: 'rgba(212,175,55,.15)',
-          tension: .3
-        }]
-      },
-      options: {
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { ticks: { color: '#aaa' } },
-          y: { ticks: { color: '#aaa' } }
-        }
-      }
+async function stopSpeed(){
+  const d=await fetchPlayer();
+  const min=Math.round((Date.now()-speedStartTime)/60000);
+  const gain=d.experience-speedStartExp;
+  speedInfo.innerText=`Speed: ${min} min | +${gain.toLocaleString()} EXP`;
+  startSpeedBtn.disabled=false;
+  stopSpeedBtn.disabled=true;
+}
+
+async function startDay(){
+  const d=await fetchPlayer();
+  dayStartExp=d.experience;
+  status.innerText="📅 Dzień rozpoczęty";
+}
+
+async function endDay(){
+  const d=await fetchPlayer();
+  const gain=d.experience-dayStartExp;
+  history.push({t:new Date().toLocaleTimeString(),e:gain});
+  localStorage.setItem("expHistory",JSON.stringify(history));
+  updateChart();
+  status.innerText=`📅 Dzień zakończony: +${gain.toLocaleString()} EXP`;
+}
+
+function updateChart(){
+  const labels=history.map(h=>h.t);
+  const data=history.map(h=>h.e);
+  if(!chart){
+    chart=new Chart(expChart,{
+      type:'line',
+      data:{labels,datasets:[{data,borderColor:'#d4af37',tension:.3}]},
+      options:{plugins:{legend:{display:false}}}
     });
-  } else {
-    chart.data.labels = labels;
-    chart.data.datasets[0].data = data;
+  }else{
+    chart.data.labels=labels;
+    chart.data.datasets[0].data=data;
     chart.update();
   }
 }
 
-if (characterName) refreshExp();
+if(characterName)refreshExp();
 </script>
 
 </body>
