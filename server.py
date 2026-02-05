@@ -11,11 +11,9 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 app = Flask(__name__)
 CORS(app)
 
-
 @app.route("/")
 def home():
     return "APO Tracker API działa"
-
 
 @app.route("/player/<name>")
 def player(name):
@@ -23,25 +21,35 @@ def player(name):
 
     try:
         r = requests.get(url, timeout=10, verify=False)
-        if r.status_code != 200:
-            return jsonify({"error": "Nie udało się pobrać strony"}), 500
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        r.raise_for_status()
+    except Exception:
+        return jsonify({"error": "Nie udało się pobrać strony"}), 500
 
     soup = BeautifulSoup(r.text, "html.parser")
-    text = soup.get_text(" ", strip=True)
 
-    def extract(pattern, default=0):
-        m = re.search(pattern, text)
-        return int(m.group(1)) if m else default
+    def get_value(label):
+        """
+        Szuka w tabeli:
+        <td>LABEL</td><td>WARTOŚĆ</td>
+        """
+        td = soup.find("td", string=re.compile(f"^{label}$", re.I))
+        if not td:
+            return None
+        value_td = td.find_next_sibling("td")
+        if not value_td:
+            return None
+        return value_td.get_text(strip=True)
 
-    level = extract(r"Poziom:\s*(\d+)")
-    magic = extract(r"Poziom magiczny:\s*(\d+)")
-    experience = extract(r"Doświadczenie:\s*(\d+)")
+    try:
+        level = int(get_value("Poziom") or 1)
+        magic = int(get_value("Poziom magiczny") or 0)
 
-    # VOCATION
-    vocation_match = re.search(r"Profesja:\s*([A-Za-ząćęłńóśżź ]+)", text)
-    vocation = vocation_match.group(1).strip() if vocation_match else "Rook"
+        exp_raw = get_value("Doświadczenie") or "0"
+        experience = int(exp_raw.replace(" ", "").replace(",", ""))
+
+        vocation = get_value("Profesja") or "Rook"
+    except Exception:
+        return jsonify({"error": "Błąd parsowania danych"}), 500
 
     return jsonify({
         "name": name,
@@ -50,7 +58,6 @@ def player(name):
         "experience": experience,
         "vocation": vocation
     })
-
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
