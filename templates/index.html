@@ -9,6 +9,7 @@
 
 <style>
 *{box-sizing:border-box}
+
 body{
   margin:0;
   font-family:'Cinzel',serif;
@@ -17,9 +18,31 @@ body{
     linear-gradient(rgba(0,0,0,.82), rgba(0,0,0,.95)),
     url("/static/bg.jpg") center/cover no-repeat fixed;
 }
+
+/* INTRO */
+#intro{
+  position:fixed;
+  inset:0;
+  background:#000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+#intro img{
+  width:480px;
+  max-width:90%;
+  filter:drop-shadow(0 0 60px red);
+}
+
+/* HEADER */
 header{text-align:center;padding:30px}
 header img{max-width:420px;filter:drop-shadow(0 0 30px rgba(255,0,0,.9))}
+
+/* LAYOUT */
 .container{max-width:1200px;margin:auto;padding:20px}
+
+/* CARDS */
 .card{
   background:rgba(15,0,0,.55);
   border:1px solid rgba(255,0,0,.45);
@@ -28,10 +51,30 @@ header img{max-width:420px;filter:drop-shadow(0 0 30px rgba(255,0,0,.9))}
   margin-bottom:26px;
 }
 .section-title{font-size:22px;color:#ff6a6a;margin-bottom:18px}
+
+/* INPUTS */
 button,input{
-  background:#0b0000;color:#ffd0d0;border:1px solid #aa2222;
-  padding:8px 14px;font-family:'Cinzel',serif;cursor:pointer
+  background:#0b0000;
+  color:#ffd0d0;
+  border:1px solid #aa2222;
+  padding:8px 14px;
+  font-family:'Cinzel',serif;
+  cursor:pointer;
 }
+button:hover{box-shadow:0 0 15px rgba(255,0,0,.7)}
+
+/* HERO */
+#charHero{text-align:center}
+#vocationIcon{width:160px}
+#charNameBig{font-size:40px;color:#ff4a4a}
+#charStats{font-size:22px}
+
+/* EXP */
+#expValue{font-size:38px;color:#ff4a4a;text-align:center;margin-top:16px}
+#expBar{height:12px;background:#220000;border-radius:8px;overflow:hidden;margin-top:10px}
+#expBar span{display:block;height:100%;width:0%;background:linear-gradient(90deg,#ff2a2a,#ff7a7a)}
+
+/* TABLE */
 .list-header,.list-row{
   display:grid;
   grid-template-columns:120px 110px 110px 110px 80px 130px 60px;
@@ -40,13 +83,8 @@ button,input{
 }
 .list-header{font-weight:bold;border-bottom:1px solid rgba(255,255,255,.2)}
 .list-row{border-bottom:1px solid rgba(255,255,255,.08);padding:6px 0}
-#charHero{text-align:center}
-#vocationIcon{width:160px}
-#charNameBig{font-size:40px;color:#ff4a4a}
-#charStats{font-size:22px}
-#expValue{font-size:38px;color:#ff4a4a;text-align:center;margin-top:16px}
-#expBar{height:12px;background:#220000;border-radius:8px;overflow:hidden;margin-top:10px}
-#expBar span{display:block;height:100%;width:0%;background:linear-gradient(90deg,#ff2a2a,#ff7a7a)}
+
+/* FOOTER */
 footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
 </style>
 </head>
@@ -54,12 +92,12 @@ footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
 <body>
 
 <!-- INTRO -->
-<div id="intro" style="position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:9999;animation:introFade 4s forwards">
-  <img src="/static/intro/logo.png" style="width:480px;max-width:90%;filter:drop-shadow(0 0 60px red);animation:introZoom 4s forwards">
+<div id="intro">
+  <img src="/static/intro/logo.png" alt="Intro">
 </div>
 
 <header>
-  <img src="/static/header/apo-tracker.png">
+  <img src="/static/header/apo-tracker.png" alt="APO Tracker">
 </header>
 
 <div class="container">
@@ -91,7 +129,6 @@ footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
   <div class="section-title">Speed</div>
   <button onclick="startSpeed()">START</button>
   <button onclick="stopSpeed()">STOP</button>
-  <div id="speedInfo">—</div>
 </div>
 
 <!-- STATYSTYKI EXPIENIA -->
@@ -101,7 +138,8 @@ footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
   <button onclick="endDay()">ZAKOŃCZ DZIEŃ</button>
 
   <div class="list-header">
-    <div>Data</div><div>EXP</div><div>Speed</div><div>Normal</div><div>% Speed</div><div>Lvle</div><div>Usuń</div>
+    <div>Data</div><div>EXP</div><div>Speed</div><div>Normal</div>
+    <div>% Speed</div><div>Lvle</div><div>Usuń</div>
   </div>
   <div id="dayList"></div>
 </div>
@@ -119,6 +157,17 @@ footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
 </footer>
 
 <script>
+/* ===== INTRO HIDE ===== */
+window.addEventListener("load",()=>{
+  const intro=document.getElementById("intro");
+  setTimeout(()=>{
+    intro.style.transition="opacity 1.2s ease";
+    intro.style.opacity="0";
+    setTimeout(()=>intro.style.display="none",1200);
+  },2500);
+});
+
+/* ===== YEAR ===== */
 year.innerText=new Date().getFullYear();
 
 /* ===== STATE ===== */
@@ -127,10 +176,10 @@ charInput.value=char;
 
 let days=JSON.parse(localStorage.getItem("daysAuto")||"[]");
 let currentDay=null;
-let speedStartExp=0,speedStartTime=0;
+let speedStartExp=0;
 let chart=null;
 
-/* ICON */
+/* ===== ICON MAP ===== */
 function iconFor(v){
   if(!v)return"rook.png";
   v=v.toLowerCase();
@@ -141,20 +190,19 @@ function iconFor(v){
   return"rook.png";
 }
 
-/* API */
+/* ===== API ===== */
 async function fetchPlayer(){
   const r=await fetch(`/player/${char}`);
   return r.json();
 }
 
-/* SET CHAR */
+/* ===== CHAR ===== */
 function setChar(){
   char=charInput.value.trim();
   localStorage.setItem("char",char);
   refresh();
 }
 
-/* REFRESH */
 async function refresh(){
   if(!char)return;
   const d=await fetchPlayer();
@@ -165,55 +213,45 @@ async function refresh(){
   document.querySelector("#expBar span").style.width="100%";
 }
 
-/* SPEED */
+/* ===== SPEED ===== */
 async function startSpeed(){
   const d=await fetchPlayer();
   speedStartExp=d.experience;
-  speedStartTime=Date.now();
 }
 async function stopSpeed(){
   const d=await fetchPlayer();
-  const gain=d.experience-speedStartExp;
-  if(currentDay) currentDay.speedExp+=gain;
+  if(currentDay) currentDay.speedExp+=d.experience-speedStartExp;
 }
 
-/* DAY */
+/* ===== DAY ===== */
 async function startDay(){
   const d=await fetchPlayer();
   currentDay={
     date:new Date().toLocaleDateString(),
     expStart:d.experience,
-    expEnd:0,
     speedExp:0,
-    lvlFrom:d.level,
-    lvlTo:0
+    lvlFrom:d.level
   };
 }
 async function endDay(){
   if(!currentDay)return;
   const d=await fetchPlayer();
-  currentDay.expEnd=d.experience;
-  currentDay.lvlTo=d.level;
-
-  const total=currentDay.expEnd-currentDay.expStart;
+  const total=d.experience-currentDay.expStart;
   const speed=currentDay.speedExp;
-  const normal=total-speed;
-
   days.push({
     date:currentDay.date,
     exp:total,
     speedExp:speed,
-    normalExp:normal,
-    pct: total?Math.round(speed/total*100):0,
-    lvls:`${currentDay.lvlFrom} → ${currentDay.lvlTo}`
+    normalExp:total-speed,
+    pct:total?Math.round(speed/total*100):0,
+    lvls:`${currentDay.lvlFrom} → ${d.level}`
   });
-
   localStorage.setItem("daysAuto",JSON.stringify(days));
   currentDay=null;
   renderDays();
 }
 
-/* RENDER DAYS */
+/* ===== RENDER ===== */
 function renderDays(){
   dayList.innerHTML="";
   days.forEach((d,i)=>{
@@ -236,7 +274,7 @@ function delDay(i){
   renderDays();
 }
 
-/* CHART */
+/* ===== CHART ===== */
 function renderChart(){
   const ctx=document.getElementById("chart");
   if(chart)chart.destroy();
