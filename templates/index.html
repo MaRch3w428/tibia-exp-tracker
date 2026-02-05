@@ -19,6 +19,25 @@ body{
     url("/static/bg.jpg") center/cover no-repeat fixed;
 }
 
+/* ===== CLOCK ===== */
+#clockBox{
+  position:fixed;
+  top:20px;
+  right:30px;
+  text-align:right;
+  z-index:2000;
+  color:#ff6a6a;
+  text-shadow:0 0 15px rgba(255,0,0,.7);
+}
+#clockTime{
+  font-size:32px;
+  font-weight:700;
+}
+#clockDate{
+  font-size:16px;
+  opacity:.85;
+}
+
 /* ===== INTRO ===== */
 #intro{
   position:fixed;
@@ -127,6 +146,12 @@ footer{
 
 <body>
 
+<!-- CLOCK -->
+<div id="clockBox">
+  <div id="clockTime">--:--:--</div>
+  <div id="clockDate">----</div>
+</div>
+
 <!-- INTRO -->
 <div id="intro">
   <img src="/static/intro/logo.png">
@@ -202,7 +227,8 @@ footer{
 </footer>
 
 <script>
-/* ===== INTRO HIDE ===== */
+/* ===== INTRO FIX ===== */
+const intro = document.getElementById("intro");
 window.addEventListener("load",()=>{
   setTimeout(()=>{
     intro.style.transition="opacity 1.2s ease";
@@ -211,6 +237,15 @@ window.addEventListener("load",()=>{
   },2600);
 });
 
+/* ===== CLOCK ===== */
+function updateClock(){
+  const now=new Date();
+  clockTime.innerText=now.toLocaleTimeString();
+  clockDate.innerText=now.toLocaleDateString();
+}
+setInterval(updateClock,1000);
+updateClock();
+
 /* ===== YEAR ===== */
 year.innerText=new Date().getFullYear();
 
@@ -218,35 +253,22 @@ year.innerText=new Date().getFullYear();
 let char=localStorage.getItem("char")||"";
 charInput.value=char;
 
-let autoRefresh=localStorage.getItem("autoRefresh")==="true";
-autoRefreshChk.checked=autoRefresh;
-let autoTimer=null;
-
-let days=JSON.parse(localStorage.getItem("daysAuto")||"[]");
-let currentDay=JSON.parse(localStorage.getItem("currentDay")||"null");
-
-let speedStartExp=0;
-let chart=null;
-
-/* ===== PROFESSION PARSER (FIX RYCERZA) ===== */
+/* ===== PROFESSION PARSER (FINAL, ODPORNY) ===== */
 function parseVocation(raw){
   if(!raw) return {icon:"rook.png",name:"Rook"};
 
   const clean = raw
+    .toLowerCase()
+    .replace(/[^a-ząćęłńóśżź]/gi,"")
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g,"")
-    .replace(/[^a-z]/g,"")
-    .toLowerCase();
+    .replace(/[\u0300-\u036f]/g,"");
 
   if(clean.includes("rycerz") || clean.includes("knight"))
     return {icon:"knight.png",name:"Rycerz"};
-
   if(clean.includes("druid"))
     return {icon:"druid.png",name:"Druid"};
-
   if(clean.includes("palad"))
     return {icon:"paladin.png",name:"Paladyn"};
-
   if(clean.includes("czaro") || clean.includes("sorc"))
     return {icon:"sorcerer.png",name:"Czarodziej"};
 
@@ -287,141 +309,8 @@ async function refresh(){
   setTimeout(()=>refreshBtn.classList.remove("active"),600);
 }
 
-/* ===== AUTO REFRESH ===== */
-autoRefreshChk.addEventListener("change",()=>{
-  autoRefresh=autoRefreshChk.checked;
-  localStorage.setItem("autoRefresh",autoRefresh);
-  if(autoRefresh) startAuto(); else stopAuto();
-});
-function startAuto(){
-  stopAuto();
-  autoTimer=setInterval(refresh,600000);
-}
-function stopAuto(){
-  if(autoTimer) clearInterval(autoTimer);
-}
-if(autoRefresh) startAuto();
-
-/* ===== SPEED (+50%) ===== */
-async function startSpeed(){
-  const d=await fetchPlayer();
-  speedStartExp=d.experience;
-  speedStartBtn.classList.add("active");
-  speedStatus.innerText="Speed aktywny (+50%)";
-}
-async function stopSpeed(){
-  const d=await fetchPlayer();
-  const realGain=d.experience-speedStartExp;
-
-  const baseExp=Math.round(realGain/1.5);
-  const speedBonus=realGain-baseExp;
-
-  if(currentDay){
-    currentDay.speedExp+=speedBonus;
-    currentDay.expStart-=baseExp;
-  }
-
-  speedStartBtn.classList.remove("active");
-  speedStatus.innerText="Speed zakończony";
-}
-
-/* ===== DAY ===== */
-async function startDay(){
-  const d=await fetchPlayer();
-  currentDay={
-    date:new Date().toLocaleDateString(),
-    expStart:d.experience,
-    speedExp:0,
-    lvlFrom:d.level
-  };
-  localStorage.setItem("currentDay",JSON.stringify(currentDay));
-  dayStartBtn.classList.add("active");
-  dayStatus.innerText="Dzień aktywny";
-}
-async function endDay(){
-  if(!currentDay) return;
-
-  const d=await fetchPlayer();
-  const total=d.experience-currentDay.expStart;
-
-  days.push({
-    date:currentDay.date,
-    exp:total,
-    speedExp:currentDay.speedExp,
-    normalExp:total-currentDay.speedExp,
-    pct:total?Math.round(currentDay.speedExp/total*100):0,
-    lvls:`${currentDay.lvlFrom} → ${d.level}`
-  });
-
-  localStorage.removeItem("currentDay");
-  currentDay=null;
-  localStorage.setItem("daysAuto",JSON.stringify(days));
-
-  dayStartBtn.classList.remove("active");
-  dayStatus.innerText="Dzień zakończony";
-
-  renderDays();
-}
-
-/* ===== RENDER ===== */
-function renderDays(){
-  dayList.innerHTML="";
-  days.forEach((d,i)=>{
-    dayList.innerHTML+=`
-      <div class="list-row">
-        <div>${d.date}</div>
-        <div>${d.exp.toLocaleString()}</div>
-        <div>${d.speedExp.toLocaleString()}</div>
-        <div>${d.normalExp.toLocaleString()}</div>
-        <div>${d.pct}%</div>
-        <div>${d.lvls}</div>
-        <div><button onclick="delDay(${i})">X</button></div>
-      </div>`;
-  });
-  renderChart();
-}
-function delDay(i){
-  days.splice(i,1);
-  localStorage.setItem("daysAuto",JSON.stringify(days));
-  renderDays();
-}
-
-/* ===== CHART ===== */
-function renderChart(){
-  const ctx=document.getElementById("chart");
-  if(chart) chart.destroy();
-  chart=new Chart(ctx,{
-    type:"line",
-    data:{
-      labels:days.map(d=>d.date),
-      datasets:[{
-        data:days.map(d=>d.exp),
-        borderColor:"#ff4a4a",
-        tension:.3
-      }]
-    },
-    options:{
-      plugins:{legend:{display:false}},
-      scales:{
-        x:{title:{display:true,text:"Data"}},
-        y:{title:{display:true,text:"EXP"}}
-      }
-    }
-  });
-}
-
-/* INIT */
-if(currentDay){
-  dayStartBtn.classList.add("active");
-  dayStatus.innerText="Dzień aktywny (wznawiany)";
-}
 if(char) refresh();
-renderDays();
 </script>
-
 
 </body>
 </html>
-
-
-
