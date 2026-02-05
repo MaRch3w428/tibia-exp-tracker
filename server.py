@@ -5,18 +5,38 @@ from bs4 import BeautifulSoup
 import re
 import urllib3
 import os
+import time
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 app = Flask(__name__)
 CORS(app)
 
+# ===== CACHE =====
+CACHE = {}
+CACHE_TTL = 60          # sekundy
+RATE_LIMIT = 10         # sekundy między requestami na nick
+
 @app.route("/")
 def home():
-    return "APO Tracker API działa"
+    return "APO Tracker API działa (cache ON)"
 
 @app.route("/player/<name>")
 def player(name):
+    now = time.time()
+
+    # ===== CACHE HIT =====
+    if name in CACHE:
+        entry = CACHE[name]
+        if now - entry["time"] < CACHE_TTL:
+            return jsonify(entry["data"])
+
+    # ===== RATE LIMIT =====
+    if name in CACHE:
+        last_fetch = CACHE[name]["time"]
+        if now - last_fetch < RATE_LIMIT:
+            return jsonify(CACHE[name]["data"])
+
     url = f"https://armia.toproste.pl/player-{name}.html"
 
     try:
@@ -26,36 +46,43 @@ def player(name):
         return jsonify({"error": "Nie udało się pobrać strony"}), 500
 
     soup = BeautifulSoup(r.text, "html.parser")
+    text = soup.get_text(" ", strip=True)
 
-    # ===== ZBIERAMY WSZYSTKIE PARY LABEL → VALUE =====
-    data = {}
+    def extract_int(pattern, default=0):
+        m = re.search(pattern, text)
+        return int(m.group(1)) if m else default
 
-    for row in soup.find_all("tr"):
-        cells = row.find_all(["td", "th"])
-        if len(cells) >= 2:
-            label = cells[0].get_text(strip=True).replace(":", "")
-            value = cells[1].get_text(strip=True)
-            data[label] = value
+    def extract_str(pattern, default="Rook"):
+        m = re.search(pattern, text)
+        return m.group(1).strip() if m else default
 
-    # ===== WYCIĄGANIE DANYCH =====
-    def to_int(val, default=0):
-        if not val:
-            return default
-        val = val.replace(" ", "").replace(",", "")
-        return int(re.findall(r"\d+", val)[0]) if re.findall(r"\d+", val) else default
+    level = extract_int(r"Poziom:\s*(\d+)", 1)
+    magic = extract_int(r"Poziom magiczny:\s*(\d+)", 0)
+    experience = extract_int(r"Doświadczenie:\s*(\d+)", 0)
 
-    level = to_int(data.get("Poziom"), 1)
-    magic = to_int(data.get("Poziom magiczny"), 0)
-    experience = to_int(data.get("Doświadczenie"), 0)
-    vocation = data.get("Profesja", "Rook")
+    vocation = extract_str(
+        r"Profesja:\s*(Paladyn|Knight|Druid|Czarodziej|Rook|brak)",
+        "Rook"
+    )
 
-    return jsonify({
+    if vocation.lower() == "brak":
+        vocation = "Rook"
+
+    data = {
         "name": name,
         "level": level,
         "magic": magic,
         "experience": experience,
         "vocation": vocation
-    })
+    }
+
+    # ===== SAVE TO CACHE =====
+    CACHE[name] = {
+        "time": now,
+        "data": data
+    }
+
+    return jsonify(data)
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
