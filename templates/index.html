@@ -17,77 +17,18 @@ body{
   font-family:'Cinzel',serif;
   color:#f2c6c6;
   background:
-    linear-gradient(rgba(0,0,0,.75), rgba(0,0,0,.9)),
-    url("/static/bg.jpg") center / cover no-repeat fixed;
-  min-height:100vh;
+    linear-gradient(rgba(0,0,0,.8), rgba(0,0,0,.95)),
+    url("/static/bg.jpg") center/cover no-repeat fixed;
 }
-
-/* ===== INTRO ===== */
-#intro{
-  position:fixed;
-  inset:0;
-  z-index:999;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:black;
-  animation:introFade 4.5s forwards;
-}
-.intro-bg{
-  position:absolute;
-  inset:0;
-  background:
-    radial-gradient(circle at center, rgba(255,0,0,.35), rgba(0,0,0,.95)),
-    url("/static/bg.jpg") center/cover no-repeat;
-  filter:blur(6px) brightness(.6);
-  animation:bgZoom 6s forwards;
-}
-#introLogo{
-  position:relative;
-  width:720px;
-  max-width:85%;
-  animation:logoIn 2.2s ease-out forwards, logoGlow 2.8s infinite;
-}
-
-@keyframes logoIn{
-  from{opacity:0;transform:scale(.6)}
-  to{opacity:1;transform:scale(1)}
-}
-@keyframes logoGlow{
-  0%,100%{filter:drop-shadow(0 0 30px rgba(255,40,40,.6))}
-  50%{filter:drop-shadow(0 0 55px rgba(255,80,80,1))}
-}
-@keyframes bgZoom{to{transform:scale(1.15)}}
-@keyframes introFade{0%,80%{opacity:1}100%{opacity:0;visibility:hidden}}
 
 /* ===== HEADER ===== */
 header{
   text-align:center;
-  padding:50px 20px 20px;
+  padding:30px;
 }
 #mainLogo{
-  max-width:420px;
-  width:90%;
-  animation:mainLogoIn 1.4s ease-out forwards, mainLogoGlow 3s infinite;
-}
-@keyframes mainLogoIn{
-  from{opacity:0;transform:translateY(-20px) scale(.9)}
-  to{opacity:1;transform:translateY(0) scale(1)}
-}
-@keyframes mainLogoGlow{
-  0%,100%{filter:drop-shadow(0 0 18px rgba(255,40,40,.6))}
-  50%{filter:drop-shadow(0 0 32px rgba(255,80,80,1))}
-}
-
-/* ===== CLOCK ===== */
-#clock{
-  position:fixed;
-  top:18px;
-  right:20px;
-  text-align:right;
-  font-size:16px;
-  color:#ff8a8a;
-  text-shadow:0 0 10px rgba(255,0,0,.6);
+  max-width:360px;
+  filter:drop-shadow(0 0 25px rgba(255,0,0,.8));
 }
 
 /* ===== LAYOUT ===== */
@@ -99,73 +40,73 @@ header{
 
 /* ===== CARDS ===== */
 .card{
-  background:rgba(10,10,10,.65);
-  border:1px solid rgba(255,0,0,.45);
+  background:rgba(15,0,0,.65);
+  border:1px solid rgba(255,0,0,.4);
   border-radius:12px;
   padding:18px;
-  margin-bottom:22px;
+  margin-bottom:20px;
   backdrop-filter:blur(4px);
-  box-shadow:0 0 25px rgba(0,0,0,.8);
-  transition:.25s;
-}
-.card:hover{
-  transform:translateY(-4px);
-  box-shadow:0 0 35px rgba(255,0,0,.45);
 }
 
 .section-title{
   font-size:20px;
-  color:#ff6a6a;
-  margin-bottom:12px;
+  color:#ff7a7a;
+  margin-bottom:10px;
 }
 
-/* ===== CONTROLS ===== */
+/* ===== INPUTS ===== */
 input,button{
-  background:#0b0b0b;
+  background:#0b0000;
   color:#ffd0d0;
   border:1px solid #aa2222;
   padding:8px 14px;
   font-family:'Cinzel',serif;
 }
 button{cursor:pointer}
-button:hover{
-  background:#160000;
-  box-shadow:0 0 12px rgba(255,0,0,.4);
-}
 
 /* ===== CHARACTER ===== */
 #charHeader{
   display:flex;
-  justify-content:space-between;
   align-items:center;
-}
-#charInfo{
-  font-size:22px;
-  line-height:1.4;
+  gap:20px;
+  margin-top:10px;
 }
 #vocationIcon{
-  width:96px;
-  height:96px;
-  filter:drop-shadow(0 0 18px rgba(255,0,0,.7));
+  width:120px;
+  height:auto;
+}
+#charInfo{
+  font-size:20px;
+  line-height:1.4;
 }
 
-/* ===== TABLES ===== */
-table{width:100%;border-collapse:collapse}
+/* ===== TABLE ===== */
+table{
+  width:100%;
+  border-collapse:collapse;
+}
 th,td{
   border:1px solid rgba(255,255,255,.1);
   padding:6px;
   text-align:center;
 }
 th{
-  background:rgba(20,0,0,.8);
-  color:#ff7a7a;
+  background:rgba(40,0,0,.8);
+  color:#ff9a9a;
+}
+
+/* ===== HIGHLIGHTS ===== */
+.highlight{
+  background:rgba(255,0,0,.15);
+  padding:10px;
+  border:1px solid rgba(255,0,0,.4);
+  margin-bottom:10px;
 }
 
 /* ===== FOOTER ===== */
 footer{
-  position:fixed;
-  bottom:12px;
-  right:18px;
+  text-align:right;
+  padding:10px 20px;
   font-size:12px;
   color:#aa5555;
 }
@@ -173,13 +114,6 @@ footer{
 </head>
 
 <body>
-
-<div id="intro">
-  <div class="intro-bg"></div>
-  <img src="/static/intro/logo.png" id="introLogo">
-</div>
-
-<div id="clock"></div>
 
 <header>
   <img src="/static/header/apo-tracker.png" id="mainLogo">
@@ -195,161 +129,10 @@ footer{
   <button onclick="setChar()">Ustaw</button>
 
   <div id="charHeader">
-    <div id="charInfo">—</div>
     <img id="vocationIcon" src="/static/icons/rook.png">
+    <div id="charInfo">—</div>
   </div>
 </div>
 
 <!-- EXP -->
-<div class="card">
-  <div class="section-title">EXP</div>
-  <button onclick="refreshExp()">Odśwież</button>
-  <label>
-    <input type="checkbox" id="autoToggle">
-    auto-refresh (10 min)
-  </label>
-  <div id="expInfo">—</div>
-</div>
-
-<!-- SPEED -->
-<div class="card">
-  <div class="section-title">Speed</div>
-  <button onclick="startSpeed()">START</button>
-  <button onclick="stopSpeed()">STOP</button>
-  <div id="speedInfo">—</div>
-</div>
-
-<!-- RANKING SPEED -->
-<div class="card">
-  <div class="section-title">Ranking Speedów</div>
-  <table id="speedTable">
-    <thead>
-      <tr><th>#</th><th>Godzina</th><th>EXP</th><th>EXP/min</th><th></th></tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</div>
-
-<!-- HISTORIA DNI -->
-<div class="card">
-  <div class="section-title">Historia dni</div>
-  <table id="daysTable">
-    <thead><tr><th>Data</th><th>EXP</th><th></th></tr></thead>
-    <tbody></tbody>
-  </table>
-</div>
-
-</div>
-
-<footer>designed by Zohanek © <span id="year"></span></footer>
-
-<script>
-document.getElementById("year").innerText=new Date().getFullYear();
-
-/* CLOCK */
-setInterval(()=>{
-  const d=new Date();
-  clock.innerHTML=d.toLocaleDateString()+"<br>"+d.toLocaleTimeString();
-},1000);
-
-/* STATE */
-let char=localStorage.getItem("char")||"";
-charName.value=char;
-let history=JSON.parse(localStorage.getItem("expHistory"))||[];
-let speedHistory=JSON.parse(localStorage.getItem("speedHistory"))||[];
-let speedStart=0,speedTime=0;
-
-/* FETCH */
-async function fetchPlayer(){
-  const r=await fetch(`/player/${char}`);
-  return r.json();
-}
-
-/* VOCATION ICON */
-function vocationToIcon(v){
-  v=v.toLowerCase();
-  if(v.includes("druid")) return "druid.png";
-  if(v.includes("paladin")) return "paladin.png";
-  if(v.includes("knight")) return "knight.png";
-  if(v.includes("sorcerer")) return "sorcerer.png";
-  return "rook.png";
-}
-
-/* CHARACTER */
-function setChar(){
-  char=charName.value.trim();
-  localStorage.setItem("char",char);
-  refreshExp();
-}
-
-async function refreshExp(){
-  if(!char) return;
-  const d=await fetchPlayer();
-  charInfo.innerHTML=`
-    🧙 ${d.name}<br>
-    🛡 Level: <b>${d.level}</b><br>
-    🔮 Magic: <b>${d.magic}</b><br>
-    ⚔ ${d.vocation.replace("Paladin","Paladyn")}
-  `;
-  vocationIcon.src="/static/icons/"+vocationToIcon(d.vocation);
-  expInfo.innerHTML=`⭐ EXP:<br><b>${d.experience.toLocaleString()}</b>`;
-}
-
-/* SPEED */
-function startSpeed(){
-  fetchPlayer().then(d=>{
-    speedStart=d.experience;
-    speedTime=Date.now();
-  });
-}
-function stopSpeed(){
-  fetchPlayer().then(d=>{
-    const min=(Date.now()-speedTime)/60000;
-    const gain=d.experience-speedStart;
-    const epm=Math.round(gain/min);
-    speedHistory.push({t:new Date().toLocaleTimeString(),e:gain,epm});
-    localStorage.setItem("speedHistory",JSON.stringify(speedHistory));
-    renderSpeed();
-  });
-}
-function renderSpeed(){
-  const tbody=speedTable.querySelector("tbody");
-  tbody.innerHTML="";
-  speedHistory
-    .sort((a,b)=>b.epm-a.epm)
-    .forEach((s,i)=>{
-      tbody.innerHTML+=`
-        <tr>
-          <td>${i+1}</td>
-          <td>${s.t}</td>
-          <td>+${s.e}</td>
-          <td><b>${s.epm}</b></td>
-          <td><button onclick="delSpeed(${i})">🗑</button></td>
-        </tr>`;
-    });
-}
-function delSpeed(i){
-  speedHistory.splice(i,1);
-  localStorage.setItem("speedHistory",JSON.stringify(speedHistory));
-  renderSpeed();
-}
-
-/* AUTO REFRESH */
-let auto=localStorage.getItem("autoRefresh")==="true";
-autoToggle.checked=auto;
-let autoInt=null;
-function startAuto(){autoInt=setInterval(()=>char&&refreshExp(),600000)}
-function stopAuto(){clearInterval(autoInt)}
-autoToggle.onchange=()=>{
-  auto=autoToggle.checked;
-  localStorage.setItem("autoRefresh",auto);
-  auto?startAuto():stopAuto();
-};
-if(auto) startAuto();
-
-if(char) refreshExp();
-renderSpeed();
-</script>
-
-</body>
-</html>
+<div class="card
