@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <title>APO EXP Tracker</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
 
 <style>
 *{box-sizing:border-box}
@@ -18,6 +18,27 @@ body{
     url("/static/bg.jpg") center/cover no-repeat fixed;
 }
 
+/* ===== INTRO ===== */
+#intro{
+  position:fixed;
+  inset:0;
+  background:#000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+  animation:introFade 3s forwards;
+}
+#intro h1{
+  font-family:'Cinzel Decorative',serif;
+  font-size:64px;
+  color:#ff3b3b;
+  text-shadow:0 0 30px rgba(255,0,0,.9);
+  animation:introText 3s forwards;
+}
+@keyframes introFade{0%,80%{opacity:1}100%{opacity:0;visibility:hidden}}
+@keyframes introText{0%{opacity:0;transform:scale(.7)}40%{opacity:1}100%{transform:scale(1.05)}}
+
 /* ===== CLOCK ===== */
 #clock{
   position:fixed;
@@ -26,13 +47,8 @@ body{
   text-align:right;
   font-size:22px;
   color:#ff4a4a;
-  text-shadow:0 0 10px rgba(255,0,0,.7);
 }
-#clock span{
-  display:block;
-  font-size:14px;
-  color:#ffaaaa;
-}
+#clock span{display:block;font-size:14px;color:#ffaaaa}
 
 /* ===== HEADER ===== */
 header{
@@ -50,22 +66,16 @@ header img{
   margin:auto;
   padding:20px;
 }
-
 .card{
   background:rgba(20,0,0,.7);
   border:1px solid rgba(255,0,0,.4);
   border-radius:14px;
-  padding:20px;
-  margin-bottom:20px;
-  backdrop-filter:blur(4px);
+  padding:22px;
+  margin-bottom:22px;
 }
+h2{margin:0 0 15px;color:#ff6a6a}
 
-h2{
-  margin:0 0 15px;
-  color:#ff6a6a;
-}
-
-/* ===== INPUT ===== */
+/* ===== INPUTS ===== */
 input,button{
   background:#0b0000;
   color:#ffd0d0;
@@ -80,15 +90,28 @@ button{cursor:pointer}
   display:flex;
   align-items:center;
   gap:25px;
+  margin-top:18px;
+}
+#vocationIcon{width:130px}
+#charInfo{font-size:20px;line-height:1.5}
+
+/* ===== EXP ===== */
+#expBox{
+  margin-top:25px;
+  text-align:center;
+}
+#expValue{
+  margin-top:20px;
+  font-size:34px;
+  font-weight:700;
+  color:#ff4a4a;
+  text-shadow:0 0 20px rgba(255,0,0,.8);
+}
+
+/* ===== SPEED / DAY ===== */
+.infoVal{
+  font-size:22px;
   margin-top:15px;
-}
-#vocationIcon{
-  width:130px;
-  height:auto;
-}
-#charInfo{
-  font-size:20px;
-  line-height:1.5;
 }
 
 /* ===== FOOTER ===== */
@@ -102,6 +125,10 @@ footer{
 </head>
 
 <body>
+
+<div id="intro">
+  <h1>APO TRACKER</h1>
+</div>
 
 <div id="clock"></div>
 
@@ -126,7 +153,24 @@ footer{
 <div class="card">
   <h2>EXP</h2>
   <button onclick="refresh()">Odśwież</button>
-  <div id="expInfo">—</div>
+
+  <div id="expBox">
+    <div id="expValue">—</div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Speed</h2>
+  <button onclick="startSpeed()">START</button>
+  <button onclick="stopSpeed()">STOP</button>
+  <div id="speedInfo" class="infoVal">—</div>
+</div>
+
+<div class="card">
+  <h2>Dzień</h2>
+  <button onclick="startDay()">START DNIA</button>
+  <button onclick="endDay()">ZAKOŃCZ DZIEŃ</button>
+  <div id="dayInfo" class="infoVal">—</div>
 </div>
 
 </div>
@@ -147,16 +191,28 @@ year.innerText=new Date().getFullYear();
 
 /* ===== STATE ===== */
 let currentChar="";
+let speedStartExp=0, speedStartTime=0;
+let dayStartExp=0;
 
-/* ===== ICON MAP ===== */
+/* ===== ICON MAP (FIXED) ===== */
 function iconFor(v){
-  switch(v){
-    case "Druid": return "druid.png";
-    case "Paladyn": return "paladin.png";
-    case "Knight": return "knight.png";
-    case "Czarodziej": return "sorcerer.png";
-    default: return "rook.png";
-  }
+  if(!v) return "rook.png";
+
+  v = v.trim().toLowerCase();
+
+  if(v === "druid") return "druid.png";
+  if(v === "paladyn") return "paladin.png";
+  if(v === "knight") return "knight.png";
+  if(v === "czarodziej") return "sorcerer.png";
+
+  return "rook.png";
+}
+
+/* ===== FETCH ===== */
+async function fetchPlayer(){
+  const r = await fetch(`/player/${currentChar}`);
+  if(!r.ok) throw "API error";
+  return r.json();
 }
 
 /* ===== ACTIONS ===== */
@@ -168,24 +224,37 @@ function setChar(){
 async function refresh(){
   if(!currentChar) return;
 
-  try{
-    const r = await fetch(`/player/${currentChar}`);
-    if(!r.ok) throw "API error";
-    const d = await r.json();
+  const d = await fetchPlayer();
 
-    vocationIcon.src = "/static/icons/" + iconFor(d.vocation);
+  vocationIcon.src="/static/icons/"+iconFor(d.vocation);
+  charInfo.innerHTML=`<b>${d.name}</b><br>Level: ${d.level}<br>Magic: ${d.magic}<br>${d.vocation}`;
+  expValue.innerText=d.experience.toLocaleString();
+}
 
-    charInfo.innerHTML = `
-      <b>${d.name}</b><br>
-      Level: ${d.level}<br>
-      Magic: ${d.magic}<br>
-      Profesja: ${d.vocation}
-    `;
+/* ===== SPEED ===== */
+async function startSpeed(){
+  const d=await fetchPlayer();
+  speedStartExp=d.experience;
+  speedStartTime=Date.now();
+  speedInfo.innerText="Liczenie…";
+}
+async function stopSpeed(){
+  const d=await fetchPlayer();
+  const min=(Date.now()-speedStartTime)/60000;
+  const gain=d.experience-speedStartExp;
+  speedInfo.innerText=`+${gain.toLocaleString()} EXP | ${Math.round(gain/min)} EXP/min`;
+}
 
-    expInfo.innerHTML = `EXP: <b>${d.experience.toLocaleString()}</b>`;
-  }catch(e){
-    alert("Błąd pobierania danych postaci");
-  }
+/* ===== DAY ===== */
+async function startDay(){
+  const d=await fetchPlayer();
+  dayStartExp=d.experience;
+  dayInfo.innerText="Dzień rozpoczęty";
+}
+async function endDay(){
+  const d=await fetchPlayer();
+  const gain=d.experience-dayStartExp;
+  dayInfo.innerText=`Dziś: +${gain.toLocaleString()} EXP`;
 }
 </script>
 
