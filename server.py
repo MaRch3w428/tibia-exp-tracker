@@ -27,29 +27,27 @@ def player(name):
 
     soup = BeautifulSoup(r.text, "html.parser")
 
-    def get_value(label):
-        """
-        Szuka w tabeli:
-        <td>LABEL</td><td>WARTOŚĆ</td>
-        """
-        td = soup.find("td", string=re.compile(f"^{label}$", re.I))
-        if not td:
-            return None
-        value_td = td.find_next_sibling("td")
-        if not value_td:
-            return None
-        return value_td.get_text(strip=True)
+    # ===== ZBIERAMY WSZYSTKIE PARY LABEL → VALUE =====
+    data = {}
 
-    try:
-        level = int(get_value("Poziom") or 1)
-        magic = int(get_value("Poziom magiczny") or 0)
+    for row in soup.find_all("tr"):
+        cells = row.find_all(["td", "th"])
+        if len(cells) >= 2:
+            label = cells[0].get_text(strip=True).replace(":", "")
+            value = cells[1].get_text(strip=True)
+            data[label] = value
 
-        exp_raw = get_value("Doświadczenie") or "0"
-        experience = int(exp_raw.replace(" ", "").replace(",", ""))
+    # ===== WYCIĄGANIE DANYCH =====
+    def to_int(val, default=0):
+        if not val:
+            return default
+        val = val.replace(" ", "").replace(",", "")
+        return int(re.findall(r"\d+", val)[0]) if re.findall(r"\d+", val) else default
 
-        vocation = get_value("Profesja") or "Rook"
-    except Exception:
-        return jsonify({"error": "Błąd parsowania danych"}), 500
+    level = to_int(data.get("Poziom"), 1)
+    magic = to_int(data.get("Poziom magiczny"), 0)
+    experience = to_int(data.get("Doświadczenie"), 0)
+    vocation = data.get("Profesja", "Rook")
 
     return jsonify({
         "name": name,
