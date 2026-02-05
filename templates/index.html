@@ -135,4 +135,191 @@ footer{
 </div>
 
 <!-- EXP -->
-<div class="card
+<div class="card">
+  <div class="section-title">EXP</div>
+  <button onclick="refreshExp()">Odśwież</button>
+  <div id="expInfo">—</div>
+</div>
+
+<!-- BEST SPEED -->
+<div class="card">
+  <div class="section-title">Best Speed Ever</div>
+  <div id="bestSpeed" class="highlight">—</div>
+</div>
+
+<!-- SPEED -->
+<div class="card">
+  <div class="section-title">Speed</div>
+  <button onclick="startSpeed()">START</button>
+  <button onclick="stopSpeed()">STOP</button>
+  <div id="speedInfo">—</div>
+</div>
+
+<!-- RANKING -->
+<div class="card">
+  <div class="section-title">Ranking Speedów</div>
+  <table id="speedTable">
+    <thead>
+      <tr><th>#</th><th>Data</th><th>EXP</th><th>EXP/min</th><th></th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<!-- DAYS -->
+<div class="card">
+  <div class="section-title">Dni</div>
+  <div id="bestDay" class="highlight">—</div>
+</div>
+
+<!-- CHART -->
+<div class="card">
+  <div class="section-title">Wykres EXP (X: dzień / Y: EXP)</div>
+  <canvas id="expChart" height="120"></canvas>
+</div>
+
+</div>
+
+<footer>designed by Zohanek © <span id="year"></span></footer>
+
+<script>
+document.getElementById("year").innerText=new Date().getFullYear();
+
+/* ===== STATE ===== */
+let char="";
+let speedStart=0,speedTime=0;
+let history=JSON.parse(localStorage.getItem("days"))||[];
+let speeds=JSON.parse(localStorage.getItem("speeds"))||[];
+let chart=null;
+
+/* ===== MOCK PLAYER (fallback) ===== */
+function mockPlayer(){
+  return {
+    name: char || "Demo",
+    level: 120,
+    magic: 60,
+    experience: Math.floor(Math.random()*1e7)+1e7,
+    vocation: "Knight"
+  };
+}
+
+/* ===== VOC ICON ===== */
+function vocationIcon(v){
+  v=v.toLowerCase();
+  if(v.includes("druid"))return"druid.png";
+  if(v.includes("paladin"))return"paladin.png";
+  if(v.includes("knight"))return"knight.png";
+  if(v.includes("sorcerer"))return"sorcerer.png";
+  return"rook.png";
+}
+
+/* ===== CHARACTER ===== */
+function setChar(){
+  char=charName.value.trim();
+  refreshExp();
+}
+
+function refreshExp(){
+  const d=mockPlayer();
+  vocationIconImg=vocationIcon(d.vocation);
+  vocationIcon.src="/static/icons/"+vocationIconImg;
+
+  charInfo.innerHTML=`
+    <b>${d.name}</b><br>
+    Level: ${d.level}<br>
+    Magic: ${d.magic}<br>
+    Vocation: ${d.vocation}
+  `;
+  expInfo.innerHTML=`EXP: <b>${d.experience.toLocaleString()}</b>`;
+}
+
+/* ===== SPEED ===== */
+function startSpeed(){
+  speedStart=mockPlayer().experience;
+  speedTime=Date.now();
+}
+
+function stopSpeed(){
+  const endExp=mockPlayer().experience;
+  const min=(Date.now()-speedTime)/60000;
+  const gain=endExp-speedStart;
+  const epm=Math.round(gain/min);
+
+  const entry={
+    date:new Date().toLocaleString(),
+    exp:gain,
+    epm
+  };
+
+  speeds.push(entry);
+  localStorage.setItem("speeds",JSON.stringify(speeds));
+
+  speedInfo.innerText=`${gain} EXP / ${epm} EXP/min`;
+  renderSpeed();
+  updateBestSpeed();
+}
+
+/* ===== SPEED RANK ===== */
+function renderSpeed(){
+  const tbody=speedTable.querySelector("tbody");
+  tbody.innerHTML="";
+  [...speeds].sort((a,b)=>b.epm-a.epm).forEach((s,i)=>{
+    tbody.innerHTML+=`
+      <tr>
+        <td>${i+1}</td>
+        <td>${s.date}</td>
+        <td>${s.exp}</td>
+        <td><b>${s.epm}</b></td>
+        <td><button onclick="delSpeed(${i})">🗑</button></td>
+      </tr>`;
+  });
+}
+function delSpeed(i){
+  speeds.splice(i,1);
+  localStorage.setItem("speeds",JSON.stringify(speeds));
+  renderSpeed();
+  updateBestSpeed();
+}
+
+/* ===== BEST SPEED ===== */
+function updateBestSpeed(){
+  if(!speeds.length){bestSpeed.innerText="—";return;}
+  const b=[...speeds].sort((a,b)=>b.epm-a.epm)[0];
+  bestSpeed.innerHTML=`${b.epm} EXP/min<br>${b.date}`;
+}
+
+/* ===== CHART ===== */
+function updateChart(){
+  const labels=history.map(d=>d.date);
+  const data=history.map(d=>d.exp);
+  if(!chart){
+    chart=new Chart(expChart,{
+      type:"line",
+      data:{labels,datasets:[{
+        label:"EXP dzienny",
+        data,
+        borderColor:"red",
+        fill:false
+      }]},
+      options:{
+        scales:{
+          x:{title:{display:true,text:"Dzień"}},
+          y:{title:{display:true,text:"Zdobyty EXP"}}
+        }
+      }
+    });
+  }else{
+    chart.data.labels=labels;
+    chart.data.datasets[0].data=data;
+    chart.update();
+  }
+}
+
+/* INIT */
+renderSpeed();
+updateBestSpeed();
+updateChart();
+</script>
+
+</body>
+</html>
