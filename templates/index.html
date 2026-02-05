@@ -8,68 +8,112 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
+/* ===== RESET / BASE ===== */
+* { box-sizing: border-box; }
+
 body {
   margin: 0;
   font-family: 'Cinzel', serif;
-  background:
-    linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.85)),
-    url("/static/bg.jpg") center / cover no-repeat fixed;
+  background: radial-gradient(circle at top, #1b1b1b, #000);
   color: #e6d8a8;
+  overflow-x: hidden;
 }
 
-.hero {
-  text-align: center;
-  padding: 60px 20px 40px;
+/* ===== INTRO ===== */
+#intro {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle, #111, #000);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  animation: introFade 2.5s ease forwards;
 }
 
-.hero h1 {
-  font-size: 48px;
-  letter-spacing: 3px;
+#intro h1 {
+  font-size: 42px;
   color: #d4af37;
-  text-shadow: 0 0 10px rgba(212,175,55,0.6), 2px 2px 4px #000;
+  letter-spacing: 4px;
+  text-shadow: 0 0 15px rgba(212,175,55,.6);
+  animation: introText 2.5s ease forwards;
+}
+
+@keyframes introFade {
+  0% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; visibility: hidden; }
+}
+
+@keyframes introText {
+  0% { transform: scale(.8); opacity: 0; }
+  40% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1.05); }
+}
+
+/* ===== HEADER ===== */
+header {
+  text-align: center;
+  padding: 50px 20px 30px;
+}
+
+header h1 {
   margin: 0;
+  font-size: 46px;
+  color: #d4af37;
+  letter-spacing: 3px;
+  text-shadow: 0 0 12px rgba(212,175,55,.6);
 }
 
-.hero h2 {
-  margin-top: 10px;
-  font-size: 16px;
-  letter-spacing: 2px;
+header span {
+  font-size: 14px;
   color: #aaa;
-  text-shadow: 1px 1px 2px #000;
+  letter-spacing: 2px;
 }
 
+/* ===== LAYOUT ===== */
 .container {
   max-width: 1100px;
   margin: auto;
   padding: 20px;
 }
 
-.box {
-  background: rgba(20,20,20,0.88);
+.card {
+  background: linear-gradient(#161616, #0f0f0f);
   border: 1px solid #c9a14a;
-  box-shadow: 0 0 12px rgba(201,161,74,0.25);
-  border-radius: 6px;
-  padding: 14px;
-  margin-top: 16px;
+  box-shadow: 0 0 18px rgba(201,161,74,.25);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  animation: cardIn .6s ease forwards;
 }
 
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== SECTION TITLE + ICON ===== */
 .section-title {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 18px;
-  margin-bottom: 8px;
+  font-size: 20px;
   color: #d4af37;
+  margin-bottom: 10px;
 }
 
-.section-title img {
-  width: 24px;
-  height: 24px;
-  image-rendering: pixelated;
+.icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffe082, #c9a14a);
+  box-shadow: 0 0 8px rgba(212,175,55,.8);
 }
 
-button, input {
-  background: #1a1a1a;
+/* ===== CONTROLS ===== */
+input, button {
+  background: #111;
   color: #e6d8a8;
   border: 1px solid #c9a14a;
   padding: 8px 12px;
@@ -78,26 +122,20 @@ button, input {
 
 button {
   cursor: pointer;
+  transition: .2s;
 }
 
 button:hover {
-  background: #2a2a2a;
+  background: #222;
 }
 
-.exp-bar {
-  height: 14px;
-  background: #2a2a2a;
-  border: 1px solid #000;
-  margin-top: 8px;
+/* ===== STATUS ===== */
+#status {
+  font-size: 14px;
+  color: #aaa;
 }
 
-#expFill {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(to right, #c9a14a, #ffe082);
-  box-shadow: inset 0 0 5px #000;
-}
-
+/* ===== TABLE ===== */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -111,148 +149,141 @@ th, td {
 }
 
 th {
-  background: #1f1f1f;
+  background: #1b1b1b;
   color: #d4af37;
 }
 
+/* ===== CHART ===== */
 canvas {
-  background: #111;
-  margin-top: 20px;
-  border-radius: 6px;
+  background: #0b0b0b;
+  border-radius: 8px;
+  padding: 10px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="hero">
-  <h1>APO Podkarpacki OTS Tracker</h1>
-  <h2>by Zohanek</h2>
+<div id="intro">
+  <h1>APO PODKARPACKI OTS</h1>
 </div>
+
+<header>
+  <h1>APO Podkarpacki OTS Tracker</h1>
+  <span>by Zohanek</span>
+</header>
 
 <div class="container">
 
-<div id="appStatus" class="box">⏳ Uruchamianie aplikacji…</div>
-
-<div class="box">
+<div class="card">
   <div class="section-title">
-    <img src="/static/icons/mage.png">
+    <div class="icon"></div>
     Postać
   </div>
   Nick:
   <input id="charName" placeholder="np. Zohanek">
-  <button id="setCharBtn">Ustaw</button>
+  <button onclick="setChar()">Ustaw</button>
   <div id="charInfo">—</div>
 </div>
 
-<div class="box">
+<div class="card">
   <div class="section-title">
-    <img src="/static/icons/star.png">
+    <div class="icon"></div>
     EXP
   </div>
-  <button id="refreshBtn">Odśwież EXP</button>
-  <div id="expStatus">—</div>
-  <div class="exp-bar">
-    <div id="expFill"></div>
-  </div>
+  <button onclick="refreshExp()">Odśwież</button>
+  <div id="expInfo">—</div>
+  <div id="status"></div>
 </div>
 
-<div class="box">
+<div class="card">
   <div class="section-title">
-    <img src="/static/icons/lightning.png">
-    Speed
+    <div class="icon"></div>
+    Wykres EXP
   </div>
-  <button id="startSpeedBtn">START SPEED</button>
-  <button id="stopSpeedBtn">STOP SPEED</button>
-  <div id="speedStatus">Speed nieaktywny</div>
+  <canvas id="expChart" height="120"></canvas>
 </div>
-
-<div class="box">
-  <div class="section-title">
-    <img src="/static/icons/scroll.png">
-    Dzień & Historia
-  </div>
-  <button id="startDayBtn">START DNIA</button>
-  <button id="endDayBtn">ZAKOŃCZ DZIEŃ</button>
-  <table>
-    <thead>
-      <tr>
-        <th>Data</th>
-        <th>EXP</th>
-        <th>Speed</th>
-        <th>Normal</th>
-      </tr>
-    </thead>
-    <tbody id="history"></tbody>
-  </table>
-</div>
-
-<canvas id="expChart"></canvas>
 
 </div>
 
 <script>
-let characterName = localStorage.getItem("tibiaChar") || "";
+let characterName = localStorage.getItem("char") || "";
 document.getElementById("charName").value = characterName;
 
-let isFetching = false;
-let lastFetchedExp = null;
-
-let speedStartExp = null;
-let speedStartTime = null;
-
-let dayStartExp = null;
-let daySpeedExp = 0;
-
-let history = JSON.parse(localStorage.getItem("tibiaHistory")) || [];
-let chart = null;
+let history = JSON.parse(localStorage.getItem("expHistory")) || [];
+let chart;
 
 async function fetchPlayer() {
   const res = await fetch(`/player/${characterName}`);
   return await res.json();
 }
 
-async function refreshExp() {
-  if (isFetching || !characterName) return;
-  isFetching = true;
+function setChar() {
+  characterName = document.getElementById("charName").value.trim();
+  localStorage.setItem("char", characterName);
+  refreshExp();
+}
 
-  document.getElementById("appStatus").innerText =
-    "⏳ Łączenie z serwerem…";
+async function refreshExp() {
+  if (!characterName) return;
+
+  document.getElementById("status").innerText = "⏳ Łączenie z serwerem…";
 
   try {
-    const data = await fetchPlayer();
-    lastFetchedExp = data.experience;
+    const d = await fetchPlayer();
 
     document.getElementById("charInfo").innerText =
-      `${data.name} | Level ${data.level} | ML ${data.magic}`;
+      `${d.name} | Level ${d.level} | ML ${d.magic}`;
 
-    document.getElementById("expStatus").innerText =
-      data.experience.toLocaleString();
+    document.getElementById("expInfo").innerText =
+      `EXP: ${d.experience.toLocaleString()}`;
 
-    document.getElementById("expFill").style.width =
-      Math.min(100, (data.experience % 10000000) / 100000) + "%";
+    history.push({
+      time: new Date().toLocaleTimeString(),
+      exp: d.experience
+    });
 
-    document.getElementById("appStatus").innerText =
-      "🟢 Połączono z serwerem";
+    localStorage.setItem("expHistory", JSON.stringify(history));
+    updateChart();
+
+    document.getElementById("status").innerText = "🟢 OK";
   } catch {
-    document.getElementById("appStatus").innerText =
-      "🔴 Serwer się budzi… spróbuj za chwilę";
-  } finally {
-    isFetching = false;
+    document.getElementById("status").innerText =
+      "🔴 Serwer się budzi (Render free)…";
   }
 }
 
-document.getElementById("setCharBtn").onclick = () => {
-  characterName = document.getElementById("charName").value.trim();
-  localStorage.setItem("tibiaChar", characterName);
-  refreshExp();
-};
+function updateChart() {
+  const labels = history.map(h => h.time);
+  const data = history.map(h => h.exp);
 
-document.getElementById("refreshBtn").onclick = refreshExp;
-
-setInterval(() => {
-  if (!document.hidden && characterName) refreshExp();
-}, 120000);
+  if (!chart) {
+    chart = new Chart(document.getElementById("expChart"), {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'EXP',
+          data,
+          borderColor: '#d4af37',
+          backgroundColor: 'rgba(212,175,55,.15)',
+          tension: .3
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: '#aaa' } },
+          y: { ticks: { color: '#aaa' } }
+        }
+      }
+    });
+  } else {
+    chart.data.labels = labels;
+    chart.data.datasets[0].data = data;
+    chart.update();
+  }
+}
 
 if (characterName) refreshExp();
 </script>
