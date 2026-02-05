@@ -37,12 +37,12 @@ body{
   opacity:0;
   transform:scale(.85);
   animation:introIn 1.8s forwards;
-  filter:drop-shadow(0 0 0 rgba(255,0,0,0));
+  filter:drop-shadow(0 0 0 red);
 }
 @keyframes introIn{
   0%{opacity:0;transform:scale(.85);filter:drop-shadow(0 0 0 red)}
   60%{opacity:1;transform:scale(1.05);filter:drop-shadow(0 0 40px red)}
-  100%{transform:scale(1);filter:drop-shadow(0 0 60px red)}
+  100%{opacity:1;transform:scale(1);filter:drop-shadow(0 0 60px red)}
 }
 
 /* ===== HEADER ===== */
@@ -59,13 +59,9 @@ header img{max-width:420px;filter:drop-shadow(0 0 30px rgba(255,0,0,.9))}
   padding:26px;
   margin-bottom:26px;
 }
-.section-title{
-  font-size:22px;
-  color:#ff6a6a;
-  margin-bottom:18px;
-}
+.section-title{font-size:22px;color:#ff6a6a;margin-bottom:18px}
 
-/* ===== BUTTONS ===== */
+/* ===== INPUTS & BUTTONS ===== */
 button,input{
   background:#0b0000;
   color:#ffd0d0;
@@ -112,13 +108,13 @@ button.active{
   display:grid;
   grid-template-columns:120px 120px 120px 120px 90px 180px 60px;
   gap:10px;
-  font-size:17px;          /* ⬅ WIĘKSZA CZCIONKA */
+  font-size:17px;
   padding:10px 0;
   border-bottom:1px solid rgba(255,255,255,.1);
 }
 .list-row div:nth-child(2),
 .list-row div:nth-child(3){
-  color:#ff6a6a;           /* EXP bardziej czytelny */
+  color:#ff6a6a;
 }
 
 /* ===== FOOTER ===== */
@@ -168,9 +164,20 @@ footer{
   <div id="expValue">—</div>
 </div>
 
+<!-- SPEED -->
+<div class="card">
+  <div class="section-title">Speed</div>
+  <button id="speedStartBtn" onclick="startSpeed()">START</button>
+  <button id="speedStopBtn" onclick="stopSpeed()">STOP</button>
+  <div id="speedStatus">—</div>
+</div>
+
 <!-- STATYSTYKA DZIENNA -->
 <div class="card">
   <div class="section-title">STATYSTYKA DZIENNA</div>
+  <button id="dayStartBtn" onclick="startDay()">START DNIA</button>
+  <button id="dayEndBtn" onclick="endDay()">ZAKOŃCZ DZIEŃ</button>
+  <div id="dayStatus">—</div>
 
   <div class="list-header">
     <div>Data</div>
@@ -182,6 +189,12 @@ footer{
     <div>Usuń</div>
   </div>
   <div id="dayList"></div>
+</div>
+
+<!-- WYKRES -->
+<div class="card">
+  <div class="section-title">Wykres EXP</div>
+  <canvas id="chart" height="120"></canvas>
 </div>
 
 </div>
@@ -204,8 +217,177 @@ window.addEventListener("load",()=>{
 /* ===== YEAR ===== */
 year.innerText=new Date().getFullYear();
 
-/* reszta JS (logika dnia, speed, auto-refresh, mapowanie profesji)
-   ZOSTAJE BEZ ZMIAN – już działa poprawnie */
+/* ===== STATE ===== */
+let char=localStorage.getItem("char")||"";
+charInput.value=char;
+
+let autoRefresh=localStorage.getItem("autoRefresh")==="true";
+autoRefreshChk.checked=autoRefresh;
+let autoTimer=null;
+
+let days=JSON.parse(localStorage.getItem("daysAuto")||"[]");
+let currentDay=JSON.parse(localStorage.getItem("currentDay")||"null");
+let speedStartExp=0;
+let chart=null;
+
+/* ===== ICON MAP ===== */
+function iconFor(v){
+  if(!v) return {icon:"rook.png",name:"Rook"};
+  const s=v.toLowerCase();
+  if(s.includes("rycerz")||s.includes("knight")) return {icon:"knight.png",name:"Rycerz"};
+  if(s.includes("druid")) return {icon:"druid.png",name:"Druid"};
+  if(s.includes("palad")) return {icon:"paladin.png",name:"Paladyn"};
+  if(s.includes("czaro")) return {icon:"sorcerer.png",name:"Czarodziej"};
+  return {icon:"rook.png",name:"Rook"};
+}
+
+/* ===== API ===== */
+async function fetchPlayer(){
+  const r=await fetch(`/player/${char}`);
+  return r.json();
+}
+
+/* ===== CHAR ===== */
+function setChar(){
+  char=charInput.value.trim();
+  localStorage.setItem("char",char);
+  setCharBtn.classList.add("active");
+  refresh();
+  setTimeout(()=>setCharBtn.classList.remove("active"),600);
+}
+charInput.addEventListener("keydown",e=>{
+  if(e.key==="Enter") setChar();
+});
+
+/* ===== REFRESH ===== */
+async function refresh(){
+  if(!char) return;
+  refreshBtn.classList.add("active");
+  const d=await fetchPlayer();
+  const voc=iconFor(d.vocation);
+  vocationIcon.src="/static/icons/"+voc.icon;
+  charNameBig.innerText=d.name;
+  charStats.innerText=`${voc.name} | Level ${d.level} | Magic ${d.magic}`;
+  expValue.innerText=d.experience.toLocaleString();
+  setTimeout(()=>refreshBtn.classList.remove("active"),600);
+}
+
+/* ===== AUTO REFRESH ===== */
+autoRefreshChk.addEventListener("change",()=>{
+  autoRefresh=autoRefreshChk.checked;
+  localStorage.setItem("autoRefresh",autoRefresh);
+  if(autoRefresh) startAuto(); else stopAuto();
+});
+function startAuto(){
+  stopAuto();
+  autoTimer=setInterval(refresh,600000);
+}
+function stopAuto(){
+  if(autoTimer) clearInterval(autoTimer);
+}
+if(autoRefresh) startAuto();
+
+/* ===== SPEED ===== */
+async function startSpeed(){
+  const d=await fetchPlayer();
+  speedStartExp=d.experience;
+  speedStartBtn.classList.add("active");
+  speedStatus.innerText="Speed aktywny";
+}
+async function stopSpeed(){
+  const d=await fetchPlayer();
+  if(currentDay) currentDay.speedExp+=d.experience-speedStartExp;
+  speedStartBtn.classList.remove("active");
+  speedStatus.innerText="Speed zatrzymany";
+}
+
+/* ===== DAY ===== */
+async function startDay(){
+  const d=await fetchPlayer();
+  currentDay={
+    date:new Date().toLocaleDateString(),
+    expStart:d.experience,
+    speedExp:0,
+    lvlFrom:d.level
+  };
+  localStorage.setItem("currentDay",JSON.stringify(currentDay));
+  dayStartBtn.classList.add("active");
+  dayStatus.innerText="Dzień aktywny";
+}
+async function endDay(){
+  if(!currentDay) return;
+  const d=await fetchPlayer();
+  const total=d.experience-currentDay.expStart;
+  days.push({
+    date:currentDay.date,
+    exp:total,
+    speedExp:currentDay.speedExp,
+    normalExp:total-currentDay.speedExp,
+    pct:total?Math.round(currentDay.speedExp/total*100):0,
+    lvls:`${currentDay.lvlFrom} → ${d.level}`
+  });
+  localStorage.removeItem("currentDay");
+  currentDay=null;
+  localStorage.setItem("daysAuto",JSON.stringify(days));
+  dayStartBtn.classList.remove("active");
+  dayStatus.innerText="Dzień zakończony";
+  renderDays();
+}
+
+/* ===== RENDER ===== */
+function renderDays(){
+  dayList.innerHTML="";
+  days.forEach((d,i)=>{
+    dayList.innerHTML+=`
+      <div class="list-row">
+        <div>${d.date}</div>
+        <div>${d.exp.toLocaleString()}</div>
+        <div>${d.speedExp.toLocaleString()}</div>
+        <div>${d.normalExp.toLocaleString()}</div>
+        <div>${d.pct}%</div>
+        <div>${d.lvls}</div>
+        <div><button onclick="delDay(${i})">X</button></div>
+      </div>`;
+  });
+  renderChart();
+}
+function delDay(i){
+  days.splice(i,1);
+  localStorage.setItem("daysAuto",JSON.stringify(days));
+  renderDays();
+}
+
+/* ===== CHART ===== */
+function renderChart(){
+  const ctx=document.getElementById("chart");
+  if(chart) chart.destroy();
+  chart=new Chart(ctx,{
+    type:"line",
+    data:{
+      labels:days.map(d=>d.date),
+      datasets:[{
+        data:days.map(d=>d.exp),
+        borderColor:"#ff4a4a",
+        tension:.3
+      }]
+    },
+    options:{
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{title:{display:true,text:"Data"}},
+        y:{title:{display:true,text:"EXP"}}
+      }
+    }
+  });
+}
+
+/* INIT */
+if(currentDay){
+  dayStartBtn.classList.add("active");
+  dayStatus.innerText="Dzień aktywny (wznawiany)";
+}
+if(char) refresh();
+renderDays();
 </script>
 
 </body>
