@@ -4,23 +4,42 @@
 <meta charset="UTF-8">
 <title>APO Podkarpacki OTS Tracker</title>
 
+<!-- Czcionki w stylu Tibii -->
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 *{box-sizing:border-box}
+
+/* ===== TŁO GŁÓWNE ===== */
 body{
   margin:0;
   font-family:'Cinzel',serif;
-  background:radial-gradient(circle at top,#1a1a1a,#000);
   color:#e6d8a8;
+
+  /* PEWNE TŁO RPG */
+  background:
+    radial-gradient(circle at center, rgba(0,0,0,.35), rgba(0,0,0,.9)),
+    linear-gradient(180deg, #2b2b2b 0%, #0b0b0b 100%);
+  
+  min-height:100vh;
 }
 
-/* INTRO */
+/* ===== OPCJA NA OBRAZ (NA PRZYSZŁOŚĆ)
+body{
+  background:
+    linear-gradient(rgba(0,0,0,.65), rgba(0,0,0,.85)),
+    url("/static/bg.jpg") center / cover no-repeat fixed;
+}
+*/
+
+/* ===== INTRO ===== */
 #intro{
-  position:fixed;inset:0;
-  background:#000;
+  position:fixed;
+  inset:0;
+  background:radial-gradient(circle, #111, #000);
   display:flex;
   align-items:center;
   justify-content:center;
@@ -29,59 +48,81 @@ body{
 }
 #intro h1{
   font-family:'Cinzel Decorative',serif;
-  font-size:44px;
+  font-size:70px;
+  letter-spacing:6px;
   color:#d4af37;
-  letter-spacing:4px;
-  text-shadow:0 0 20px rgba(212,175,55,.8);
+  text-shadow:
+    0 0 30px rgba(212,175,55,.9),
+    0 0 60px rgba(212,175,55,.5);
   animation:introText 3s forwards;
 }
 @keyframes introFade{0%,80%{opacity:1}100%{opacity:0;visibility:hidden}}
 @keyframes introText{0%{opacity:0;transform:scale(.7)}40%{opacity:1}100%{transform:scale(1.05)}}
 
-/* HEADER */
-header{text-align:center;padding:50px 20px 30px}
+/* ===== HEADER ===== */
+header{
+  text-align:center;
+  padding:60px 20px 30px;
+}
 header h1{
   font-family:'Cinzel Decorative',serif;
   font-size:48px;
   color:#d4af37;
-  text-shadow:0 0 15px rgba(212,175,55,.7);
+  text-shadow:0 0 18px rgba(212,175,55,.7);
   margin:0;
 }
-header span{color:#aaa;letter-spacing:2px}
+header span{
+  display:block;
+  margin-top:6px;
+  color:#aaa;
+  letter-spacing:2px;
+}
 
-/* LAYOUT */
-.container{max-width:1100px;margin:auto;padding:20px}
+/* ===== LAYOUT ===== */
+.container{
+  max-width:1100px;
+  margin:auto;
+  padding:20px;
+}
+
+/* ===== KARTY ===== */
 .card{
-  background:linear-gradient(#161616,#0d0d0d);
+  background:
+    linear-gradient(180deg, rgba(25,25,25,.95), rgba(10,10,10,.95));
   border:1px solid #c9a14a;
-  box-shadow:0 0 20px rgba(201,161,74,.25);
-  border-radius:8px;
-  padding:16px;
-  margin-bottom:20px;
+  box-shadow:
+    0 0 25px rgba(201,161,74,.25),
+    inset 0 0 20px rgba(0,0,0,.8);
+  border-radius:10px;
+  padding:18px;
+  margin-bottom:22px;
   animation:cardIn .6s ease;
 }
-@keyframes cardIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+@keyframes cardIn{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1}
+}
 
-/* TITLES + ICONS */
+/* ===== TYTUŁY SEKCJI ===== */
 .section-title{
   display:flex;
   align-items:center;
   gap:10px;
   font-size:20px;
   color:#d4af37;
-  margin-bottom:10px;
+  margin-bottom:12px;
 }
 .icon{
   width:26px;height:26px;
   fill:#d4af37;
-  filter:drop-shadow(0 0 6px rgba(212,175,55,.7));
+  filter:drop-shadow(0 0 6px rgba(212,175,55,.8));
   transition:.3s;
 }
 .section-title:hover .icon{
   transform:scale(1.2) rotate(-5deg);
 }
 
-/* CONTROLS */
+/* ===== INPUTY / BUTTONY ===== */
 input,button{
   background:#0f0f0f;
   color:#e6d8a8;
@@ -89,20 +130,37 @@ input,button{
   padding:8px 14px;
   font-family:'Cinzel',serif;
 }
-button{cursor:pointer}
+button{
+  cursor:pointer;
+  transition:.2s;
+}
 button:hover{
   background:#222;
-  box-shadow:0 0 10px rgba(212,175,55,.4);
+  box-shadow:0 0 12px rgba(212,175,55,.4);
 }
 button:disabled{opacity:.5}
 
-/* TABLE */
-table{width:100%;border-collapse:collapse}
-th,td{border:1px solid #333;padding:6px;text-align:center}
-th{background:#1b1b1b;color:#d4af37}
+/* ===== TABELA ===== */
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+th,td{
+  border:1px solid #333;
+  padding:6px;
+  text-align:center;
+}
+th{
+  background:#1b1b1b;
+  color:#d4af37;
+}
 
-/* CHART */
-canvas{background:#0b0b0b;border-radius:8px;padding:10px}
+/* ===== WYKRES ===== */
+canvas{
+  background:#0b0b0b;
+  border-radius:8px;
+  padding:10px;
+}
 </style>
 </head>
 
@@ -119,30 +177,27 @@ canvas{background:#0b0b0b;border-radius:8px;padding:10px}
 
 <div class="container">
 
-<!-- POSTAĆ -->
 <div class="card">
   <div class="section-title">
     <svg class="icon" viewBox="0 0 24 24"><path d="M12 2a4 4 0 014 4c0 2.2-1.8 4-4 4s-4-1.8-4-4a4 4 0 014-4zm0 10c3.3 0 10 1.7 10 5v3H2v-3c0-3.3 6.7-5 10-5z"/></svg>
     Postać
   </div>
   Nick:
-  <input id="charName" placeholder="np. Zohanek">
+  <input id="charName">
   <button onclick="setChar()">Ustaw</button>
   <div id="charInfo">—</div>
 </div>
 
-<!-- EXP -->
 <div class="card">
   <div class="section-title">
     <svg class="icon" viewBox="0 0 24 24"><path d="M12 2l2.5 7.5H22l-6 4.5L18.5 22 12 17.5 5.5 22 8 14 2 9.5h7.5z"/></svg>
     EXP
   </div>
-  <button onclick="refreshExp()">Odśwież EXP</button>
+  <button onclick="refreshExp()">Odśwież</button>
   <div id="expInfo">—</div>
   <div id="status"></div>
 </div>
 
-<!-- SPEED -->
 <div class="card">
   <div class="section-title">
     <svg class="icon" viewBox="0 0 24 24"><path d="M11 21h-1l1-7H7l6-12h1l-1 7h4z"/></svg>
@@ -153,92 +208,90 @@ canvas{background:#0b0b0b;border-radius:8px;padding:10px}
   <div id="speedInfo">—</div>
 </div>
 
-<!-- DZIEŃ -->
 <div class="card">
   <div class="section-title">
-    <svg class="icon" viewBox="0 0 24 24"><path d="M3 3h18v18H3zM7 7h10v2H7zm0 4h10v2H7zm0 4h6v2H7z"/></svg>
+    <svg class="icon" viewBox="0 0 24 24"><path d="M3 3h18v18H3z"/></svg>
     Dzień
   </div>
   <button onclick="startDay()">START DNIA</button>
   <button onclick="endDay()">ZAKOŃCZ DZIEŃ</button>
+  <button onclick="undoDay()">COFNIJ OSTATNI DZIEŃ</button>
 </div>
 
-<!-- WYKRES -->
 <div class="card">
-  <div class="section-title">
-    <svg class="icon" viewBox="0 0 24 24"><path d="M3 3v18h18v-2H5V3zM7 15h2v2H7zm4-4h2v6h-2zm4-4h2v10h-2z"/></svg>
-    Wykres EXP
-  </div>
+  <div class="section-title">Wykres EXP</div>
   <canvas id="expChart" height="120"></canvas>
 </div>
 
 </div>
 
 <script>
-let characterName = localStorage.getItem("char") || "";
-document.getElementById("charName").value = characterName;
+let char=localStorage.getItem("char")||"";
+charName.value=char;
 
-let history = JSON.parse(localStorage.getItem("expHistory")) || [];
-let chart=null;
-let speedStartExp=null, speedStartTime=null, dayStartExp=null;
+let history=JSON.parse(localStorage.getItem("expHistory"))||[];
+let speedHistory=JSON.parse(localStorage.getItem("speedHistory"))||[];
+let chart=null,dayStart=null,speedStart=null,speedTime=null;
 
 async function fetchPlayer(){
-  const r=await fetch(`/player/${characterName}`);
-  return await r.json();
+  const r=await fetch(`/player/${char}`);
+  return r.json();
 }
 
 function setChar(){
-  characterName=document.getElementById("charName").value.trim();
-  localStorage.setItem("char",characterName);
+  char=charName.value.trim();
+  localStorage.setItem("char",char);
   refreshExp();
 }
 
 async function refreshExp(){
-  if(!characterName)return;
-  document.getElementById("status").innerText="⏳ Łączenie…";
+  if(!char)return;
+  status.innerText="⏳";
   try{
     const d=await fetchPlayer();
-    document.getElementById("charInfo").innerText=
-      `${d.name} | Level ${d.level} | ML ${d.magic}`;
-    document.getElementById("expInfo").innerText=
-      `EXP: ${d.experience.toLocaleString()}`;
-    document.getElementById("status").innerText="🟢 OK";
-  }catch{
-    document.getElementById("status").innerText="🔴 Serwer się budzi…";
-  }
+    charInfo.innerText=`${d.name} | Lvl ${d.level} | ML ${d.magic}`;
+    expInfo.innerText=`EXP: ${d.experience.toLocaleString()}`;
+    status.innerText="🟢";
+  }catch{status.innerText="🔴";}
 }
 
 async function startSpeed(){
   const d=await fetchPlayer();
-  speedStartExp=d.experience;
-  speedStartTime=Date.now();
+  speedStart=d.experience;
+  speedTime=Date.now();
   startSpeedBtn.disabled=true;
   stopSpeedBtn.disabled=false;
   speedInfo.innerText="Speed aktywny…";
 }
-
 async function stopSpeed(){
   const d=await fetchPlayer();
-  const min=Math.round((Date.now()-speedStartTime)/60000);
-  const gain=d.experience-speedStartExp;
-  speedInfo.innerText=`Speed: ${min} min | +${gain.toLocaleString()} EXP`;
+  const min=Math.round((Date.now()-speedTime)/60000);
+  const gain=d.experience-speedStart;
+  speedHistory.push({t:new Date().toLocaleTimeString(),m:min,e:gain});
+  localStorage.setItem("speedHistory",JSON.stringify(speedHistory));
+  speedInfo.innerText=`${min} min | +${gain.toLocaleString()}`;
   startSpeedBtn.disabled=false;
   stopSpeedBtn.disabled=true;
 }
 
 async function startDay(){
   const d=await fetchPlayer();
-  dayStartExp=d.experience;
-  status.innerText="📅 Dzień rozpoczęty";
+  dayStart=d.experience;
+  status.innerText="📅 START DNIA";
 }
-
 async function endDay(){
   const d=await fetchPlayer();
-  const gain=d.experience-dayStartExp;
+  const gain=d.experience-dayStart;
   history.push({t:new Date().toLocaleTimeString(),e:gain});
   localStorage.setItem("expHistory",JSON.stringify(history));
   updateChart();
-  status.innerText=`📅 Dzień zakończony: +${gain.toLocaleString()} EXP`;
+  status.innerText=`📅 +${gain.toLocaleString()} EXP`;
+}
+function undoDay(){
+  if(!history.length)return;
+  history.pop();
+  localStorage.setItem("expHistory",JSON.stringify(history));
+  updateChart();
 }
 
 function updateChart(){
@@ -246,8 +299,8 @@ function updateChart(){
   const data=history.map(h=>h.e);
   if(!chart){
     chart=new Chart(expChart,{
-      type:'line',
-      data:{labels,datasets:[{data,borderColor:'#d4af37',tension:.3}]},
+      type:"line",
+      data:{labels,datasets:[{data,borderColor:"#d4af37"}]},
       options:{plugins:{legend:{display:false}}}
     });
   }else{
@@ -257,7 +310,8 @@ function updateChart(){
   }
 }
 
-if(characterName)refreshExp();
+updateChart();
+if(char)refreshExp();
 </script>
 
 </body>
