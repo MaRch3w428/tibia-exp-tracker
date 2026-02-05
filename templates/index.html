@@ -25,18 +25,12 @@ body{
   top:20px;
   right:30px;
   text-align:right;
-  z-index:2000;
+  z-index:3000;
   color:#ff6a6a;
   text-shadow:0 0 15px rgba(255,0,0,.7);
 }
-#clockTime{
-  font-size:32px;
-  font-weight:700;
-}
-#clockDate{
-  font-size:16px;
-  opacity:.85;
-}
+#clockTime{font-size:32px;font-weight:700}
+#clockDate{font-size:16px;opacity:.85}
 
 /* ===== INTRO ===== */
 #intro{
@@ -64,13 +58,11 @@ body{
   100%{opacity:1;transform:scale(1);filter:drop-shadow(0 0 60px red)}
 }
 
-/* ===== HEADER ===== */
 header{text-align:center;padding:30px}
 header img{max-width:420px;filter:drop-shadow(0 0 30px rgba(255,0,0,.9))}
 
 .container{max-width:1200px;margin:auto;padding:20px}
 
-/* ===== CARDS ===== */
 .card{
   background:rgba(15,0,0,.55);
   border:1px solid rgba(255,0,0,.45);
@@ -80,7 +72,6 @@ header img{max-width:420px;filter:drop-shadow(0 0 30px rgba(255,0,0,.9))}
 }
 .section-title{font-size:22px;color:#ff6a6a;margin-bottom:18px}
 
-/* ===== INPUTS & BUTTONS ===== */
 button,input{
   background:#0b0000;
   color:#ffd0d0;
@@ -97,13 +88,11 @@ button.active{animation:pulse 1.4s infinite}
   100%{box-shadow:0 0 10px red}
 }
 
-/* ===== HERO ===== */
 #charHero{text-align:center}
 #vocationIcon{width:160px}
 #charNameBig{font-size:40px;color:#ff4a4a}
 #charStats{font-size:22px;margin-top:6px}
 
-/* ===== EXP ===== */
 #expValue{
   font-size:38px;
   color:#ff4a4a;
@@ -111,30 +100,23 @@ button.active{animation:pulse 1.4s infinite}
   margin-top:16px;
 }
 
-/* ===== TABLE ===== */
-.list-header{
+.list-header,.list-row{
   display:grid;
   grid-template-columns:120px 120px 120px 120px 90px 180px 60px;
   gap:10px;
+}
+.list-header{
   font-size:14px;
   font-weight:bold;
   border-bottom:1px solid rgba(255,255,255,.2);
   padding-bottom:6px;
 }
 .list-row{
-  display:grid;
-  grid-template-columns:120px 120px 120px 120px 90px 180px 60px;
-  gap:10px;
   font-size:17px;
   padding:10px 0;
   border-bottom:1px solid rgba(255,255,255,.1);
 }
-.list-row div:nth-child(2),
-.list-row div:nth-child(3){
-  color:#ff6a6a;
-}
 
-/* ===== FOOTER ===== */
 footer{
   text-align:right;
   padding:10px 20px;
@@ -146,13 +128,11 @@ footer{
 
 <body>
 
-<!-- CLOCK -->
 <div id="clockBox">
-  <div id="clockTime">--:--:--</div>
-  <div id="clockDate">----</div>
+  <div id="clockTime"></div>
+  <div id="clockDate"></div>
 </div>
 
-<!-- INTRO -->
 <div id="intro">
   <img src="/static/intro/logo.png">
 </div>
@@ -163,7 +143,6 @@ footer{
 
 <div class="container">
 
-<!-- POSTAĆ -->
 <div class="card">
   <div class="section-title">Postać</div>
   Nick:
@@ -177,17 +156,12 @@ footer{
   </div>
 </div>
 
-<!-- DOŚWIADCZENIE -->
 <div class="card">
   <div class="section-title">DOŚWIADCZENIE</div>
   <button id="refreshBtn" onclick="refresh()">Odśwież</button>
-  <label style="margin-left:12px">
-    <input type="checkbox" id="autoRefreshChk"> Auto-refresh (10 min)
-  </label>
   <div id="expValue">—</div>
 </div>
 
-<!-- SPEED -->
 <div class="card">
   <div class="section-title">Speed</div>
   <button id="speedStartBtn" onclick="startSpeed()">START</button>
@@ -195,7 +169,6 @@ footer{
   <div id="speedStatus">—</div>
 </div>
 
-<!-- STATYSTYKA DZIENNA -->
 <div class="card">
   <div class="section-title">STATYSTYKA DZIENNA</div>
   <button id="dayStartBtn" onclick="startDay()">START DNIA</button>
@@ -203,18 +176,11 @@ footer{
   <div id="dayStatus">—</div>
 
   <div class="list-header">
-    <div>Data</div>
-    <div>EXP</div>
-    <div>Speed</div>
-    <div>Normal</div>
-    <div>% Speed</div>
-    <div>Lvle</div>
-    <div>Usuń</div>
+    <div>Data</div><div>EXP</div><div>Speed</div><div>Normal</div><div>%</div><div>Lvle</div><div>Usuń</div>
   </div>
   <div id="dayList"></div>
 </div>
 
-<!-- WYKRES -->
 <div class="card">
   <div class="section-title">Wykres EXP</div>
   <canvas id="chart" height="120"></canvas>
@@ -227,24 +193,22 @@ footer{
 </footer>
 
 <script>
-/* ===== INTRO FIX ===== */
-const intro = document.getElementById("intro");
+/* ===== INTRO ===== */
+const intro=document.getElementById("intro");
 window.addEventListener("load",()=>{
   setTimeout(()=>{
-    intro.style.transition="opacity 1.2s ease";
     intro.style.opacity="0";
     setTimeout(()=>intro.style.display="none",1200);
   },2600);
 });
 
 /* ===== CLOCK ===== */
-function updateClock(){
-  const now=new Date();
-  clockTime.innerText=now.toLocaleTimeString();
-  clockDate.innerText=now.toLocaleDateString();
+function tick(){
+  const n=new Date();
+  clockTime.innerText=n.toLocaleTimeString();
+  clockDate.innerText=n.toLocaleDateString();
 }
-setInterval(updateClock,1000);
-updateClock();
+setInterval(tick,1000);tick();
 
 /* ===== YEAR ===== */
 year.innerText=new Date().getFullYear();
@@ -253,25 +217,21 @@ year.innerText=new Date().getFullYear();
 let char=localStorage.getItem("char")||"";
 charInput.value=char;
 
-/* ===== PROFESSION PARSER (FINAL, ODPORNY) ===== */
+let days=JSON.parse(localStorage.getItem("daysAuto")||"[]");
+let currentDay=JSON.parse(localStorage.getItem("currentDay")||"null");
+let speedStartExp=Number(localStorage.getItem("speedStartExp"))||0;
+let chart=null;
+
+/* ===== PROFESSION PARSER (FINAL) ===== */
 function parseVocation(raw){
   if(!raw) return {icon:"rook.png",name:"Rook"};
+  let c=raw.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+  c=c.replace(/[^a-z]/g,"");
 
-  const clean = raw
-    .toLowerCase()
-    .replace(/[^a-ząćęłńóśżź]/gi,"")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g,"");
-
-  if(clean.includes("rycerz") || clean.includes("knight"))
-    return {icon:"knight.png",name:"Rycerz"};
-  if(clean.includes("druid"))
-    return {icon:"druid.png",name:"Druid"};
-  if(clean.includes("palad"))
-    return {icon:"paladin.png",name:"Paladyn"};
-  if(clean.includes("czaro") || clean.includes("sorc"))
-    return {icon:"sorcerer.png",name:"Czarodziej"};
-
+  if(c.includes("rycerz")||c.includes("knight")) return {icon:"knight.png",name:"Rycerz"};
+  if(c.includes("druid")) return {icon:"druid.png",name:"Druid"};
+  if(c.includes("palad")) return {icon:"paladin.png",name:"Paladyn"};
+  if(c.includes("czaro")||c.includes("sorc")) return {icon:"sorcerer.png",name:"Czarodziej"};
   return {icon:"rook.png",name:"Rook"};
 }
 
@@ -285,31 +245,122 @@ async function fetchPlayer(){
 function setChar(){
   char=charInput.value.trim();
   localStorage.setItem("char",char);
-  setCharBtn.classList.add("active");
   refresh();
-  setTimeout(()=>setCharBtn.classList.remove("active"),600);
 }
-charInput.addEventListener("keydown",e=>{
-  if(e.key==="Enter") setChar();
-});
+charInput.addEventListener("keydown",e=>{if(e.key==="Enter")setChar();});
 
 /* ===== REFRESH ===== */
 async function refresh(){
   if(!char) return;
-  refreshBtn.classList.add("active");
-
   const d=await fetchPlayer();
-  const voc=parseVocation(d.vocation);
-
-  vocationIcon.src="/static/icons/"+voc.icon;
+  const v=parseVocation(d.vocation);
+  vocationIcon.src="/static/icons/"+v.icon;
   charNameBig.innerText=d.name;
-  charStats.innerText=`${voc.name} | Level ${d.level} | Magic ${d.magic}`;
+  charStats.innerText=`${v.name} | Level ${d.level} | Magic ${d.magic}`;
   expValue.innerText=d.experience.toLocaleString();
-
-  setTimeout(()=>refreshBtn.classList.remove("active"),600);
 }
 
-if(char) refresh();
+/* ===== SPEED ===== */
+async function startSpeed(){
+  const d=await fetchPlayer();
+  speedStartExp=d.experience;
+  localStorage.setItem("speedStartExp",speedStartExp);
+  speedStartBtn.classList.add("active");
+  speedStatus.innerText="SPEED AKTYWNY (+50%)";
+}
+async function stopSpeed(){
+  if(!speedStartExp)return;
+  const d=await fetchPlayer();
+  const gain=d.experience-speedStartExp;
+  if(currentDay) currentDay.speedExp+=Math.round(gain/3);
+  localStorage.removeItem("speedStartExp");
+  speedStartExp=0;
+  speedStartBtn.classList.remove("active");
+  speedStatus.innerText=`SPEED STOP | +${gain.toLocaleString()}`;
+}
+
+/* ===== DAY ===== */
+async function startDay(){
+  const d=await fetchPlayer();
+  currentDay={date:new Date().toLocaleDateString(),expStart:d.experience,speedExp:0,lvlFrom:d.level};
+  localStorage.setItem("currentDay",JSON.stringify(currentDay));
+  dayStartBtn.classList.add("active");
+  dayStatus.innerText="DZIEŃ AKTYWNY";
+}
+async function endDay(){
+  if(!currentDay)return;
+  const d=await fetchPlayer();
+  const total=d.experience-currentDay.expStart;
+  days.push({
+    date:currentDay.date,
+    exp:total,
+    speedExp:currentDay.speedExp,
+    normalExp:total-currentDay.speedExp,
+    pct:total?Math.round(currentDay.speedExp/total*100):0,
+    lvls:`${currentDay.lvlFrom} → ${d.level}`
+  });
+  localStorage.setItem("daysAuto",JSON.stringify(days));
+  localStorage.removeItem("currentDay");
+  currentDay=null;
+  dayStartBtn.classList.remove("active");
+  dayStatus.innerText="DZIEŃ ZAKOŃCZONY";
+  renderDays();
+}
+
+/* ===== RENDER ===== */
+function renderDays(){
+  dayList.innerHTML="";
+  days.forEach((d,i)=>{
+    dayList.innerHTML+=`
+    <div class="list-row">
+      <div>${d.date}</div>
+      <div>${d.exp.toLocaleString()}</div>
+      <div>${d.speedExp.toLocaleString()}</div>
+      <div>${d.normalExp.toLocaleString()}</div>
+      <div>${d.pct}%</div>
+      <div>${d.lvls}</div>
+      <div><button onclick="delDay(${i})">X</button></div>
+    </div>`;
+  });
+  renderChart();
+}
+function delDay(i){
+  days.splice(i,1);
+  localStorage.setItem("daysAuto",JSON.stringify(days));
+  renderDays();
+}
+
+/* ===== CHART ===== */
+function renderChart(){
+  const ctx=document.getElementById("chart").getContext("2d");
+  if(chart)chart.destroy();
+  chart=new Chart(ctx,{
+    type:"line",
+    data:{
+      labels:days.map(d=>d.date),
+      datasets:[{
+        label:"EXP dzienny",
+        data:days.map(d=>d.exp),
+        borderColor:"#ff4a4a",
+        backgroundColor:"rgba(255,74,74,.2)",
+        fill:true,
+        tension:.35
+      }]
+    }
+  });
+}
+
+/* ===== INIT ===== */
+if(currentDay){
+  dayStartBtn.classList.add("active");
+  dayStatus.innerText="DZIEŃ AKTYWNY (WZNOWIONY)";
+}
+if(speedStartExp){
+  speedStartBtn.classList.add("active");
+  speedStatus.innerText="SPEED AKTYWNY (+50%)";
+}
+if(char)refresh();
+renderDays();
 </script>
 
 </body>
