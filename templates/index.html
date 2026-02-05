@@ -9,8 +9,6 @@
 
 <style>
 *{box-sizing:border-box}
-
-/* ===== BODY ===== */
 body{
   margin:0;
   font-family:'Cinzel',serif;
@@ -19,175 +17,49 @@ body{
     linear-gradient(rgba(0,0,0,.82), rgba(0,0,0,.95)),
     url("/static/bg.jpg") center/cover no-repeat fixed;
 }
-
-/* ===== INTRO ===== */
-#intro{
-  position:fixed;
-  inset:0;
-  background:#000;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:9999;
-  animation:introFade 4s forwards;
-}
-#intro img{
-  width:480px;
-  max-width:90%;
-  animation:introZoom 4s forwards;
-  filter:drop-shadow(0 0 60px rgba(255,0,0,.9));
-}
-@keyframes introFade{0%,85%{opacity:1}100%{opacity:0;visibility:hidden}}
-@keyframes introZoom{0%{transform:scale(.7);opacity:0}40%{opacity:1}100%{transform:scale(1.05)}}
-
-/* ===== CLOCK ===== */
-#clock{
-  position:fixed;
-  top:20px;
-  right:25px;
-  text-align:right;
-  font-size:22px;
-  color:#ff4a4a;
-}
-#clock span{display:block;font-size:14px;color:#ffaaaa}
-
-/* ===== HEADER ===== */
-header{
-  text-align:center;
-  padding:30px 20px;
-}
-header img{
-  max-width:420px;
-  filter:drop-shadow(0 0 30px rgba(255,0,0,.9));
-}
-
-/* ===== LAYOUT ===== */
-.container{
-  max-width:1100px;
-  margin:auto;
-  padding:20px;
-}
-
-/* ===== CARDS ===== */
+header{text-align:center;padding:30px}
+header img{max-width:420px;filter:drop-shadow(0 0 30px rgba(255,0,0,.9))}
+.container{max-width:1200px;margin:auto;padding:20px}
 .card{
-  background:rgba(15,0,0,.65);
+  background:rgba(15,0,0,.55);
   border:1px solid rgba(255,0,0,.45);
   border-radius:16px;
   padding:26px;
   margin-bottom:26px;
-  backdrop-filter:blur(4px);
-  transition:.3s;
 }
-.card:hover{
-  box-shadow:0 0 30px rgba(255,0,0,.35);
-  transform:translateY(-2px);
+.section-title{font-size:22px;color:#ff6a6a;margin-bottom:18px}
+button,input{
+  background:#0b0000;color:#ffd0d0;border:1px solid #aa2222;
+  padding:8px 14px;font-family:'Cinzel',serif;cursor:pointer
 }
-
-.section-title{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  font-size:22px;
-  color:#ff6a6a;
-  margin-bottom:18px;
+.list-header,.list-row{
+  display:grid;
+  grid-template-columns:120px 110px 110px 110px 80px 130px 60px;
+  gap:10px;
+  font-size:14px;
 }
-
-/* ===== INPUTS / BUTTONS ===== */
-input,button{
-  background:#0b0000;
-  color:#ffd0d0;
-  border:1px solid #aa2222;
-  padding:10px 18px;
-  font-family:'Cinzel',serif;
-}
-button{
-  cursor:pointer;
-  position:relative;
-  overflow:hidden;
-}
-button:hover{
-  box-shadow:0 0 18px rgba(255,0,0,.6);
-}
-
-/* ===== HERO CHAR ===== */
-#charHero{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:22px;
-  text-align:center;
-}
-#vocationIcon{
-  width:180px;
-}
-#charNameBig{
-  font-size:42px;
-  color:#ff4a4a;
-}
-#charStats{
-  font-size:22px;
-  line-height:1.6;
-}
-
-/* ===== EXPERIENCE ===== */
-#expValue{
-  margin-top:22px;
-  font-size:38px;
-  color:#ff4a4a;
-  text-shadow:0 0 25px rgba(255,0,0,.8);
-  text-align:center;
-}
-#expBar{
-  margin-top:18px;
-  height:14px;
-  background:#220000;
-  border-radius:10px;
-  overflow:hidden;
-}
-#expBar span{
-  display:block;
-  height:100%;
-  width:0%;
-  background:linear-gradient(90deg,#ff2a2a,#ff7a7a);
-  box-shadow:0 0 20px rgba(255,0,0,.8);
-}
-
-/* ===== LISTS ===== */
-.list{
-  margin-top:14px;
-}
-.list div{
-  display:flex;
-  justify-content:space-between;
-  padding:6px 0;
-  border-bottom:1px solid rgba(255,255,255,.08);
-}
-.list button{
-  padding:4px 10px;
-  font-size:12px;
-}
-
-/* ===== FOOTER ===== */
-footer{
-  text-align:right;
-  padding:10px 20px;
-  font-size:12px;
-  color:#aa5555;
-}
+.list-header{font-weight:bold;border-bottom:1px solid rgba(255,255,255,.2)}
+.list-row{border-bottom:1px solid rgba(255,255,255,.08);padding:6px 0}
+#charHero{text-align:center}
+#vocationIcon{width:160px}
+#charNameBig{font-size:40px;color:#ff4a4a}
+#charStats{font-size:22px}
+#expValue{font-size:38px;color:#ff4a4a;text-align:center;margin-top:16px}
+#expBar{height:12px;background:#220000;border-radius:8px;overflow:hidden;margin-top:10px}
+#expBar span{display:block;height:100%;width:0%;background:linear-gradient(90deg,#ff2a2a,#ff7a7a)}
+footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
 </style>
 </head>
 
 <body>
 
 <!-- INTRO -->
-<div id="intro">
-  <img src="/static/intro/logo.png" alt="APO Intro">
+<div id="intro" style="position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:9999;animation:introFade 4s forwards">
+  <img src="/static/intro/logo.png" style="width:480px;max-width:90%;filter:drop-shadow(0 0 60px red);animation:introZoom 4s forwards">
 </div>
 
-<div id="clock"></div>
-
 <header>
-  <img src="/static/header/apo-tracker.png" alt="APO Tracker">
+  <img src="/static/header/apo-tracker.png">
 </header>
 
 <div class="container">
@@ -195,13 +67,12 @@ footer{
 <!-- POSTAĆ -->
 <div class="card">
   <div class="section-title">Postać</div>
-
   Nick:
   <input id="charInput">
   <button onclick="setChar()">Ustaw</button>
 
   <div id="charHero">
-    <img id="vocationIcon" src="/static/icons/rook.png">
+    <img id="vocationIcon">
     <div id="charNameBig">—</div>
     <div id="charStats">—</div>
   </div>
@@ -210,9 +81,7 @@ footer{
 <!-- DOŚWIADCZENIE -->
 <div class="card">
   <div class="section-title">DOŚWIADCZENIE</div>
-
   <button onclick="refresh()">Odśwież</button>
-
   <div id="expValue">—</div>
   <div id="expBar"><span></span></div>
 </div>
@@ -220,25 +89,21 @@ footer{
 <!-- SPEED -->
 <div class="card">
   <div class="section-title">Speed</div>
-
   <button onclick="startSpeed()">START</button>
   <button onclick="stopSpeed()">STOP</button>
-
   <div id="speedInfo">—</div>
-  <div class="list" id="speedList"></div>
-  <div><b>BEST SPEED:</b> <span id="bestSpeed">—</span></div>
 </div>
 
-<!-- STATYSTYKA DZIENNA -->
+<!-- STATYSTYKI EXPIENIA -->
 <div class="card">
-  <div class="section-title">STATYSTYKA DZIENNA</div>
-
+  <div class="section-title">STATYSTYKI EXPIENIA</div>
   <button onclick="startDay()">START DNIA</button>
-  <button onclick="endDay()">ZAKOŃCZ</button>
+  <button onclick="endDay()">ZAKOŃCZ DZIEŃ</button>
 
-  <div id="dayInfo">—</div>
-  <div class="list" id="dayList"></div>
-  <div><b>BEST DAY:</b> <span id="bestDay">—</span></div>
+  <div class="list-header">
+    <div>Data</div><div>EXP</div><div>Speed</div><div>Normal</div><div>% Speed</div><div>Lvle</div><div>Usuń</div>
+  </div>
+  <div id="dayList"></div>
 </div>
 
 <!-- WYKRES -->
@@ -254,57 +119,53 @@ footer{
 </footer>
 
 <script>
-/* ===== CLOCK ===== */
-function tick(){
-  const d=new Date();
-  clock.innerHTML=d.toLocaleTimeString()+"<span>"+d.toLocaleDateString()+"</span>";
-}
-setInterval(tick,1000);tick();
 year.innerText=new Date().getFullYear();
 
 /* ===== STATE ===== */
 let char=localStorage.getItem("char")||"";
 charInput.value=char;
-let speeds=JSON.parse(localStorage.getItem("speeds")||"[]");
-let days=JSON.parse(localStorage.getItem("days")||"[]");
-let speedStartExp=0,speedStartTime=0,dayStartExp=0;
 
-/* ===== ICON MAP ===== */
+let days=JSON.parse(localStorage.getItem("daysAuto")||"[]");
+let currentDay=null;
+let speedStartExp=0,speedStartTime=0;
+let chart=null;
+
+/* ICON */
 function iconFor(v){
   if(!v)return"rook.png";
-  v=v.trim().toLowerCase();
-  if(v==="druid")return"druid.png";
-  if(v==="paladyn")return"paladin.png";
-  if(v==="knight")return"knight.png";
-  if(v==="czarodziej")return"sorcerer.png";
+  v=v.toLowerCase();
+  if(v.includes("knight"))return"knight.png";
+  if(v.includes("druid"))return"druid.png";
+  if(v.includes("palad"))return"paladin.png";
+  if(v.includes("czaro"))return"sorcerer.png";
   return"rook.png";
 }
 
-/* ===== API ===== */
+/* API */
 async function fetchPlayer(){
   const r=await fetch(`/player/${char}`);
   return r.json();
 }
 
-/* ===== SET CHAR ===== */
+/* SET CHAR */
 function setChar(){
   char=charInput.value.trim();
   localStorage.setItem("char",char);
   refresh();
 }
 
-/* ===== REFRESH ===== */
+/* REFRESH */
 async function refresh(){
   if(!char)return;
   const d=await fetchPlayer();
   vocationIcon.src="/static/icons/"+iconFor(d.vocation);
   charNameBig.innerText=d.name;
-  charStats.innerHTML=`Level ${d.level} | Magic ${d.magic}`;
+  charStats.innerText=`Level ${d.level} | Magic ${d.magic}`;
   expValue.innerText=d.experience.toLocaleString();
   document.querySelector("#expBar span").style.width="100%";
 }
 
-/* ===== SPEED ===== */
+/* SPEED */
 async function startSpeed(){
   const d=await fetchPlayer();
   speedStartExp=d.experience;
@@ -312,53 +173,85 @@ async function startSpeed(){
 }
 async function stopSpeed(){
   const d=await fetchPlayer();
-  const min=(Date.now()-speedStartTime)/60000;
   const gain=d.experience-speedStartExp;
-  const epm=Math.round(gain/min);
-  speeds.push({epm,txt:`+${gain.toLocaleString()} EXP (${epm}/min)`});
-  localStorage.setItem("speeds",JSON.stringify(speeds));
-  renderSpeeds();
-}
-function renderSpeeds(){
-  speedList.innerHTML="";
-  let best=0;
-  speeds.forEach((s,i)=>{
-    best=Math.max(best,s.epm);
-    speedList.innerHTML+=`<div>${s.txt}<button onclick="delSpeed(${i})">X</button></div>`;
-  });
-  bestSpeed.innerText=best||"—";
-}
-function delSpeed(i){
-  speeds.splice(i,1);
-  localStorage.setItem("speeds",JSON.stringify(speeds));
-  renderSpeeds();
+  if(currentDay) currentDay.speedExp+=gain;
 }
 
-/* ===== DAY ===== */
+/* DAY */
 async function startDay(){
   const d=await fetchPlayer();
-  dayStartExp=d.experience;
+  currentDay={
+    date:new Date().toLocaleDateString(),
+    expStart:d.experience,
+    expEnd:0,
+    speedExp:0,
+    lvlFrom:d.level,
+    lvlTo:0
+  };
 }
 async function endDay(){
+  if(!currentDay)return;
   const d=await fetchPlayer();
-  const gain=d.experience-dayStartExp;
-  days.push(gain);
-  localStorage.setItem("days",JSON.stringify(days));
+  currentDay.expEnd=d.experience;
+  currentDay.lvlTo=d.level;
+
+  const total=currentDay.expEnd-currentDay.expStart;
+  const speed=currentDay.speedExp;
+  const normal=total-speed;
+
+  days.push({
+    date:currentDay.date,
+    exp:total,
+    speedExp:speed,
+    normalExp:normal,
+    pct: total?Math.round(speed/total*100):0,
+    lvls:`${currentDay.lvlFrom} → ${currentDay.lvlTo}`
+  });
+
+  localStorage.setItem("daysAuto",JSON.stringify(days));
+  currentDay=null;
   renderDays();
 }
+
+/* RENDER DAYS */
 function renderDays(){
   dayList.innerHTML="";
-  let best=0;
-  days.forEach((g,i)=>{
-    best=Math.max(best,g);
-    dayList.innerHTML+=`<div>+${g.toLocaleString()} EXP<button onclick="delDay(${i})">X</button></div>`;
+  days.forEach((d,i)=>{
+    dayList.innerHTML+=`
+      <div class="list-row">
+        <div>${d.date}</div>
+        <div>${d.exp.toLocaleString()}</div>
+        <div>${d.speedExp.toLocaleString()}</div>
+        <div>${d.normalExp.toLocaleString()}</div>
+        <div>${d.pct}%</div>
+        <div>${d.lvls}</div>
+        <div><button onclick="delDay(${i})">X</button></div>
+      </div>`;
   });
-  bestDay.innerText=best||"—";
+  renderChart();
+}
+function delDay(i){
+  days.splice(i,1);
+  localStorage.setItem("daysAuto",JSON.stringify(days));
+  renderDays();
 }
 
-/* ===== INIT ===== */
+/* CHART */
+function renderChart(){
+  const ctx=document.getElementById("chart");
+  if(chart)chart.destroy();
+  chart=new Chart(ctx,{
+    type:"line",
+    data:{
+      labels:days.map(d=>d.date),
+      datasets:[{data:days.map(d=>d.exp),borderColor:"#ff4a4a",tension:.3}]
+    },
+    options:{plugins:{legend:{display:false}}}
+  });
+}
+
+/* INIT */
 if(char)refresh();
-renderSpeeds();
 renderDays();
 </script>
 
