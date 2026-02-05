@@ -2,19 +2,21 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-<title>APO EXP Tracker</title>
+<title>APO Podkarpacki OTS Tracker</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 *{box-sizing:border-box}
 
+/* ===== BODY ===== */
 body{
   margin:0;
   font-family:'Cinzel',serif;
-  color:#f2caca;
+  color:#f3caca;
   background:
-    linear-gradient(rgba(0,0,0,.85), rgba(0,0,0,.95)),
+    linear-gradient(rgba(0,0,0,.82), rgba(0,0,0,.95)),
     url("/static/bg.jpg") center/cover no-repeat fixed;
 }
 
@@ -27,17 +29,16 @@ body{
   align-items:center;
   justify-content:center;
   z-index:9999;
-  animation:introFade 3s forwards;
+  animation:introFade 4s forwards;
 }
-#intro h1{
-  font-family:'Cinzel Decorative',serif;
-  font-size:64px;
-  color:#ff3b3b;
-  text-shadow:0 0 30px rgba(255,0,0,.9);
-  animation:introText 3s forwards;
+#intro img{
+  width:480px;
+  max-width:90%;
+  animation:introZoom 4s forwards;
+  filter:drop-shadow(0 0 60px rgba(255,0,0,.9));
 }
-@keyframes introFade{0%,80%{opacity:1}100%{opacity:0;visibility:hidden}}
-@keyframes introText{0%{opacity:0;transform:scale(.7)}40%{opacity:1}100%{transform:scale(1.05)}}
+@keyframes introFade{0%,85%{opacity:1}100%{opacity:0;visibility:hidden}}
+@keyframes introZoom{0%{transform:scale(.7);opacity:0}40%{opacity:1}100%{transform:scale(1.05)}}
 
 /* ===== CLOCK ===== */
 #clock{
@@ -57,61 +58,126 @@ header{
 }
 header img{
   max-width:420px;
-  filter:drop-shadow(0 0 25px rgba(255,0,0,.8));
+  filter:drop-shadow(0 0 30px rgba(255,0,0,.9));
 }
 
 /* ===== LAYOUT ===== */
 .container{
-  max-width:900px;
+  max-width:1100px;
   margin:auto;
   padding:20px;
 }
-.card{
-  background:rgba(20,0,0,.7);
-  border:1px solid rgba(255,0,0,.4);
-  border-radius:14px;
-  padding:22px;
-  margin-bottom:22px;
-}
-h2{margin:0 0 15px;color:#ff6a6a}
 
-/* ===== INPUTS ===== */
+/* ===== CARDS ===== */
+.card{
+  background:rgba(15,0,0,.65);
+  border:1px solid rgba(255,0,0,.45);
+  border-radius:16px;
+  padding:26px;
+  margin-bottom:26px;
+  backdrop-filter:blur(4px);
+  transition:.3s;
+}
+.card:hover{
+  box-shadow:0 0 30px rgba(255,0,0,.35);
+  transform:translateY(-2px);
+}
+
+.section-title{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  font-size:22px;
+  color:#ff6a6a;
+  margin-bottom:18px;
+}
+.section-title img{
+  width:34px;
+  filter:drop-shadow(0 0 12px rgba(255,0,0,.8));
+}
+
+/* ===== INPUTS / BUTTONS ===== */
 input,button{
   background:#0b0000;
   color:#ffd0d0;
   border:1px solid #aa2222;
-  padding:8px 14px;
+  padding:10px 18px;
   font-family:'Cinzel',serif;
 }
-button{cursor:pointer}
-
-/* ===== CHAR ===== */
-#charBox{
-  display:flex;
-  align-items:center;
-  gap:25px;
-  margin-top:18px;
+button{
+  cursor:pointer;
+  position:relative;
+  overflow:hidden;
 }
-#vocationIcon{width:130px}
-#charInfo{font-size:20px;line-height:1.5}
+button:hover{
+  box-shadow:0 0 18px rgba(255,0,0,.6);
+}
+button::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:rgba(255,0,0,.15);
+  opacity:0;
+  transition:.3s;
+}
+button:hover::after{opacity:1}
 
-/* ===== EXP ===== */
-#expBox{
-  margin-top:25px;
+/* ===== HERO CHAR ===== */
+#charHero{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:22px;
   text-align:center;
 }
-#expValue{
-  margin-top:20px;
-  font-size:34px;
-  font-weight:700;
+#vocationIcon{
+  width:180px;
+}
+#charNameBig{
+  font-size:42px;
   color:#ff4a4a;
-  text-shadow:0 0 20px rgba(255,0,0,.8);
+}
+#charStats{
+  font-size:22px;
+  line-height:1.6;
 }
 
-/* ===== SPEED / DAY ===== */
-.infoVal{
-  font-size:22px;
-  margin-top:15px;
+/* ===== EXPERIENCE ===== */
+#expValue{
+  margin-top:22px;
+  font-size:38px;
+  color:#ff4a4a;
+  text-shadow:0 0 25px rgba(255,0,0,.8);
+  text-align:center;
+}
+#expBar{
+  margin-top:18px;
+  height:14px;
+  background:#220000;
+  border-radius:10px;
+  overflow:hidden;
+}
+#expBar span{
+  display:block;
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#ff2a2a,#ff7a7a);
+  box-shadow:0 0 20px rgba(255,0,0,.8);
+}
+
+/* ===== LISTS ===== */
+.list{
+  margin-top:14px;
+}
+.list div{
+  display:flex;
+  justify-content:space-between;
+  padding:6px 0;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.list button{
+  padding:4px 10px;
+  font-size:12px;
 }
 
 /* ===== FOOTER ===== */
@@ -126,51 +192,82 @@ footer{
 
 <body>
 
+<!-- INTRO -->
 <div id="intro">
-  <h1>APO TRACKER</h1>
+  <img src="/static/intro/intro.png">
 </div>
 
 <div id="clock"></div>
 
 <header>
-  <img src="/static/header/apo-tracker.png" alt="APO Tracker">
+  <img src="/static/header/apo-tracker.png">
 </header>
 
 <div class="container">
 
+<!-- POSTAĆ -->
 <div class="card">
-  <h2>Postać</h2>
+  <div class="section-title">
+    <img src="/static/icons/knight.png"> Postać
+  </div>
+
   Nick:
-  <input id="charName">
+  <input id="charInput">
   <button onclick="setChar()">Ustaw</button>
 
-  <div id="charBox">
+  <div id="charHero">
     <img id="vocationIcon" src="/static/icons/rook.png">
-    <div id="charInfo">—</div>
+    <div id="charNameBig">—</div>
+    <div id="charStats">—</div>
   </div>
 </div>
 
+<!-- DOŚWIADCZENIE -->
 <div class="card">
-  <h2>EXP</h2>
+  <div class="section-title">
+    <img src="/static/icons/sorcerer.png"> DOŚWIADCZENIE
+  </div>
+
   <button onclick="refresh()">Odśwież</button>
 
-  <div id="expBox">
-    <div id="expValue">—</div>
-  </div>
+  <div id="expValue">—</div>
+  <div id="expBar"><span></span></div>
 </div>
 
+<!-- SPEED -->
 <div class="card">
-  <h2>Speed</h2>
+  <div class="section-title">
+    <img src="/static/icons/paladin.png"> Speed
+  </div>
+
   <button onclick="startSpeed()">START</button>
   <button onclick="stopSpeed()">STOP</button>
-  <div id="speedInfo" class="infoVal">—</div>
+
+  <div id="speedInfo">—</div>
+  <div class="list" id="speedList"></div>
+  <div><b>BEST SPEED:</b> <span id="bestSpeed">—</span></div>
 </div>
 
+<!-- STATYSTYKA DZIENNA -->
 <div class="card">
-  <h2>Dzień</h2>
+  <div class="section-title">
+    <img src="/static/icons/druid.png"> STATYSTYKA DZIENNA
+  </div>
+
   <button onclick="startDay()">START DNIA</button>
-  <button onclick="endDay()">ZAKOŃCZ DZIEŃ</button>
-  <div id="dayInfo" class="infoVal">—</div>
+  <button onclick="endDay()">ZAKOŃCZ</button>
+
+  <div id="dayInfo">—</div>
+  <div class="list" id="dayList"></div>
+  <div><b>BEST DAY:</b> <span id="bestDay">—</span></div>
+</div>
+
+<!-- WYKRES -->
+<div class="card">
+  <div class="section-title">
+    <img src="/static/icons/rook.png"> Wykres EXP
+  </div>
+  <canvas id="chart" height="120"></canvas>
 </div>
 
 </div>
@@ -180,82 +277,124 @@ footer{
 </footer>
 
 <script>
-/* ===== CLOCK ===== */
-function updateClock(){
+/* CLOCK */
+function tick(){
   const d=new Date();
   clock.innerHTML=d.toLocaleTimeString()+"<span>"+d.toLocaleDateString()+"</span>";
 }
-setInterval(updateClock,1000);
-updateClock();
+setInterval(tick,1000);tick();
 year.innerText=new Date().getFullYear();
 
-/* ===== STATE ===== */
-let currentChar="";
-let speedStartExp=0, speedStartTime=0;
-let dayStartExp=0;
+/* STATE */
+let char=localStorage.getItem("char")||"";
+charInput.value=char;
+let speeds=JSON.parse(localStorage.getItem("speeds")||"[]");
+let days=JSON.parse(localStorage.getItem("days")||"[]");
+let speedStartExp=0,speedStartTime=0,dayStartExp=0;
+let chart=null;
 
-/* ===== ICON MAP (FIXED) ===== */
+/* ICON MAP */
 function iconFor(v){
-  if(!v) return "rook.png";
-
-  v = v.trim().toLowerCase();
-
-  if(v === "druid") return "druid.png";
-  if(v === "paladyn") return "paladin.png";
-  if(v === "knight") return "knight.png";
-  if(v === "czarodziej") return "sorcerer.png";
-
-  return "rook.png";
+  if(!v)return"rook.png";
+  v=v.trim().toLowerCase();
+  if(v==="druid")return"druid.png";
+  if(v==="paladyn")return"paladin.png";
+  if(v==="knight")return"knight.png";
+  if(v==="czarodziej")return"sorcerer.png";
+  return"rook.png";
 }
 
-/* ===== FETCH ===== */
+/* API */
 async function fetchPlayer(){
-  const r = await fetch(`/player/${currentChar}`);
-  if(!r.ok) throw "API error";
+  const r=await fetch(`/player/${char}`);
   return r.json();
 }
 
-/* ===== ACTIONS ===== */
+/* SET CHAR */
 function setChar(){
-  currentChar = charName.value.trim();
+  char=charInput.value.trim();
+  localStorage.setItem("char",char);
   refresh();
 }
 
+/* REFRESH */
 async function refresh(){
-  if(!currentChar) return;
-
-  const d = await fetchPlayer();
-
+  if(!char)return;
+  const d=await fetchPlayer();
   vocationIcon.src="/static/icons/"+iconFor(d.vocation);
-  charInfo.innerHTML=`<b>${d.name}</b><br>Level: ${d.level}<br>Magic: ${d.magic}<br>${d.vocation}`;
+  charNameBig.innerText=d.name;
+  charStats.innerHTML=`Level ${d.level} | Magic ${d.magic}`;
   expValue.innerText=d.experience.toLocaleString();
+  document.querySelector("#expBar span").style.width="100%";
 }
 
-/* ===== SPEED ===== */
+/* SPEED */
 async function startSpeed(){
   const d=await fetchPlayer();
   speedStartExp=d.experience;
   speedStartTime=Date.now();
-  speedInfo.innerText="Liczenie…";
 }
 async function stopSpeed(){
   const d=await fetchPlayer();
   const min=(Date.now()-speedStartTime)/60000;
   const gain=d.experience-speedStartExp;
-  speedInfo.innerText=`+${gain.toLocaleString()} EXP | ${Math.round(gain/min)} EXP/min`;
+  const epm=Math.round(gain/min);
+  speeds.push({epm,txt:`+${gain.toLocaleString()} EXP (${epm}/min)`});
+  localStorage.setItem("speeds",JSON.stringify(speeds));
+  renderSpeeds();
+}
+function renderSpeeds(){
+  speedList.innerHTML="";
+  let best=0;
+  speeds.forEach((s,i)=>{
+    best=Math.max(best,s.epm);
+    speedList.innerHTML+=`<div>${s.txt}<button onclick="delSpeed(${i})">X</button></div>`;
+  });
+  bestSpeed.innerText=best||"—";
+}
+function delSpeed(i){
+  speeds.splice(i,1);
+  localStorage.setItem("speeds",JSON.stringify(speeds));
+  renderSpeeds();
 }
 
-/* ===== DAY ===== */
+/* DAY */
 async function startDay(){
   const d=await fetchPlayer();
   dayStartExp=d.experience;
-  dayInfo.innerText="Dzień rozpoczęty";
 }
 async function endDay(){
   const d=await fetchPlayer();
   const gain=d.experience-dayStartExp;
-  dayInfo.innerText=`Dziś: +${gain.toLocaleString()} EXP`;
+  days.push(gain);
+  localStorage.setItem("days",JSON.stringify(days));
+  renderDays();
 }
+function renderDays(){
+  dayList.innerHTML="";
+  let best=0;
+  days.forEach((g,i)=>{
+    best=Math.max(best,g);
+    dayList.innerHTML+=`<div>+${g.toLocaleString()} EXP<button onclick="delDay(${i})">X</button></div>`;
+  });
+  bestDay.innerText=best||"—";
+}
+
+/* CHART */
+function renderChart(){
+  const ctx=document.getElementById("chart");
+  if(chart)chart.destroy();
+  chart=new Chart(ctx,{
+    type:"line",
+    data:{labels:days.map((_,i)=>i+1),datasets:[{data:days,borderColor:"#ff4a4a"}]},
+    options:{plugins:{legend:{display:false}}}
+  });
+}
+
+/* INIT */
+if(char)refresh();
+renderSpeeds();
+renderDays();
 </script>
 
 </body>
