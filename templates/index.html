@@ -2,11 +2,9 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-<title>APO Tracker</title>
+<title>APO EXP Tracker</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 *{box-sizing:border-box}
@@ -14,20 +12,10 @@
 body{
   margin:0;
   font-family:'Cinzel',serif;
-  color:#ffd6d6;
+  color:#f2caca;
   background:
     linear-gradient(rgba(0,0,0,.85), rgba(0,0,0,.95)),
     url("/static/bg.jpg") center/cover no-repeat fixed;
-}
-
-/* ===== HEADER ===== */
-header{
-  text-align:center;
-  padding:25px;
-}
-#mainLogo{
-  max-width:380px;
-  filter:drop-shadow(0 0 25px rgba(255,0,0,.8));
 }
 
 /* ===== CLOCK ===== */
@@ -37,8 +25,8 @@ header{
   right:25px;
   text-align:right;
   font-size:22px;
-  color:#ff7a7a;
-  text-shadow:0 0 12px rgba(255,0,0,.7);
+  color:#ff4a4a;
+  text-shadow:0 0 10px rgba(255,0,0,.7);
 }
 #clock span{
   display:block;
@@ -46,30 +34,38 @@ header{
   color:#ffaaaa;
 }
 
+/* ===== HEADER ===== */
+header{
+  text-align:center;
+  padding:30px 20px;
+}
+header img{
+  max-width:420px;
+  filter:drop-shadow(0 0 25px rgba(255,0,0,.8));
+}
+
 /* ===== LAYOUT ===== */
 .container{
-  max-width:1100px;
+  max-width:900px;
   margin:auto;
   padding:20px;
 }
 
-/* ===== CARDS ===== */
 .card{
-  background:rgba(15,0,0,.65);
+  background:rgba(20,0,0,.7);
   border:1px solid rgba(255,0,0,.4);
-  border-radius:12px;
-  padding:18px;
+  border-radius:14px;
+  padding:20px;
   margin-bottom:20px;
   backdrop-filter:blur(4px);
 }
 
-.section-title{
-  font-size:20px;
-  color:#ff7a7a;
-  margin-bottom:10px;
+h2{
+  margin:0 0 15px;
+  color:#ff6a6a;
 }
 
-/* ===== INPUTS ===== */
+/* ===== INPUT ===== */
 input,button{
   background:#0b0000;
   color:#ffd0d0;
@@ -79,43 +75,20 @@ input,button{
 }
 button{cursor:pointer}
 
-/* ===== CHARACTER ===== */
-#charHeader{
+/* ===== CHAR ===== */
+#charBox{
   display:flex;
   align-items:center;
   gap:25px;
-  margin-top:10px;
+  margin-top:15px;
 }
 #vocationIcon{
-  width:120px;
+  width:130px;
   height:auto;
 }
 #charInfo{
   font-size:20px;
   line-height:1.5;
-}
-
-/* ===== TABLE ===== */
-table{
-  width:100%;
-  border-collapse:collapse;
-}
-th,td{
-  border:1px solid rgba(255,255,255,.1);
-  padding:6px;
-  text-align:center;
-}
-th{
-  background:rgba(40,0,0,.85);
-  color:#ff9a9a;
-}
-
-/* ===== HIGHLIGHT ===== */
-.highlight{
-  background:rgba(255,0,0,.15);
-  padding:10px;
-  border:1px solid rgba(255,0,0,.4);
-  margin-bottom:10px;
 }
 
 /* ===== FOOTER ===== */
@@ -130,62 +103,39 @@ footer{
 
 <body>
 
-<header>
-  <img src="/static/header/apo-tracker.png" id="mainLogo">
-</header>
-
 <div id="clock"></div>
+
+<header>
+  <img src="/static/header/apo-tracker.png" alt="APO Tracker">
+</header>
 
 <div class="container">
 
 <div class="card">
-  <div class="section-title">Postać</div>
+  <h2>Postać</h2>
   Nick:
   <input id="charName">
   <button onclick="setChar()">Ustaw</button>
 
-  <div id="charHeader">
+  <div id="charBox">
     <img id="vocationIcon" src="/static/icons/rook.png">
     <div id="charInfo">—</div>
   </div>
 </div>
 
 <div class="card">
-  <div class="section-title">EXP</div>
-  <button onclick="refreshExp()">Odśwież</button>
+  <h2>EXP</h2>
+  <button onclick="refresh()">Odśwież</button>
   <div id="expInfo">—</div>
 </div>
 
-<div class="card">
-  <div class="section-title">Best Speed Ever</div>
-  <div id="bestSpeed" class="highlight">—</div>
 </div>
 
-<div class="card">
-  <div class="section-title">Speed</div>
-  <button onclick="startSpeed()">START</button>
-  <button onclick="stopSpeed()">STOP</button>
-  <div id="speedInfo">—</div>
-</div>
-
-<div class="card">
-  <div class="section-title">Ranking Speedów</div>
-  <table id="speedTable">
-    <thead>
-      <tr><th>#</th><th>Data</th><th>EXP</th><th>EXP/min</th><th></th></tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</div>
-
-</div>
-
-<footer>designed by Zohanek © <span id="year"></span></footer>
+<footer>
+  designed by Zohanek © <span id="year"></span>
+</footer>
 
 <script>
-/* ===== CONFIG ===== */
-const API_URL = "https://tibia-exp-tracker.onrender.com";
-
 /* ===== CLOCK ===== */
 function updateClock(){
   const d=new Date();
@@ -193,100 +143,51 @@ function updateClock(){
 }
 setInterval(updateClock,1000);
 updateClock();
+year.innerText=new Date().getFullYear();
 
 /* ===== STATE ===== */
-let char="";
-let speedStart=0, speedTime=0;
-let speeds=JSON.parse(localStorage.getItem("speeds"))||[];
+let currentChar="";
 
-/* ===== API ===== */
-async function fetchPlayer(){
-  const r=await fetch(`${API_URL}/player/${char}`);
-  if(!r.ok) throw new Error("API ERROR");
-  return r.json();
+/* ===== ICON MAP ===== */
+function iconFor(v){
+  switch(v){
+    case "Druid": return "druid.png";
+    case "Paladyn": return "paladin.png";
+    case "Knight": return "knight.png";
+    case "Czarodziej": return "sorcerer.png";
+    default: return "rook.png";
+  }
 }
 
-/* ===== VOC ICON ===== */
-function vocationIconName(v){
-  v=v.toLowerCase();
-  if(v.includes("druid"))return"druid.png";
-  if(v.includes("paladin"))return"paladin.png";
-  if(v.includes("knight"))return"knight.png";
-  if(v.includes("sorcerer"))return"sorcerer.png";
-  return"rook.png";
-}
-
-/* ===== CHARACTER ===== */
+/* ===== ACTIONS ===== */
 function setChar(){
-  char=charName.value.trim();
-  refreshExp();
+  currentChar = charName.value.trim();
+  refresh();
 }
 
-async function refreshExp(){
-  if(!char) return;
-  const d=await fetchPlayer();
-  vocationIcon.src="/static/icons/"+vocationIconName(d.vocation);
-  charInfo.innerHTML=`
-    <b>${d.name}</b><br>
-    Level: ${d.level}<br>
-    Magic: ${d.magic}<br>
-    Vocation: ${d.vocation.replace("Paladin","Paladyn")}
-  `;
-  expInfo.innerHTML=`EXP: <b>${d.experience.toLocaleString()}</b>`;
-}
+async function refresh(){
+  if(!currentChar) return;
 
-/* ===== SPEED ===== */
-async function startSpeed(){
-  const d=await fetchPlayer();
-  speedStart=d.experience;
-  speedTime=Date.now();
-}
+  try{
+    const r = await fetch(`/player/${currentChar}`);
+    if(!r.ok) throw "API error";
+    const d = await r.json();
 
-async function stopSpeed(){
-  const d=await fetchPlayer();
-  const min=(Date.now()-speedTime)/60000;
-  const gain=d.experience-speedStart;
-  const epm=Math.round(gain/min);
-  speeds.push({date:new Date().toLocaleString(),exp:gain,epm});
-  localStorage.setItem("speeds",JSON.stringify(speeds));
-  speedInfo.innerText=`${gain} EXP / ${epm} EXP/min`;
-  renderSpeed();
-  updateBestSpeed();
-}
+    vocationIcon.src = "/static/icons/" + iconFor(d.vocation);
 
-/* ===== SPEED UI ===== */
-function renderSpeed(){
-  const tbody=speedTable.querySelector("tbody");
-  tbody.innerHTML="";
-  [...speeds].sort((a,b)=>b.epm-a.epm).forEach((s,i)=>{
-    tbody.innerHTML+=`
-      <tr>
-        <td>${i+1}</td>
-        <td>${s.date}</td>
-        <td>${s.exp}</td>
-        <td><b>${s.epm}</b></td>
-        <td><button onclick="delSpeed(${i})">🗑</button></td>
-      </tr>`;
-  });
-}
-function delSpeed(i){
-  speeds.splice(i,1);
-  localStorage.setItem("speeds",JSON.stringify(speeds));
-  renderSpeed();
-  updateBestSpeed();
-}
-function updateBestSpeed(){
-  if(!speeds.length){bestSpeed.innerText="—";return;}
-  const b=[...speeds].sort((a,b)=>b.epm-a.epm)[0];
-  bestSpeed.innerHTML=`${b.epm} EXP/min<br>${b.date}`;
-}
+    charInfo.innerHTML = `
+      <b>${d.name}</b><br>
+      Level: ${d.level}<br>
+      Magic: ${d.magic}<br>
+      Profesja: ${d.vocation}
+    `;
 
-/* INIT */
-renderSpeed();
-updateBestSpeed();
-document.getElementById("year").innerText=new Date().getFullYear();
+    expInfo.innerHTML = `EXP: <b>${d.experience.toLocaleString()}</b>`;
+  }catch(e){
+    alert("Błąd pobierania danych postaci");
+  }
+}
 </script>
 
 </body>
 </html>
-
