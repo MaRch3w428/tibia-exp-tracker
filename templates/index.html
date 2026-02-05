@@ -131,7 +131,7 @@ footer{
 
 <!-- INTRO -->
 <div id="intro">
-  <img id="introLogo" src="/static/intro/logo.png">
+  <img src="/static/intro/logo.png">
 </div>
 
 <header>
@@ -218,39 +218,49 @@ window.addEventListener("load",()=>{
 year.innerText=new Date().getFullYear();
 
 /* ===== STATE ===== */
-let char=localStorage.getItem("char")||"";
-charInput.value=char;
+let char = localStorage.getItem("char") || "";
+charInput.value = char;
 
-let autoRefresh=localStorage.getItem("autoRefresh")==="true";
-autoRefreshChk.checked=autoRefresh;
-let autoTimer=null;
+let autoRefresh = localStorage.getItem("autoRefresh") === "true";
+autoRefreshChk.checked = autoRefresh;
+let autoTimer = null;
 
-let days=JSON.parse(localStorage.getItem("daysAuto")||"[]");
-let currentDay=JSON.parse(localStorage.getItem("currentDay")||"null");
-let speedStartExp=0;
-let chart=null;
+let days = JSON.parse(localStorage.getItem("daysAuto") || "[]");
+let currentDay = JSON.parse(localStorage.getItem("currentDay") || "null");
 
-/* ===== ICON MAP ===== */
-function iconFor(v){
-  if(!v) return {icon:"rook.png",name:"Rook"};
-  const s=v.toLowerCase();
-  if(s.includes("rycerz")||s.includes("knight")) return {icon:"knight.png",name:"Rycerz"};
-  if(s.includes("druid")) return {icon:"druid.png",name:"Druid"};
-  if(s.includes("palad")) return {icon:"paladin.png",name:"Paladyn"};
-  if(s.includes("czaro")) return {icon:"sorcerer.png",name:"Czarodziej"};
-  return {icon:"rook.png",name:"Rook"};
+let speedStartExp = 0;
+let chart = null;
+
+/* ===== PROFESSION PARSER (FIX RYCERZA) ===== */
+function parseVocation(raw){
+  if(!raw) return { icon:"rook.png", name:"Rook" };
+  const clean = raw.split("|")[0].trim().toLowerCase();
+
+  if(clean === "rycerz" || clean === "knight")
+    return { icon:"knight.png", name:"Rycerz" };
+
+  if(clean === "druid")
+    return { icon:"druid.png", name:"Druid" };
+
+  if(clean.startsWith("palad"))
+    return { icon:"paladin.png", name:"Paladyn" };
+
+  if(clean.startsWith("czaro"))
+    return { icon:"sorcerer.png", name:"Czarodziej" };
+
+  return { icon:"rook.png", name:"Rook" };
 }
 
 /* ===== API ===== */
 async function fetchPlayer(){
-  const r=await fetch(`/player/${char}`);
+  const r = await fetch(`/player/${char}`);
   return r.json();
 }
 
 /* ===== CHAR ===== */
 function setChar(){
-  char=charInput.value.trim();
-  localStorage.setItem("char",char);
+  char = charInput.value.trim();
+  localStorage.setItem("char", char);
   setCharBtn.classList.add("active");
   refresh();
   setTimeout(()=>setCharBtn.classList.remove("active"),600);
@@ -263,82 +273,99 @@ charInput.addEventListener("keydown",e=>{
 async function refresh(){
   if(!char) return;
   refreshBtn.classList.add("active");
-  const d=await fetchPlayer();
-  const voc=iconFor(d.vocation);
-  vocationIcon.src="/static/icons/"+voc.icon;
-  charNameBig.innerText=d.name;
-  charStats.innerText=`${voc.name} | Level ${d.level} | Magic ${d.magic}`;
-  expValue.innerText=d.experience.toLocaleString();
+
+  const d = await fetchPlayer();
+  const voc = parseVocation(d.vocation);
+
+  vocationIcon.src = "/static/icons/" + voc.icon;
+  charNameBig.innerText = d.name;
+  charStats.innerText = `${voc.name} | Level ${d.level} | Magic ${d.magic}`;
+  expValue.innerText = d.experience.toLocaleString();
+
   setTimeout(()=>refreshBtn.classList.remove("active"),600);
 }
 
 /* ===== AUTO REFRESH ===== */
 autoRefreshChk.addEventListener("change",()=>{
-  autoRefresh=autoRefreshChk.checked;
-  localStorage.setItem("autoRefresh",autoRefresh);
+  autoRefresh = autoRefreshChk.checked;
+  localStorage.setItem("autoRefresh", autoRefresh);
   if(autoRefresh) startAuto(); else stopAuto();
 });
 function startAuto(){
   stopAuto();
-  autoTimer=setInterval(refresh,600000);
+  autoTimer = setInterval(refresh, 600000);
 }
 function stopAuto(){
   if(autoTimer) clearInterval(autoTimer);
 }
 if(autoRefresh) startAuto();
 
-/* ===== SPEED ===== */
+/* ===== SPEED (+50%) ===== */
 async function startSpeed(){
-  const d=await fetchPlayer();
-  speedStartExp=d.experience;
+  const d = await fetchPlayer();
+  speedStartExp = d.experience;
   speedStartBtn.classList.add("active");
-  speedStatus.innerText="Speed aktywny";
+  speedStatus.innerText = "Speed aktywny (+50%)";
 }
 async function stopSpeed(){
-  const d=await fetchPlayer();
-  if(currentDay) currentDay.speedExp+=d.experience-speedStartExp;
+  const d = await fetchPlayer();
+  const realGain = d.experience - speedStartExp;
+
+  const baseExp = Math.round(realGain / 1.5);
+  const speedBonus = realGain - baseExp;
+
+  if(currentDay){
+    currentDay.speedExp += speedBonus;
+    currentDay.expStart -= baseExp;
+  }
+
   speedStartBtn.classList.remove("active");
-  speedStatus.innerText="Speed zatrzymany";
+  speedStatus.innerText = "Speed zakończony";
 }
 
 /* ===== DAY ===== */
 async function startDay(){
-  const d=await fetchPlayer();
-  currentDay={
-    date:new Date().toLocaleDateString(),
-    expStart:d.experience,
-    speedExp:0,
-    lvlFrom:d.level
+  const d = await fetchPlayer();
+  currentDay = {
+    date: new Date().toLocaleDateString(),
+    expStart: d.experience,
+    speedExp: 0,
+    lvlFrom: d.level
   };
-  localStorage.setItem("currentDay",JSON.stringify(currentDay));
+  localStorage.setItem("currentDay", JSON.stringify(currentDay));
   dayStartBtn.classList.add("active");
-  dayStatus.innerText="Dzień aktywny";
+  dayStatus.innerText = "Dzień aktywny";
 }
 async function endDay(){
   if(!currentDay) return;
-  const d=await fetchPlayer();
-  const total=d.experience-currentDay.expStart;
+
+  const d = await fetchPlayer();
+  const total = d.experience - currentDay.expStart;
+
   days.push({
-    date:currentDay.date,
-    exp:total,
-    speedExp:currentDay.speedExp,
-    normalExp:total-currentDay.speedExp,
-    pct:total?Math.round(currentDay.speedExp/total*100):0,
-    lvls:`${currentDay.lvlFrom} → ${d.level}`
+    date: currentDay.date,
+    exp: total,
+    speedExp: currentDay.speedExp,
+    normalExp: total - currentDay.speedExp,
+    pct: total ? Math.round(currentDay.speedExp / total * 100) : 0,
+    lvls: `${currentDay.lvlFrom} → ${d.level}`
   });
+
   localStorage.removeItem("currentDay");
-  currentDay=null;
-  localStorage.setItem("daysAuto",JSON.stringify(days));
+  currentDay = null;
+  localStorage.setItem("daysAuto", JSON.stringify(days));
+
   dayStartBtn.classList.remove("active");
-  dayStatus.innerText="Dzień zakończony";
+  dayStatus.innerText = "Dzień zakończony";
+
   renderDays();
 }
 
 /* ===== RENDER ===== */
 function renderDays(){
-  dayList.innerHTML="";
+  dayList.innerHTML = "";
   days.forEach((d,i)=>{
-    dayList.innerHTML+=`
+    dayList.innerHTML += `
       <div class="list-row">
         <div>${d.date}</div>
         <div>${d.exp.toLocaleString()}</div>
@@ -353,20 +380,20 @@ function renderDays(){
 }
 function delDay(i){
   days.splice(i,1);
-  localStorage.setItem("daysAuto",JSON.stringify(days));
+  localStorage.setItem("daysAuto", JSON.stringify(days));
   renderDays();
 }
 
 /* ===== CHART ===== */
 function renderChart(){
-  const ctx=document.getElementById("chart");
+  const ctx = document.getElementById("chart");
   if(chart) chart.destroy();
-  chart=new Chart(ctx,{
+  chart = new Chart(ctx,{
     type:"line",
     data:{
-      labels:days.map(d=>d.date),
+      labels: days.map(d=>d.date),
       datasets:[{
-        data:days.map(d=>d.exp),
+        data: days.map(d=>d.exp),
         borderColor:"#ff4a4a",
         tension:.3
       }]
@@ -384,7 +411,7 @@ function renderChart(){
 /* INIT */
 if(currentDay){
   dayStartBtn.classList.add("active");
-  dayStatus.innerText="Dzień aktywny (wznawiany)";
+  dayStatus.innerText = "Dzień aktywny (wznawiany)";
 }
 if(char) refresh();
 renderDays();
