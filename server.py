@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
 from flask_cors import CORS
 import requests
 from bs4 import BeautifulSoup
@@ -14,28 +14,19 @@ CORS(app)
 
 # ===== CACHE =====
 CACHE = {}
-CACHE_TTL = 60          # sekundy
-RATE_LIMIT = 10         # sekundy między requestami na nick
+CACHE_TTL = 60   # sekundy
 
 @app.route("/")
 def home():
-    return "APO Tracker API działa (cache ON)"
+    return render_template("index.html")
 
 @app.route("/player/<name>")
 def player(name):
     now = time.time()
 
-    # ===== CACHE HIT =====
-    if name in CACHE:
-        entry = CACHE[name]
-        if now - entry["time"] < CACHE_TTL:
-            return jsonify(entry["data"])
-
-    # ===== RATE LIMIT =====
-    if name in CACHE:
-        last_fetch = CACHE[name]["time"]
-        if now - last_fetch < RATE_LIMIT:
-            return jsonify(CACHE[name]["data"])
+    # CACHE
+    if name in CACHE and now - CACHE[name]["time"] < CACHE_TTL:
+        return jsonify(CACHE[name]["data"])
 
     url = f"https://armia.toproste.pl/player-{name}.html"
 
@@ -76,7 +67,6 @@ def player(name):
         "vocation": vocation
     }
 
-    # ===== SAVE TO CACHE =====
     CACHE[name] = {
         "time": now,
         "data": data
