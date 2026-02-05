@@ -91,10 +91,6 @@ header img{
   color:#ff6a6a;
   margin-bottom:18px;
 }
-.section-title img{
-  width:34px;
-  filter:drop-shadow(0 0 12px rgba(255,0,0,.8));
-}
 
 /* ===== INPUTS / BUTTONS ===== */
 input,button{
@@ -112,15 +108,6 @@ button{
 button:hover{
   box-shadow:0 0 18px rgba(255,0,0,.6);
 }
-button::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:rgba(255,0,0,.15);
-  opacity:0;
-  transition:.3s;
-}
-button:hover::after{opacity:1}
 
 /* ===== HERO CHAR ===== */
 #charHero{
@@ -194,22 +181,20 @@ footer{
 
 <!-- INTRO -->
 <div id="intro">
-  <img src="/static/intro/intro.png">
+  <img src="/static/intro/logo.png" alt="APO Intro">
 </div>
 
 <div id="clock"></div>
 
 <header>
-  <img src="/static/header/apo-tracker.png">
+  <img src="/static/header/apo-tracker.png" alt="APO Tracker">
 </header>
 
 <div class="container">
 
 <!-- POSTAĆ -->
 <div class="card">
-  <div class="section-title">
-    <img src="/static/icons/knight.png"> Postać
-  </div>
+  <div class="section-title">Postać</div>
 
   Nick:
   <input id="charInput">
@@ -224,9 +209,7 @@ footer{
 
 <!-- DOŚWIADCZENIE -->
 <div class="card">
-  <div class="section-title">
-    <img src="/static/icons/sorcerer.png"> DOŚWIADCZENIE
-  </div>
+  <div class="section-title">DOŚWIADCZENIE</div>
 
   <button onclick="refresh()">Odśwież</button>
 
@@ -236,9 +219,7 @@ footer{
 
 <!-- SPEED -->
 <div class="card">
-  <div class="section-title">
-    <img src="/static/icons/paladin.png"> Speed
-  </div>
+  <div class="section-title">Speed</div>
 
   <button onclick="startSpeed()">START</button>
   <button onclick="stopSpeed()">STOP</button>
@@ -250,9 +231,7 @@ footer{
 
 <!-- STATYSTYKA DZIENNA -->
 <div class="card">
-  <div class="section-title">
-    <img src="/static/icons/druid.png"> STATYSTYKA DZIENNA
-  </div>
+  <div class="section-title">STATYSTYKA DZIENNA</div>
 
   <button onclick="startDay()">START DNIA</button>
   <button onclick="endDay()">ZAKOŃCZ</button>
@@ -264,9 +243,7 @@ footer{
 
 <!-- WYKRES -->
 <div class="card">
-  <div class="section-title">
-    <img src="/static/icons/rook.png"> Wykres EXP
-  </div>
+  <div class="section-title">Wykres EXP</div>
   <canvas id="chart" height="120"></canvas>
 </div>
 
@@ -277,7 +254,7 @@ footer{
 </footer>
 
 <script>
-/* CLOCK */
+/* ===== CLOCK ===== */
 function tick(){
   const d=new Date();
   clock.innerHTML=d.toLocaleTimeString()+"<span>"+d.toLocaleDateString()+"</span>";
@@ -285,15 +262,14 @@ function tick(){
 setInterval(tick,1000);tick();
 year.innerText=new Date().getFullYear();
 
-/* STATE */
+/* ===== STATE ===== */
 let char=localStorage.getItem("char")||"";
 charInput.value=char;
 let speeds=JSON.parse(localStorage.getItem("speeds")||"[]");
 let days=JSON.parse(localStorage.getItem("days")||"[]");
 let speedStartExp=0,speedStartTime=0,dayStartExp=0;
-let chart=null;
 
-/* ICON MAP */
+/* ===== ICON MAP ===== */
 function iconFor(v){
   if(!v)return"rook.png";
   v=v.trim().toLowerCase();
@@ -304,20 +280,20 @@ function iconFor(v){
   return"rook.png";
 }
 
-/* API */
+/* ===== API ===== */
 async function fetchPlayer(){
   const r=await fetch(`/player/${char}`);
   return r.json();
 }
 
-/* SET CHAR */
+/* ===== SET CHAR ===== */
 function setChar(){
   char=charInput.value.trim();
   localStorage.setItem("char",char);
   refresh();
 }
 
-/* REFRESH */
+/* ===== REFRESH ===== */
 async function refresh(){
   if(!char)return;
   const d=await fetchPlayer();
@@ -328,7 +304,7 @@ async function refresh(){
   document.querySelector("#expBar span").style.width="100%";
 }
 
-/* SPEED */
+/* ===== SPEED ===== */
 async function startSpeed(){
   const d=await fetchPlayer();
   speedStartExp=d.experience;
@@ -358,7 +334,7 @@ function delSpeed(i){
   renderSpeeds();
 }
 
-/* DAY */
+/* ===== DAY ===== */
 async function startDay(){
   const d=await fetchPlayer();
   dayStartExp=d.experience;
@@ -380,18 +356,7 @@ function renderDays(){
   bestDay.innerText=best||"—";
 }
 
-/* CHART */
-function renderChart(){
-  const ctx=document.getElementById("chart");
-  if(chart)chart.destroy();
-  chart=new Chart(ctx,{
-    type:"line",
-    data:{labels:days.map((_,i)=>i+1),datasets:[{data:days,borderColor:"#ff4a4a"}]},
-    options:{plugins:{legend:{display:false}}}
-  });
-}
-
-/* INIT */
+/* ===== INIT ===== */
 if(char)refresh();
 renderSpeeds();
 renderDays();
