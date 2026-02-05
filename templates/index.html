@@ -4,60 +4,65 @@
 <meta charset="UTF-8">
 <title>APO Podkarpacki OTS Tracker</title>
 
-<!-- Czcionki w stylu Tibii -->
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 *{box-sizing:border-box}
 
-/* ===== TŁO GŁÓWNE ===== */
 body{
   margin:0;
   font-family:'Cinzel',serif;
   color:#e6d8a8;
-
-  /* PEWNE TŁO RPG */
-  background:
-    radial-gradient(circle at center, rgba(0,0,0,.35), rgba(0,0,0,.9)),
-    linear-gradient(180deg, #2b2b2b 0%, #0b0b0b 100%);
-  
-  min-height:100vh;
-}
-
-/* ===== OPCJA NA OBRAZ (NA PRZYSZŁOŚĆ)
-body{
   background:
     linear-gradient(rgba(0,0,0,.65), rgba(0,0,0,.85)),
     url("/static/bg.jpg") center / cover no-repeat fixed;
+  min-height:100vh;
 }
-*/
 
 /* ===== INTRO ===== */
 #intro{
   position:fixed;
   inset:0;
-  background:radial-gradient(circle, #111, #000);
+  background:black;
   display:flex;
+  flex-direction:column;
   align-items:center;
   justify-content:center;
   z-index:999;
-  animation:introFade 3s forwards;
+  animation:introFade 4.5s forwards;
+}
+.intro-bg{
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at center, rgba(212,175,55,.25), rgba(0,0,0,.9)),
+    url("/static/bg.jpg") center/cover no-repeat;
+  filter:blur(6px) brightness(.6);
+  animation:bgZoom 6s forwards;
 }
 #intro h1{
+  position:relative;
   font-family:'Cinzel Decorative',serif;
-  font-size:70px;
-  letter-spacing:6px;
+  font-size:72px;
+  letter-spacing:8px;
   color:#d4af37;
-  text-shadow:
-    0 0 30px rgba(212,175,55,.9),
-    0 0 60px rgba(212,175,55,.5);
-  animation:introText 3s forwards;
+  text-shadow:0 0 40px rgba(212,175,55,.9);
+  animation:titleIn 2s forwards;
 }
+#intro span{
+  position:relative;
+  margin-top:10px;
+  letter-spacing:4px;
+  color:#aaa;
+  opacity:0;
+  animation:subIn 2s 1.2s forwards;
+}
+@keyframes titleIn{from{opacity:0;transform:scale(.6)}to{opacity:1}}
+@keyframes subIn{to{opacity:1}}
+@keyframes bgZoom{to{transform:scale(1.15)}}
 @keyframes introFade{0%,80%{opacity:1}100%{opacity:0;visibility:hidden}}
-@keyframes introText{0%{opacity:0;transform:scale(.7)}40%{opacity:1}100%{transform:scale(1.05)}}
 
 /* ===== HEADER ===== */
 header{
@@ -69,14 +74,20 @@ header h1{
   font-size:48px;
   color:#d4af37;
   text-shadow:0 0 18px rgba(212,175,55,.7);
-  margin:0;
 }
-header span{
-  display:block;
-  margin-top:6px;
-  color:#aaa;
-  letter-spacing:2px;
+
+/* ===== CLOCK ===== */
+#clock{
+  position:fixed;
+  top:20px;
+  right:20px;
+  text-align:right;
+  font-size:18px;
+  color:#d4af37;
+  text-shadow:0 0 10px rgba(212,175,55,.6);
+  animation:clockGlow 3s infinite;
 }
+@keyframes clockGlow{0%,100%{opacity:.7}50%{opacity:1}}
 
 /* ===== LAYOUT ===== */
 .container{
@@ -85,44 +96,29 @@ header span{
   padding:20px;
 }
 
-/* ===== KARTY ===== */
+/* ===== CARDS ===== */
 .card{
-  background:
-    linear-gradient(180deg, rgba(25,25,25,.95), rgba(10,10,10,.95));
+  background:linear-gradient(180deg, rgba(25,25,25,.95), rgba(10,10,10,.95));
   border:1px solid #c9a14a;
-  box-shadow:
-    0 0 25px rgba(201,161,74,.25),
-    inset 0 0 20px rgba(0,0,0,.8);
   border-radius:10px;
   padding:18px;
   margin-bottom:22px;
+  box-shadow:0 0 25px rgba(201,161,74,.25), inset 0 0 20px rgba(0,0,0,.8);
   animation:cardIn .6s ease;
+  transition:.25s;
 }
-@keyframes cardIn{
-  from{opacity:0;transform:translateY(20px)}
-  to{opacity:1}
+.card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 0 35px rgba(212,175,55,.35), inset 0 0 20px rgba(0,0,0,.8);
 }
+@keyframes cardIn{from{opacity:0;transform:translateY(20px)}to{opacity:1}}
 
-/* ===== TYTUŁY SEKCJI ===== */
 .section-title{
-  display:flex;
-  align-items:center;
-  gap:10px;
   font-size:20px;
   color:#d4af37;
   margin-bottom:12px;
 }
-.icon{
-  width:26px;height:26px;
-  fill:#d4af37;
-  filter:drop-shadow(0 0 6px rgba(212,175,55,.8));
-  transition:.3s;
-}
-.section-title:hover .icon{
-  transform:scale(1.2) rotate(-5deg);
-}
 
-/* ===== INPUTY / BUTTONY ===== */
 input,button{
   background:#0f0f0f;
   color:#e6d8a8;
@@ -130,36 +126,45 @@ input,button{
   padding:8px 14px;
   font-family:'Cinzel',serif;
 }
-button{
-  cursor:pointer;
-  transition:.2s;
-}
 button:hover{
   background:#222;
   box-shadow:0 0 12px rgba(212,175,55,.4);
 }
-button:disabled{opacity:.5}
+button{cursor:pointer}
 
-/* ===== TABELA ===== */
-table{
-  width:100%;
-  border-collapse:collapse;
+#charInfo,#expInfo{
+  font-size:22px;
+  margin-top:10px;
+  line-height:1.4;
+  text-shadow:0 0 8px rgba(212,175,55,.4);
 }
-th,td{
-  border:1px solid #333;
-  padding:6px;
-  text-align:center;
+#expInfo span{
+  font-size:28px;
+  animation:breathe 2.5s infinite;
 }
-th{
-  background:#1b1b1b;
-  color:#d4af37;
+@keyframes breathe{0%,100%{text-shadow:0 0 8px rgba(212,175,55,.4)}50%{text-shadow:0 0 18px rgba(212,175,55,.9)}}
+
+.active-speed{
+  animation:speedPulse 1.6s infinite;
+}
+@keyframes speedPulse{
+  0%{box-shadow:0 0 15px rgba(212,175,55,.3)}
+  50%{box-shadow:0 0 35px rgba(212,175,55,.9)}
+  100%{box-shadow:0 0 15px rgba(212,175,55,.3)}
 }
 
-/* ===== WYKRES ===== */
-canvas{
-  background:#0b0b0b;
-  border-radius:8px;
-  padding:10px;
+table{width:100%;border-collapse:collapse}
+th,td{border:1px solid #333;padding:6px;text-align:center}
+th{background:#1b1b1b;color:#d4af37}
+
+canvas{background:#0b0b0b;border-radius:8px;padding:10px}
+
+footer{
+  position:fixed;
+  bottom:12px;
+  right:18px;
+  font-size:12px;
+  color:#888;
 }
 </style>
 </head>
@@ -167,55 +172,55 @@ canvas{
 <body>
 
 <div id="intro">
-  <h1>APO PODKARPACKI OTS</h1>
+  <div class="intro-bg"></div>
+  <h1>APO PODKARPACKI</h1>
+  <span>OTS TRACKER</span>
 </div>
+
+<div id="clock"></div>
 
 <header>
   <h1>APO Podkarpacki OTS Tracker</h1>
-  <span>by Zohanek</span>
 </header>
 
 <div class="container">
 
 <div class="card">
-  <div class="section-title">
-    <svg class="icon" viewBox="0 0 24 24"><path d="M12 2a4 4 0 014 4c0 2.2-1.8 4-4 4s-4-1.8-4-4a4 4 0 014-4zm0 10c3.3 0 10 1.7 10 5v3H2v-3c0-3.3 6.7-5 10-5z"/></svg>
-    Postać
-  </div>
-  Nick:
-  <input id="charName">
+  <div class="section-title">Postać</div>
+  Nick: <input id="charName">
   <button onclick="setChar()">Ustaw</button>
   <div id="charInfo">—</div>
 </div>
 
 <div class="card">
-  <div class="section-title">
-    <svg class="icon" viewBox="0 0 24 24"><path d="M12 2l2.5 7.5H22l-6 4.5L18.5 22 12 17.5 5.5 22 8 14 2 9.5h7.5z"/></svg>
-    EXP
-  </div>
+  <div class="section-title">EXP</div>
   <button onclick="refreshExp()">Odśwież</button>
+  <label><input type="checkbox" id="autoToggle"> Auto-refresh co 10 min</label>
   <div id="expInfo">—</div>
   <div id="status"></div>
 </div>
 
-<div class="card">
-  <div class="section-title">
-    <svg class="icon" viewBox="0 0 24 24"><path d="M11 21h-1l1-7H7l6-12h1l-1 7h4z"/></svg>
-    Speed
-  </div>
-  <button id="startSpeedBtn" onclick="startSpeed()">START SPEED</button>
-  <button id="stopSpeedBtn" onclick="stopSpeed()" disabled>STOP SPEED</button>
+<div class="card" id="speedCard">
+  <div class="section-title">Speed</div>
+  <button id="startSpeedBtn" onclick="startSpeed()">START</button>
+  <button id="stopSpeedBtn" onclick="stopSpeed()" disabled>STOP</button>
   <div id="speedInfo">—</div>
 </div>
 
 <div class="card">
-  <div class="section-title">
-    <svg class="icon" viewBox="0 0 24 24"><path d="M3 3h18v18H3z"/></svg>
-    Dzień
-  </div>
+  <div class="section-title">Ranking Speedów</div>
+  <table id="speedTable"><thead><tr><th>#</th><th>Godzina</th><th>EXP</th><th>EXP/min</th></tr></thead><tbody></tbody></table>
+</div>
+
+<div class="card">
+  <div class="section-title">Dzień</div>
   <button onclick="startDay()">START DNIA</button>
-  <button onclick="endDay()">ZAKOŃCZ DZIEŃ</button>
-  <button onclick="undoDay()">COFNIJ OSTATNI DZIEŃ</button>
+  <button onclick="endDay()">ZAKOŃCZ</button>
+</div>
+
+<div class="card">
+  <div class="section-title">Historia dni</div>
+  <table id="daysTable"><thead><tr><th>Data</th><th>EXP</th><th></th></tr></thead><tbody></tbody></table>
 </div>
 
 <div class="card">
@@ -225,13 +230,23 @@ canvas{
 
 </div>
 
+<footer>designed by Zohanek © <span id="year"></span></footer>
+
 <script>
+document.getElementById("year").innerText=new Date().getFullYear();
+
+function updateClock(){
+  const d=new Date();
+  clock.innerHTML=d.toLocaleDateString()+"<br>"+d.toLocaleTimeString();
+}
+setInterval(updateClock,1000);updateClock();
+
 let char=localStorage.getItem("char")||"";
 charName.value=char;
 
 let history=JSON.parse(localStorage.getItem("expHistory"))||[];
 let speedHistory=JSON.parse(localStorage.getItem("speedHistory"))||[];
-let chart=null,dayStart=null,speedStart=null,speedTime=null;
+let chart=null,dayStart=null,dayDate=null,speedStart=null,speedTime=null;
 
 async function fetchPlayer(){
   const r=await fetch(`/player/${char}`);
@@ -249,60 +264,75 @@ async function refreshExp(){
   status.innerText="⏳";
   try{
     const d=await fetchPlayer();
-    charInfo.innerText=`${d.name} | Lvl ${d.level} | ML ${d.magic}`;
-    expInfo.innerText=`EXP: ${d.experience.toLocaleString()}`;
-    status.innerText="🟢";
-  }catch{status.innerText="🔴";}
+    charInfo.innerHTML=`🧙 ${d.name}<br>🛡 Poziom: <b>${d.level}</b><br>🔮 Magic: <b>${d.magic}</b>`;
+    expInfo.innerHTML=`⭐ EXP:<br><span>${d.experience.toLocaleString()}</span>`;
+    status.innerText="🟢 ONLINE";
+  }catch{status.innerText="🔴 OFFLINE";}
 }
 
 async function startSpeed(){
   const d=await fetchPlayer();
   speedStart=d.experience;
   speedTime=Date.now();
+  speedCard.classList.add("active-speed");
   startSpeedBtn.disabled=true;
   stopSpeedBtn.disabled=false;
-  speedInfo.innerText="Speed aktywny…";
 }
+
 async function stopSpeed(){
   const d=await fetchPlayer();
-  const min=Math.round((Date.now()-speedTime)/60000);
+  const min=(Date.now()-speedTime)/60000;
   const gain=d.experience-speedStart;
-  speedHistory.push({t:new Date().toLocaleTimeString(),m:min,e:gain});
+  const epm=Math.round(gain/min);
+  speedHistory.push({t:new Date().toLocaleTimeString(),e:gain,epm});
   localStorage.setItem("speedHistory",JSON.stringify(speedHistory));
-  speedInfo.innerText=`${min} min | +${gain.toLocaleString()}`;
+  speedInfo.innerText=`${Math.round(min)} min | +${gain} | ${epm} EXP/min`;
+  speedCard.classList.remove("active-speed");
   startSpeedBtn.disabled=false;
   stopSpeedBtn.disabled=true;
+  renderSpeedRanking();
+}
+
+function renderSpeedRanking(){
+  const tbody=speedTable.querySelector("tbody");
+  tbody.innerHTML="";
+  [...speedHistory].sort((a,b)=>b.epm-a.epm).slice(0,10).forEach((s,i)=>{
+    tbody.innerHTML+=`<tr><td>${i+1}</td><td>${s.t}</td><td>+${s.e}</td><td><b>${s.epm}</b></td></tr>`;
+  });
 }
 
 async function startDay(){
   const d=await fetchPlayer();
   dayStart=d.experience;
-  status.innerText="📅 START DNIA";
+  dayDate=new Date().toLocaleDateString();
 }
+
 async function endDay(){
   const d=await fetchPlayer();
   const gain=d.experience-dayStart;
-  history.push({t:new Date().toLocaleTimeString(),e:gain});
+  history.push({t:dayDate,e:gain});
   localStorage.setItem("expHistory",JSON.stringify(history));
-  updateChart();
-  status.innerText=`📅 +${gain.toLocaleString()} EXP`;
+  renderDays();updateChart();
 }
-function undoDay(){
-  if(!history.length)return;
-  history.pop();
+
+function renderDays(){
+  const tbody=daysTable.querySelector("tbody");
+  tbody.innerHTML="";
+  history.forEach((d,i)=>{
+    tbody.innerHTML+=`<tr><td>${d.t}</td><td>+${d.e}</td><td><button onclick="delDay(${i})">🗑</button></td></tr>`;
+  });
+}
+function delDay(i){
+  history.splice(i,1);
   localStorage.setItem("expHistory",JSON.stringify(history));
-  updateChart();
+  renderDays();updateChart();
 }
 
 function updateChart(){
   const labels=history.map(h=>h.t);
   const data=history.map(h=>h.e);
   if(!chart){
-    chart=new Chart(expChart,{
-      type:"line",
-      data:{labels,datasets:[{data,borderColor:"#d4af37"}]},
-      options:{plugins:{legend:{display:false}}}
-    });
+    chart=new Chart(expChart,{type:"line",data:{labels,datasets:[{data,borderColor:"#d4af37",fill:true,backgroundColor:"rgba(212,175,55,.2)"}]},options:{plugins:{legend:{display:false}}}});
   }else{
     chart.data.labels=labels;
     chart.data.datasets[0].data=data;
@@ -310,7 +340,15 @@ function updateChart(){
   }
 }
 
-updateChart();
+let auto=localStorage.getItem("autoRefresh")==="true";
+autoToggle.checked=auto;
+let autoInt=null;
+function startAuto(){autoInt=setInterval(()=>char&&refreshExp(),600000)}
+function stopAuto(){clearInterval(autoInt)}
+autoToggle.onchange=()=>{auto=autoToggle.checked;localStorage.setItem("autoRefresh",auto);auto?startAuto():stopAuto()}
+if(auto)startAuto();
+
+renderDays();renderSpeedRanking();updateChart();
 if(char)refreshExp();
 </script>
 
