@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>APO Podkarpacki OTS Tracker</title>
 
+<link rel="stylesheet" href="/static/css/style.css">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -136,6 +137,30 @@ footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
 </head>
 
 <body>
+  
+  <!-- CINEMATIC INTRO -->
+  <div id="cinematic-intro">
+    <video
+      autoplay
+      muted
+      playsinline
+      preload="auto"
+    >
+      <source src="/static/video/intro.webm" type="video/webm">
+    </video>
+
+    <div class="intro-overlay"></div>
+
+    <div class="intro-text">
+      <h1>APO PODKARPACKI</h1>
+      <h2>OTS TRACKER</h2>
+    </div>
+  </div>
+  <!-- /CINEMATIC INTRO -->
+
+
+  <!-- RESZTA STRONY (TWÓJ TRACKER) -->
+
 
 <div id="clockBox">
   <div id="clockTime"></div>
@@ -521,7 +546,9 @@ if(char){
   loadState();
 }
 </script>
+<script src="/static/js/app.js"></script>
 
 </body>
 </html>
+
 
