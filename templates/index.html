@@ -253,6 +253,13 @@ charInput.addEventListener("keydown",e=>{if(e.key==="Enter")setChar();});
 async function refresh(){
   if(!char) return;
   const d=await fetchPlayer();
+
+  console.log("=== BACKEND RAW CHECK ===");
+  console.log("RAW vocation:", d.vocation);
+  console.log("TYPE:", typeof d.vocation);
+  console.log("FULL player object:", d);
+  console.log("=========================");
+
   const v=parseVocation(d.vocation);
   vocationIcon.src="/static/icons/"+v.icon;
   charNameBig.innerText=d.name;
