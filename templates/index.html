@@ -50,12 +50,11 @@ body{
   opacity:0;
   transform:scale(.85);
   animation:introIn 1.8s forwards;
-  filter:drop-shadow(0 0 0 red);
 }
 @keyframes introIn{
-  0%{opacity:0;transform:scale(.85);filter:drop-shadow(0 0 0 red)}
-  60%{opacity:1;transform:scale(1.05);filter:drop-shadow(0 0 40px red)}
-  100%{opacity:1;transform:scale(1);filter:drop-shadow(0 0 60px red)}
+  0%{opacity:0;transform:scale(.85)}
+  60%{opacity:1;transform:scale(1.05)}
+  100%{opacity:1;transform:scale(1)}
 }
 
 header{text-align:center;padding:30px}
@@ -70,7 +69,12 @@ header img{max-width:420px;filter:drop-shadow(0 0 30px rgba(255,0,0,.9))}
   padding:26px;
   margin-bottom:26px;
 }
-.section-title{font-size:22px;color:#ff6a6a;margin-bottom:18px}
+
+.section-title{
+  font-size:22px;
+  color:#ff6a6a;
+  margin-bottom:18px;
+}
 
 button,input{
   background:#0b0000;
@@ -80,8 +84,10 @@ button,input{
   font-family:'Cinzel',serif;
   cursor:pointer;
 }
+
 button:hover{box-shadow:0 0 15px rgba(255,0,0,.7)}
 button.active{animation:pulse 1.4s infinite}
+
 @keyframes pulse{
   0%{box-shadow:0 0 10px red}
   50%{box-shadow:0 0 25px red}
@@ -100,21 +106,21 @@ button.active{animation:pulse 1.4s infinite}
   margin-top:16px;
 }
 
-.list-header,.list-row{
-  display:grid;
-  grid-template-columns:120px 120px 120px 120px 90px 180px 60px;
-  gap:10px;
+/* ===== SPEED ===== */
+#speedBox{text-align:center}
+#speedPercent{
+  font-size:56px;
+  color:#ff4a4a;
+  margin:10px 0;
 }
-.list-header{
-  font-size:14px;
-  font-weight:bold;
-  border-bottom:1px solid rgba(255,255,255,.2);
-  padding-bottom:6px;
+.speedBtns button{
+  margin:4px;
+  min-width:60px;
 }
-.list-row{
-  font-size:17px;
-  padding:10px 0;
-  border-bottom:1px solid rgba(255,255,255,.1);
+#speedTimer{
+  font-size:28px;
+  margin-top:10px;
+  color:#ffd0d0;
 }
 
 footer{
@@ -143,11 +149,12 @@ footer{
 
 <div class="container">
 
+<!-- POSTAĆ -->
 <div class="card">
   <div class="section-title">Postać</div>
   Nick:
   <input id="charInput">
-  <button id="setCharBtn" onclick="setChar()">Ustaw</button>
+  <button onclick="setChar()">Ustaw</button>
 
   <div id="charHero">
     <img id="vocationIcon">
@@ -156,34 +163,40 @@ footer{
   </div>
 </div>
 
+<!-- EXP -->
 <div class="card">
-  <div class="section-title">DOŚWIADCZENIE</div>
-  <button id="refreshBtn" onclick="refresh()">Odśwież</button>
+  <div class="section-title">Doświadczenie</div>
+  <button onclick="refresh()">Odśwież</button>
   <div id="expValue">—</div>
 </div>
 
+<!-- SPEED -->
 <div class="card">
-  <div class="section-title">Speed</div>
-  <button id="speedStartBtn" onclick="startSpeed()">START</button>
-  <button id="speedStopBtn" onclick="stopSpeed()">STOP</button>
-  <div id="speedStatus">—</div>
-</div>
+  <div class="section-title">Speed (ETAP 1)</div>
 
-<div class="card">
-  <div class="section-title">STATYSTYKA DZIENNA</div>
-  <button id="dayStartBtn" onclick="startDay()">START DNIA</button>
-  <button id="dayEndBtn" onclick="endDay()">ZAKOŃCZ DZIEŃ</button>
-  <div id="dayStatus">—</div>
+  <div id="speedBox">
+    <div id="speedPercent">50%</div>
 
-  <div class="list-header">
-    <div>Data</div><div>EXP</div><div>Speed</div><div>Normal</div><div>%</div><div>Lvle</div><div>Usuń</div>
+    <div class="speedBtns">
+      <script>
+        for(let i=5;i<=50;i+=5)
+          document.write(`<button onclick="setSpeed(${i})">${i}%</button>`);
+      </script>
+    </div>
+
+    <div style="margin-top:10px">
+      <label><input type="radio" name="speedTime" value="80" checked> 80 min</label>
+      <label style="margin-left:20px">
+        <input type="radio" name="speedTime" value="60"> 60 min
+      </label>
+    </div>
+
+    <div style="margin-top:15px">
+      <button id="speedStartBtn" onclick="startSpeed()">UŻYJ SPEEDA</button>
+    </div>
+
+    <div id="speedTimer">—</div>
   </div>
-  <div id="dayList"></div>
-</div>
-
-<div class="card">
-  <div class="section-title">Wykres EXP</div>
-  <canvas id="chart" height="120"></canvas>
 </div>
 
 </div>
@@ -193,45 +206,39 @@ footer{
 </footer>
 
 <script>
-/* ===== INTRO ===== */
-const intro=document.getElementById("intro");
-window.addEventListener("load",()=>{
-  setTimeout(()=>{
-    intro.style.opacity="0";
-    setTimeout(()=>intro.style.display="none",1200);
-  },2600);
-});
-
-/* ===== CLOCK ===== */
-function tick(){
+/* ===== INTRO / CLOCK ===== */
+window.addEventListener("load",()=>setTimeout(()=>intro.style.display="none",2600));
+setInterval(()=>{
   const n=new Date();
   clockTime.innerText=n.toLocaleTimeString();
   clockDate.innerText=n.toLocaleDateString();
-}
-setInterval(tick,1000);tick();
-
-/* ===== YEAR ===== */
+},1000);
 year.innerText=new Date().getFullYear();
 
 /* ===== STATE ===== */
 let char=localStorage.getItem("char")||"";
 charInput.value=char;
 
-let days=JSON.parse(localStorage.getItem("daysAuto")||"[]");
-let currentDay=JSON.parse(localStorage.getItem("currentDay")||"null");
-let speedStartExp=Number(localStorage.getItem("speedStartExp"))||0;
-let chart=null;
+let speedSettings=JSON.parse(localStorage.getItem("speedSettings")||"{}");
+let speedInterval=null;
 
-/* ===== PROFESSION PARSER (FINAL) ===== */
+/* ===== PROFESSION FIX ===== */
 function parseVocation(raw){
-  if(!raw) return {icon:"rook.png",name:"Rook"};
-  let c=raw.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
-  c=c.replace(/[^a-z]/g,"");
+  if(raw===null||raw===undefined) return {icon:"rook.png",name:"Rook"};
+  let c=String(raw).toLowerCase();
 
-  if(c.includes("rycerz")||c.includes("knight")) return {icon:"knight.png",name:"Rycerz"};
-  if(c.includes("druid")) return {icon:"druid.png",name:"Druid"};
-  if(c.includes("palad")) return {icon:"paladin.png",name:"Paladyn"};
-  if(c.includes("czaro")||c.includes("sorc")) return {icon:"sorcerer.png",name:"Czarodziej"};
+  if(c==="1") return {icon:"sorcerer.png",name:"Czarodziej"};
+  if(c==="2") return {icon:"druid.png",name:"Druid"};
+  if(c==="3") return {icon:"paladin.png",name:"Paladyn"};
+  if(c==="4") return {icon:"knight.png",name:"Rycerz"};
+
+  c=c.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z]/g,"");
+
+  if(c.includes("knight")||c.includes("ek")) return {icon:"knight.png",name:"Rycerz"};
+  if(c.includes("paladin")||c.includes("rp")) return {icon:"paladin.png",name:"Paladyn"};
+  if(c.includes("druid")||c.includes("ed")) return {icon:"druid.png",name:"Druid"};
+  if(c.includes("sorc")||c.includes("ms")) return {icon:"sorcerer.png",name:"Czarodziej"};
+
   return {icon:"rook.png",name:"Rook"};
 }
 
@@ -247,127 +254,77 @@ function setChar(){
   localStorage.setItem("char",char);
   refresh();
 }
-charInput.addEventListener("keydown",e=>{if(e.key==="Enter")setChar();});
 
-/* ===== REFRESH ===== */
 async function refresh(){
   if(!char) return;
   const d=await fetchPlayer();
-
-  console.log("=== BACKEND RAW CHECK ===");
-  console.log("RAW vocation:", d.vocation);
-  console.log("TYPE:", typeof d.vocation);
-  console.log("FULL player object:", d);
-  console.log("=========================");
-
   const v=parseVocation(d.vocation);
   vocationIcon.src="/static/icons/"+v.icon;
   charNameBig.innerText=d.name;
-  charStats.innerText=`${v.name} | Level ${d.level} | Magic ${d.magic}`;
+  charStats.innerText=`${v.name} | Level ${d.level}`;
   expValue.innerText=d.experience.toLocaleString();
 }
 
-/* ===== SPEED ===== */
-async function startSpeed(){
-  const d=await fetchPlayer();
-  speedStartExp=d.experience;
-  localStorage.setItem("speedStartExp",speedStartExp);
-  speedStartBtn.classList.add("active");
-  speedStatus.innerText="SPEED AKTYWNY (+50%)";
-}
-async function stopSpeed(){
-  if(!speedStartExp)return;
-  const d=await fetchPlayer();
-  const gain=d.experience-speedStartExp;
-  if(currentDay) currentDay.speedExp+=Math.round(gain/3);
-  localStorage.removeItem("speedStartExp");
-  speedStartExp=0;
-  speedStartBtn.classList.remove("active");
-  speedStatus.innerText=`SPEED STOP | +${gain.toLocaleString()}`;
-}
+/* ===== SPEED ETAP 1 ===== */
+let speedPercent=50;
+let speedDuration=80;
 
-/* ===== DAY ===== */
-async function startDay(){
-  const d=await fetchPlayer();
-  currentDay={date:new Date().toLocaleDateString(),expStart:d.experience,speedExp:0,lvlFrom:d.level};
-  localStorage.setItem("currentDay",JSON.stringify(currentDay));
-  dayStartBtn.classList.add("active");
-  dayStatus.innerText="DZIEŃ AKTYWNY";
+function setSpeed(p){
+  speedPercent=p;
+  speedPercentDiv.innerText=p+"%";
+  saveSpeed();
 }
-async function endDay(){
-  if(!currentDay)return;
-  const d=await fetchPlayer();
-  const total=d.experience-currentDay.expStart;
-  days.push({
-    date:currentDay.date,
-    exp:total,
-    speedExp:currentDay.speedExp,
-    normalExp:total-currentDay.speedExp,
-    pct:total?Math.round(currentDay.speedExp/total*100):0,
-    lvls:`${currentDay.lvlFrom} → ${d.level}`
+const speedPercentDiv=document.getElementById("speedPercent");
+
+document.querySelectorAll('input[name="speedTime"]').forEach(r=>{
+  r.addEventListener("change",()=>{
+    speedDuration=Number(r.value);
+    saveSpeed();
   });
-  localStorage.setItem("daysAuto",JSON.stringify(days));
-  localStorage.removeItem("currentDay");
-  currentDay=null;
-  dayStartBtn.classList.remove("active");
-  dayStatus.innerText="DZIEŃ ZAKOŃCZONY";
-  renderDays();
+});
+
+function saveSpeed(){
+  localStorage.setItem("speedSettings",JSON.stringify({
+    percent:speedPercent,
+    duration:speedDuration,
+    startTime:speedSettings.startTime||null
+  }));
 }
 
-/* ===== RENDER ===== */
-function renderDays(){
-  dayList.innerHTML="";
-  days.forEach((d,i)=>{
-    dayList.innerHTML+=`
-    <div class="list-row">
-      <div>${d.date}</div>
-      <div>${d.exp.toLocaleString()}</div>
-      <div>${d.speedExp.toLocaleString()}</div>
-      <div>${d.normalExp.toLocaleString()}</div>
-      <div>${d.pct}%</div>
-      <div>${d.lvls}</div>
-      <div><button onclick="delDay(${i})">X</button></div>
-    </div>`;
-  });
-  renderChart();
-}
-function delDay(i){
-  days.splice(i,1);
-  localStorage.setItem("daysAuto",JSON.stringify(days));
-  renderDays();
+function startSpeed(){
+  speedSettings={
+    percent:speedPercent,
+    duration:speedDuration,
+    startTime:Date.now()
+  };
+  localStorage.setItem("speedSettings",JSON.stringify(speedSettings));
+  runTimer();
 }
 
-/* ===== CHART ===== */
-function renderChart(){
-  const ctx=document.getElementById("chart").getContext("2d");
-  if(chart)chart.destroy();
-  chart=new Chart(ctx,{
-    type:"line",
-    data:{
-      labels:days.map(d=>d.date),
-      datasets:[{
-        label:"EXP dzienny",
-        data:days.map(d=>d.exp),
-        borderColor:"#ff4a4a",
-        backgroundColor:"rgba(255,74,74,.2)",
-        fill:true,
-        tension:.35
-      }]
+function runTimer(){
+  if(speedInterval) clearInterval(speedInterval);
+  speedInterval=setInterval(()=>{
+    const elapsed=Math.floor((Date.now()-speedSettings.startTime)/1000);
+    const left=speedSettings.duration*60-elapsed;
+    if(left<=0){
+      speedTimer.innerText="SPEED ZAKOŃCZONY";
+      clearInterval(speedInterval);
+      return;
     }
-  });
+    const m=String(Math.floor(left/60)).padStart(2,"0");
+    const s=String(left%60).padStart(2,"0");
+    speedTimer.innerText=`Pozostało: ${m}:${s}`;
+  },1000);
 }
 
 /* ===== INIT ===== */
-if(currentDay){
-  dayStartBtn.classList.add("active");
-  dayStatus.innerText="DZIEŃ AKTYWNY (WZNOWIONY)";
+if(speedSettings.percent){
+  speedPercent=speedSettings.percent;
+  speedDuration=speedSettings.duration;
+  speedPercentDiv.innerText=speedPercent+"%";
+  if(speedSettings.startTime) runTimer();
 }
-if(speedStartExp){
-  speedStartBtn.classList.add("active");
-  speedStatus.innerText="SPEED AKTYWNY (+50%)";
-}
-if(char)refresh();
-renderDays();
+if(char) refresh();
 </script>
 
 </body>
