@@ -212,23 +212,6 @@ charInput.addEventListener("keydown",e=>{if(e.key==="Enter")setChar();});
 /* HELPERS */
 function key(k){return `apo_${char}_${k}`}
 
-/* PROFESSION – AUTOMATYCZNA PER POSTAĆ */
-function resolveProfession(){
-  let p=localStorage.getItem(key("profession"));
-  if(p) return p;
-  // backend zwraca rook – zakładamy rycerza jako default
-  p="knight";
-  localStorage.setItem(key("profession"),p);
-  return p;
-}
-function professionData(p){
-  if(p==="knight") return {name:"Rycerz",icon:"knight.png"};
-  if(p==="paladin") return {name:"Paladyn",icon:"paladin.png"};
-  if(p==="druid") return {name:"Druid",icon:"druid.png"};
-  if(p==="sorcerer") return {name:"Czarodziej",icon:"sorcerer.png"};
-  return {name:"Rook",icon:"rook.png"};
-}
-
 /* API */
 async function fetchPlayer(){
   const r=await fetch(`/player/${char}`);
@@ -246,11 +229,18 @@ function setChar(){
 async function refresh(){
   if(!char) return;
   const d=await fetchPlayer();
-  const prof=professionData(resolveProfession());
-  vocationIcon.src="/static/icons/"+prof.icon;
+
   charNameBig.innerText=d.name;
-  charStats.innerText=`${prof.name} | Level ${d.level} | Magic ${d.magic}`;
+  charStats.innerText=`${d.vocation} | Level ${d.level} | Magic ${d.magic}`;
   expValue.innerText=d.experience.toLocaleString();
+
+  const v=d.vocation.toLowerCase();
+  vocationIcon.src="/static/icons/"+(
+    v.includes("druid")?"druid.png":
+    v.includes("paladyn")?"paladin.png":
+    v.includes("czaro")?"sorcerer.png":
+    v.includes("rycerz")?"knight.png":"rook.png"
+  );
 }
 
 /* AUTO REFRESH */
@@ -278,6 +268,7 @@ let speedPercent=50;
 let speedDuration=80;
 let speedStart=null;
 let speedInterval=null;
+let lastExpAtSpeedStart=0;
 
 function renderSpeedBtns(){
   speedBtns.innerHTML="";
@@ -287,9 +278,9 @@ function renderSpeedBtns(){
     if(i===speedPercent) b.classList.add("active");
     b.onclick=()=>{
       speedPercent=i;
+      speedPercentEl.innerText=i+"%";
       saveSpeed();
       renderSpeedBtns();
-      speedPercentDiv.innerText=i+"%";
     };
     speedBtns.appendChild(b);
   }
@@ -298,7 +289,8 @@ function saveSpeed(){
   localStorage.setItem(key("speed"),JSON.stringify({
     percent:speedPercent,
     duration:speedDuration,
-    start:speedStart
+    start:speedStart,
+    lastExp:lastExpAtSpeedStart
   }));
 }
 function loadSpeed(){
@@ -306,16 +298,23 @@ function loadSpeed(){
   speedPercent=s.percent||50;
   speedDuration=s.duration||80;
   speedStart=s.start||null;
-  speedPercentDiv.innerText=speedPercent+"%";
+  lastExpAtSpeedStart=s.lastExp||0;
+
+  speedPercentEl.innerText=speedPercent+"%";
+
   document.querySelectorAll('input[name="speedTime"]').forEach(r=>{
     r.checked=Number(r.value)===speedDuration;
     r.onchange=()=>{speedDuration=Number(r.value);saveSpeed();}
   });
+
   renderSpeedBtns();
   if(speedStart) runTimer();
 }
-function startSpeed(){
+
+async function startSpeed(){
+  const d=await fetchPlayer();
   speedStart=Date.now();
+  lastExpAtSpeedStart=d.experience;
   saveSpeed();
   runTimer();
 }
@@ -323,22 +322,34 @@ function resetSpeed(){
   speedPercent=50;
   speedDuration=80;
   speedStart=null;
+  lastExpAtSpeedStart=0;
   saveSpeed();
   speedTimer.innerText="—";
-  speedPercentDiv.innerText="50%";
+  speedPercentEl.innerText="50%";
   renderSpeedBtns();
 }
 function runTimer(){
   clearInterval(speedInterval);
-  speedInterval=setInterval(()=>{
+  speedInterval=setInterval(async()=>{
     const left=speedDuration*60-
       Math.floor((Date.now()-speedStart)/1000);
+
     if(left<=0){
       speedTimer.innerText="SPEED ZAKOŃCZONY";
       clearInterval(speedInterval);
       return;
     }
+
     speedTimer.innerText=`Pozostało: ${String(Math.floor(left/60)).padStart(2,"0")}:${String(left%60).padStart(2,"0")}`;
+
+    if(currentDay){
+      const d=await fetchPlayer();
+      const gained=d.experience-lastExpAtSpeedStart;
+      const speedPart=Math.round(gained*(speedPercent/100));
+      currentDay.speedExp+=speedPart;
+      lastExpAtSpeedStart=d.experience;
+      localStorage.setItem(key("currentDay"),JSON.stringify(currentDay));
+    }
   },1000);
 }
 
@@ -429,6 +440,7 @@ function renderChart(){
 }
 
 /* INIT */
+const speedPercentEl=document.getElementById("speedPercent");
 function loadState(){
   loadSpeed();
   loadDays();
