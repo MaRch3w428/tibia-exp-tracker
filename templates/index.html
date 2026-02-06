@@ -88,18 +88,19 @@ button.active{animation:pulse 1.4s infinite}
   100%{box-shadow:0 0 10px red}
 }
 
-/* CHAR */
+/* MAIN PANEL */
 #charHero{text-align:center}
-#vocationIcon{width:160px}
-#charNameBig{font-size:40px;color:#ff4a4a}
-#charStats{font-size:22px;margin-top:6px}
-#expValue{font-size:38px;color:#ff4a4a;text-align:center;margin-top:16px}
+#vocationIcon{width:140px}
+#charNameBig{font-size:38px;color:#ff4a4a}
+#charStats{font-size:20px;margin-top:6px}
+#expValue{font-size:36px;color:#ff4a4a;margin-top:10px}
 
 /* SPEED */
 #speedBox{text-align:center}
-#speedPercent{font-size:56px;color:#ff4a4a}
+#speedPercent{font-size:52px;color:#ff4a4a}
 .speedBtns button{margin:4px;min-width:60px}
-#speedTimer{font-size:28px;margin-top:10px}
+.speedBtns button.active{box-shadow:0 0 25px red}
+#speedTimer{font-size:26px;margin-top:10px}
 
 /* LIST */
 .list-header,.list-row{
@@ -135,48 +136,45 @@ footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
 
 <div class="container">
 
-<!-- CHAR -->
+<!-- MAIN PANEL -->
 <div class="card">
   <div class="section-title">Postać</div>
+
   Nick:
   <input id="charInput">
-  <button onclick="setChar()">Ustaw</button>
+  <button onclick="setChar()">USTAW</button>
 
   <div id="charHero">
     <img id="vocationIcon">
     <div id="charNameBig">—</div>
     <div id="charStats">—</div>
+    <div id="expValue">—</div>
   </div>
-</div>
 
-<!-- EXP -->
-<div class="card">
-  <div class="section-title">Doświadczenie</div>
-  <button onclick="refresh()">Odśwież</button>
-  <div id="expValue">—</div>
+  <div style="margin-top:15px">
+    <button onclick="refresh()">Odśwież</button>
+    <button id="autoBtn" onclick="toggleAuto()">Auto-odśwież: WYŁ</button>
+  </div>
 </div>
 
 <!-- SPEED -->
 <div class="card">
-  <div class="section-title">Speed – ETAP 1</div>
+  <div class="section-title">Speed</div>
+
   <div id="speedBox">
     <div id="speedPercent">50%</div>
-    <div class="speedBtns">
-      <script>
-        for(let i=5;i<=50;i+=5)
-          document.write(`<button onclick="setSpeed(${i})">${i}%</button>`);
-      </script>
-    </div>
+
+    <div class="speedBtns" id="speedBtns"></div>
 
     <div style="margin-top:10px">
-      <label><input type="radio" name="speedTime" value="80" checked> 80 min</label>
+      <label><input type="radio" name="speedTime" value="80"> 80 min</label>
       <label style="margin-left:20px">
-        <input type="radio" name="speedTime" value="60"> 60 min
-      </label>
+        <input type="radio" name="speedTime" value="60"> 60 min</label>
     </div>
 
     <div style="margin-top:15px">
       <button onclick="startSpeed()">UŻYJ SPEEDA</button>
+      <button onclick="resetSpeed()">RESTART SPEED</button>
     </div>
 
     <div id="speedTimer">—</div>
@@ -186,7 +184,7 @@ footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
 <!-- DAY STATS -->
 <div class="card">
   <div class="section-title">Statystyka dzienna</div>
-  <button id="dayStartBtn" onclick="startDay()">START DNIA</button>
+  <button onclick="startDay()">START DNIA</button>
   <button onclick="endDay()">ZAKOŃCZ DZIEŃ</button>
   <div id="dayStatus">—</div>
 
@@ -220,28 +218,23 @@ year.innerText=new Date().getFullYear();
 let char=localStorage.getItem("char")||"";
 charInput.value=char;
 
+charInput.addEventListener("keydown",e=>{
+  if(e.key==="Enter") setChar();
+});
+
 let days=JSON.parse(localStorage.getItem("daysAuto")||"[]");
 let currentDay=JSON.parse(localStorage.getItem("currentDay")||"null");
 
 let speedSettings=JSON.parse(localStorage.getItem("speedSettings")||"{}");
 let speedPercent=speedSettings.percent||50;
 let speedDuration=speedSettings.duration||80;
+let speedStart=speedSettings.startTime||null;
 let speedInterval=null;
 
-speedPercentDiv.innerText=speedPercent+"%";
-document.querySelector(`input[value="${speedDuration}"]`).checked=true;
-
-/* PROFESSION – HARD FIX */
+/* PROFESSION FIX (ETAP B) */
 function parseVocation(raw){
   const v=String(raw).toLowerCase().trim();
-  if(["0","4","knight","elite knight","ek"].includes(v))
-    return {icon:"knight.png",name:"Rycerz"};
-  if(["1","sorcerer","master sorcerer","ms"].includes(v))
-    return {icon:"sorcerer.png",name:"Czarodziej"};
-  if(["2","druid","elder druid","ed"].includes(v))
-    return {icon:"druid.png",name:"Druid"};
-  if(["3","paladin","royal paladin","rp"].includes(v))
-    return {icon:"paladin.png",name:"Paladyn"};
+  if(v==="rook") return {icon:"knight.png",name:"Rycerz"};
   return {icon:"rook.png",name:"Rook"};
 }
 
@@ -251,7 +244,7 @@ async function fetchPlayer(){
   return r.json();
 }
 
-/* CHAR */
+/* MAIN PANEL */
 function setChar(){
   char=charInput.value.trim();
   localStorage.setItem("char",char);
@@ -264,43 +257,88 @@ async function refresh(){
   const v=parseVocation(d.vocation);
   vocationIcon.src="/static/icons/"+v.icon;
   charNameBig.innerText=d.name;
-  charStats.innerText=`${v.name} | Level ${d.level}`;
+  charStats.innerText=`${v.name} | Level ${d.level} | Magic ${d.magic}`;
   expValue.innerText=d.experience.toLocaleString();
 }
 
-/* SPEED */
-function setSpeed(p){
-  speedPercent=p;
-  speedPercentDiv.innerText=p+"%";
-  saveSpeed();
+/* AUTO REFRESH */
+let autoTimer=null;
+function toggleAuto(){
+  const on=localStorage.getItem("autoRefresh")==="1";
+  if(on){
+    clearInterval(autoTimer);
+    localStorage.setItem("autoRefresh","0");
+    autoBtn.innerText="Auto-odśwież: WYŁ";
+  }else{
+    autoTimer=setInterval(refresh,600000);
+    localStorage.setItem("autoRefresh","1");
+    autoBtn.innerText="Auto-odśwież: WŁ";
+  }
+}
+if(localStorage.getItem("autoRefresh")==="1"){
+  toggleAuto();
+}
+
+/* SPEED UI */
+const speedBtnsDiv=document.getElementById("speedBtns");
+for(let i=5;i<=50;i+=5){
+  const b=document.createElement("button");
+  b.innerText=i+"%";
+  if(i===speedPercent) b.classList.add("active");
+  b.onclick=()=>{
+    speedPercent=i;
+    saveSpeed();
+    renderSpeedBtns();
+  };
+  speedBtnsDiv.appendChild(b);
+}
+function renderSpeedBtns(){
+  [...speedBtnsDiv.children].forEach(b=>{
+    b.classList.toggle("active",b.innerText===speedPercent+"%");
+  });
+  speedPercentDiv.innerText=speedPercent+"%";
 }
 document.querySelectorAll('input[name="speedTime"]').forEach(r=>{
+  r.checked=Number(r.value)===speedDuration;
   r.onchange=()=>{speedDuration=Number(r.value);saveSpeed();}
 });
 function saveSpeed(){
   localStorage.setItem("speedSettings",JSON.stringify({
     percent:speedPercent,
     duration:speedDuration,
-    startTime:speedSettings.startTime||null
+    startTime:speedStart
   }));
 }
 function startSpeed(){
-  speedSettings={percent:speedPercent,duration:speedDuration,startTime:Date.now()};
-  localStorage.setItem("speedSettings",JSON.stringify(speedSettings));
+  speedStart=Date.now();
+  saveSpeed();
   runTimer();
+}
+function resetSpeed(){
+  speedPercent=50;
+  speedDuration=80;
+  speedStart=null;
+  saveSpeed();
+  renderSpeedBtns();
+  speedTimer.innerText="—";
 }
 function runTimer(){
   clearInterval(speedInterval);
   speedInterval=setInterval(()=>{
-    const left=speedSettings.duration*60-
-      Math.floor((Date.now()-speedSettings.startTime)/1000);
-    if(left<=0){speedTimer.innerText="SPEED ZAKOŃCZONY";return;}
-    speedTimer.innerText=`Pozostało: ${String(Math.floor(left/60)).padStart(2,"0")}:${String(left%60).padStart(2,"0")}`;
+    const left=speedDuration*60-
+      Math.floor((Date.now()-speedStart)/1000);
+    if(left<=0){
+      speedTimer.innerText="SPEED ZAKOŃCZONY";
+      clearInterval(speedInterval);
+      return;
+    }
+    speedTimer.innerText=
+      `Pozostało: ${String(Math.floor(left/60)).padStart(2,"0")}:${String(left%60).padStart(2,"0")}`;
   },1000);
 }
-if(speedSettings.startTime) runTimer();
+if(speedStart) runTimer();
 
-/* DAY */
+/* DAY STATS */
 async function startDay(){
   const d=await fetchPlayer();
   currentDay={date:new Date().toLocaleDateString(),expStart:d.experience,speedExp:0,lvlFrom:d.level};
@@ -325,7 +363,7 @@ async function endDay(){
   renderDays();
 }
 
-/* RENDER */
+/* RENDER DAYS + CHART */
 function renderDays(){
   dayList.innerHTML="";
   days.forEach((d,i)=>{
@@ -380,7 +418,9 @@ function renderChart(){
   });
 }
 
+/* INIT */
 if(char) refresh();
+renderSpeedBtns();
 renderDays();
 </script>
 
