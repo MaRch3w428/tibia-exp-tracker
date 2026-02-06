@@ -80,15 +80,8 @@ button,input{
   cursor:pointer;
 }
 button:hover{box-shadow:0 0 15px rgba(255,0,0,.7)}
-button.active{animation:pulse 1.4s infinite}
+button.active{box-shadow:0 0 25px red}
 
-@keyframes pulse{
-  0%{box-shadow:0 0 10px red}
-  50%{box-shadow:0 0 25px red}
-  100%{box-shadow:0 0 10px red}
-}
-
-/* MAIN PANEL */
 #charHero{text-align:center}
 #vocationIcon{width:140px}
 #charNameBig{font-size:38px;color:#ff4a4a}
@@ -99,7 +92,6 @@ button.active{animation:pulse 1.4s infinite}
 #speedBox{text-align:center}
 #speedPercent{font-size:52px;color:#ff4a4a}
 .speedBtns button{margin:4px;min-width:60px}
-.speedBtns button.active{box-shadow:0 0 25px red}
 #speedTimer{font-size:26px;margin-top:10px}
 
 /* LIST */
@@ -136,10 +128,9 @@ footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
 
 <div class="container">
 
-<!-- MAIN PANEL -->
+<!-- PANEL POSTACI -->
 <div class="card">
   <div class="section-title">Postać</div>
-
   Nick:
   <input id="charInput">
   <button onclick="setChar()">USTAW</button>
@@ -163,7 +154,6 @@ footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
 
   <div id="speedBox">
     <div id="speedPercent">50%</div>
-
     <div class="speedBtns" id="speedBtns"></div>
 
     <div style="margin-top:10px">
@@ -181,7 +171,7 @@ footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
   </div>
 </div>
 
-<!-- DAY STATS -->
+<!-- STATYSTYKA DNIA -->
 <div class="card">
   <div class="section-title">Statystyka dzienna</div>
   <button onclick="startDay()">START DNIA</button>
@@ -194,7 +184,7 @@ footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
   <div id="dayList"></div>
 </div>
 
-<!-- CHART -->
+<!-- WYKRES -->
 <div class="card">
   <div class="section-title">Wykres EXP</div>
   <canvas id="chart" height="140"></canvas>
@@ -205,7 +195,7 @@ footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
 <footer>designed by Zohanek © <span id="year"></span></footer>
 
 <script>
-/* INTRO + CLOCK */
+/* CLOCK + INTRO */
 setTimeout(()=>intro.style.display="none",2600);
 setInterval(()=>{
   const n=new Date();
@@ -214,28 +204,29 @@ setInterval(()=>{
 },1000);
 year.innerText=new Date().getFullYear();
 
-/* STATE */
-let char=localStorage.getItem("char")||"";
+/* GLOBAL */
+let char=localStorage.getItem("apo_last_char")||"";
 charInput.value=char;
+charInput.addEventListener("keydown",e=>{if(e.key==="Enter")setChar();});
 
-charInput.addEventListener("keydown",e=>{
-  if(e.key==="Enter") setChar();
-});
+/* HELPERS */
+function key(k){return `apo_${char}_${k}`}
 
-let days=JSON.parse(localStorage.getItem("daysAuto")||"[]");
-let currentDay=JSON.parse(localStorage.getItem("currentDay")||"null");
-
-let speedSettings=JSON.parse(localStorage.getItem("speedSettings")||"{}");
-let speedPercent=speedSettings.percent||50;
-let speedDuration=speedSettings.duration||80;
-let speedStart=speedSettings.startTime||null;
-let speedInterval=null;
-
-/* PROFESSION FIX (ETAP B) */
-function parseVocation(raw){
-  const v=String(raw).toLowerCase().trim();
-  if(v==="rook") return {icon:"knight.png",name:"Rycerz"};
-  return {icon:"rook.png",name:"Rook"};
+/* PROFESSION – AUTOMATYCZNA PER POSTAĆ */
+function resolveProfession(){
+  let p=localStorage.getItem(key("profession"));
+  if(p) return p;
+  // backend zwraca rook – zakładamy rycerza jako default
+  p="knight";
+  localStorage.setItem(key("profession"),p);
+  return p;
+}
+function professionData(p){
+  if(p==="knight") return {name:"Rycerz",icon:"knight.png"};
+  if(p==="paladin") return {name:"Paladyn",icon:"paladin.png"};
+  if(p==="druid") return {name:"Druid",icon:"druid.png"};
+  if(p==="sorcerer") return {name:"Czarodziej",icon:"sorcerer.png"};
+  return {name:"Rook",icon:"rook.png"};
 }
 
 /* API */
@@ -244,70 +235,84 @@ async function fetchPlayer(){
   return r.json();
 }
 
-/* MAIN PANEL */
+/* PANEL POSTACI */
 function setChar(){
   char=charInput.value.trim();
-  localStorage.setItem("char",char);
+  localStorage.setItem("apo_last_char",char);
   refresh();
+  loadState();
 }
 
 async function refresh(){
   if(!char) return;
   const d=await fetchPlayer();
-  const v=parseVocation(d.vocation);
-  vocationIcon.src="/static/icons/"+v.icon;
+  const prof=professionData(resolveProfession());
+  vocationIcon.src="/static/icons/"+prof.icon;
   charNameBig.innerText=d.name;
-  charStats.innerText=`${v.name} | Level ${d.level} | Magic ${d.magic}`;
+  charStats.innerText=`${prof.name} | Level ${d.level} | Magic ${d.magic}`;
   expValue.innerText=d.experience.toLocaleString();
 }
 
 /* AUTO REFRESH */
 let autoTimer=null;
 function toggleAuto(){
-  const on=localStorage.getItem("autoRefresh")==="1";
+  const on=localStorage.getItem(key("auto"))==="1";
   if(on){
     clearInterval(autoTimer);
-    localStorage.setItem("autoRefresh","0");
+    localStorage.setItem(key("auto"),"0");
     autoBtn.innerText="Auto-odśwież: WYŁ";
   }else{
     autoTimer=setInterval(refresh,600000);
-    localStorage.setItem("autoRefresh","1");
+    localStorage.setItem(key("auto"),"1");
     autoBtn.innerText="Auto-odśwież: WŁ";
   }
 }
-if(localStorage.getItem("autoRefresh")==="1"){
-  toggleAuto();
+function initAuto(){
+  if(localStorage.getItem(key("auto"))==="1"){
+    toggleAuto();
+  }
 }
 
-/* SPEED UI */
-const speedBtnsDiv=document.getElementById("speedBtns");
-for(let i=5;i<=50;i+=5){
-  const b=document.createElement("button");
-  b.innerText=i+"%";
-  if(i===speedPercent) b.classList.add("active");
-  b.onclick=()=>{
-    speedPercent=i;
-    saveSpeed();
-    renderSpeedBtns();
-  };
-  speedBtnsDiv.appendChild(b);
-}
+/* SPEED */
+let speedPercent=50;
+let speedDuration=80;
+let speedStart=null;
+let speedInterval=null;
+
 function renderSpeedBtns(){
-  [...speedBtnsDiv.children].forEach(b=>{
-    b.classList.toggle("active",b.innerText===speedPercent+"%");
-  });
-  speedPercentDiv.innerText=speedPercent+"%";
+  speedBtns.innerHTML="";
+  for(let i=5;i<=50;i+=5){
+    const b=document.createElement("button");
+    b.innerText=i+"%";
+    if(i===speedPercent) b.classList.add("active");
+    b.onclick=()=>{
+      speedPercent=i;
+      saveSpeed();
+      renderSpeedBtns();
+      speedPercentDiv.innerText=i+"%";
+    };
+    speedBtns.appendChild(b);
+  }
 }
-document.querySelectorAll('input[name="speedTime"]').forEach(r=>{
-  r.checked=Number(r.value)===speedDuration;
-  r.onchange=()=>{speedDuration=Number(r.value);saveSpeed();}
-});
 function saveSpeed(){
-  localStorage.setItem("speedSettings",JSON.stringify({
+  localStorage.setItem(key("speed"),JSON.stringify({
     percent:speedPercent,
     duration:speedDuration,
-    startTime:speedStart
+    start:speedStart
   }));
+}
+function loadSpeed(){
+  const s=JSON.parse(localStorage.getItem(key("speed"))||"{}");
+  speedPercent=s.percent||50;
+  speedDuration=s.duration||80;
+  speedStart=s.start||null;
+  speedPercentDiv.innerText=speedPercent+"%";
+  document.querySelectorAll('input[name="speedTime"]').forEach(r=>{
+    r.checked=Number(r.value)===speedDuration;
+    r.onchange=()=>{speedDuration=Number(r.value);saveSpeed();}
+  });
+  renderSpeedBtns();
+  if(speedStart) runTimer();
 }
 function startSpeed(){
   speedStart=Date.now();
@@ -319,8 +324,9 @@ function resetSpeed(){
   speedDuration=80;
   speedStart=null;
   saveSpeed();
-  renderSpeedBtns();
   speedTimer.innerText="—";
+  speedPercentDiv.innerText="50%";
+  renderSpeedBtns();
 }
 function runTimer(){
   clearInterval(speedInterval);
@@ -332,17 +338,23 @@ function runTimer(){
       clearInterval(speedInterval);
       return;
     }
-    speedTimer.innerText=
-      `Pozostało: ${String(Math.floor(left/60)).padStart(2,"0")}:${String(left%60).padStart(2,"0")}`;
+    speedTimer.innerText=`Pozostało: ${String(Math.floor(left/60)).padStart(2,"0")}:${String(left%60).padStart(2,"0")}`;
   },1000);
 }
-if(speedStart) runTimer();
 
 /* DAY STATS */
+let days=[];
+let currentDay=null;
+
+function loadDays(){
+  days=JSON.parse(localStorage.getItem(key("days"))||"[]");
+  currentDay=JSON.parse(localStorage.getItem(key("currentDay"))||"null");
+  renderDays();
+}
 async function startDay(){
   const d=await fetchPlayer();
-  currentDay={date:new Date().toLocaleDateString(),expStart:d.experience,speedExp:0,lvlFrom:d.level};
-  localStorage.setItem("currentDay",JSON.stringify(currentDay));
+  currentDay={date:new Date().toLocaleDateString(),expStart:d.experience,lvlFrom:d.level,speedExp:0};
+  localStorage.setItem(key("currentDay"),JSON.stringify(currentDay));
   dayStatus.innerText="DZIEŃ AKTYWNY";
 }
 async function endDay(){
@@ -357,13 +369,11 @@ async function endDay(){
     pct:total?Math.round(currentDay.speedExp/total*100):0,
     lvls:`${currentDay.lvlFrom} → ${d.level}`
   });
-  localStorage.setItem("daysAuto",JSON.stringify(days));
-  localStorage.removeItem("currentDay");
+  localStorage.setItem(key("days"),JSON.stringify(days));
+  localStorage.removeItem(key("currentDay"));
   currentDay=null;
   renderDays();
 }
-
-/* RENDER DAYS + CHART */
 function renderDays(){
   dayList.innerHTML="";
   days.forEach((d,i)=>{
@@ -382,7 +392,7 @@ function renderDays(){
 }
 function delDay(i){
   days.splice(i,1);
-  localStorage.setItem("daysAuto",JSON.stringify(days));
+  localStorage.setItem(key("days"),JSON.stringify(days));
   renderDays();
 }
 
@@ -419,9 +429,15 @@ function renderChart(){
 }
 
 /* INIT */
-if(char) refresh();
-renderSpeedBtns();
-renderDays();
+function loadState(){
+  loadSpeed();
+  loadDays();
+  initAuto();
+}
+if(char){
+  refresh();
+  loadState();
+}
 </script>
 
 </body>
