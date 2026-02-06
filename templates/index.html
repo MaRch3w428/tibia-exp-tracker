@@ -19,35 +19,40 @@ body{
     url("/static/bg.jpg") center/cover no-repeat fixed;
   
 }
-  #intro{
+  /* ===== ABSOLUTE INTRO RESET ===== */
+
+#intro{
   position: fixed;
-  inset: 0;
-  z-index: 99999;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 999999;
   background: black;
   overflow: hidden;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
-  #intro video{
-  position: absolute;
-  inset: 0;
+#intro video{
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100vw;
   height: 100vh;
   object-fit: cover;
   z-index: 0;
 }
 
-  #intro img{
-  position: relative;
+#intro img{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   z-index: 2;
-
   width: 420px;
   max-width: 80vw;
   height: auto;
 }
+
 
 
 
@@ -588,6 +593,7 @@ if(char){
 
 </body>
 </html>
+
 
 
 
