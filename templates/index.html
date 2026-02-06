@@ -274,7 +274,7 @@ footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
 
 <script>
 /* CLOCK + INTRO */
-setTimeout(()=>intro.style.display="none",2600);
+setTimeout(()=>intro.style.display="none",5000);
 setInterval(()=>{
   const n=new Date();
   clockTime.innerText=n.toLocaleTimeString();
@@ -461,6 +461,7 @@ async function endDay(){
   localStorage.setItem(key("days"),JSON.stringify(days));
   localStorage.removeItem(key("currentDay"));
   currentDay=null;
+  dayStatus.innerText="—";
   renderDays();
 }
 function renderDays(){
@@ -564,6 +565,7 @@ if(char){
 
 </body>
 </html>
+
 
 
 
