@@ -9,7 +9,10 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
+/* ===== GLOBAL ===== */
 *{box-sizing:border-box}
+
+/* ===== BODY – TŁO STRONY (PO INTRO) ===== */
 body{
   margin:0;
   font-family:'Cinzel',serif;
@@ -17,11 +20,9 @@ body{
   background:
     linear-gradient(rgba(0,0,0,.82), rgba(0,0,0,.95)),
     url("/static/bg.jpg") center/cover no-repeat fixed;
-  
 }
 
-  /* ===== INTRO (VIDEO + LOGO) ===== */
-
+/* ===== INTRO (VIDEO + LOGO) – ZAWSZE NAD WSZYSTKIM ===== */
 #intro{
   position: fixed;
   inset: 0;
@@ -34,6 +35,7 @@ body{
   justify-content: center;
 }
 
+/* ===== VIDEO – TŁO INTRO ===== */
 #intro video{
   position: absolute;
   inset: 0;
@@ -43,6 +45,7 @@ body{
   z-index: 0;
 }
 
+/* ===== LOGO – NAD VIDEO ===== */
 #intro img{
   position: relative;
   z-index: 2;
@@ -51,16 +54,14 @@ body{
   height: auto;
 }
 
-
-
+/* ===== INTRO ANIMATION (OPCJONALNE) ===== */
 @keyframes introIn{
   0%{opacity:0;transform:scale(.85)}
   60%{opacity:1;transform:scale(1.05)}
   100%{opacity:1;transform:scale(1)}
 }
 
- 
-/* CLOCK */
+/* ===== CLOCK – POD INTRO ===== */
 #clockBox{
   position:fixed;
   top:20px;
@@ -70,8 +71,17 @@ body{
   color:#ff6a6a;
   text-shadow:0 0 15px rgba(255,0,0,.7);
 }
-#clockTime{font-size:32px;font-weight:700}
-#clockDate{font-size:16px;opacity:.85}
+
+#clockTime{
+  font-size:32px;
+  font-weight:700;
+}
+
+#clockDate{
+  font-size:16px;
+  opacity:.85;
+}
+
 
 
 header{text-align:center;padding:30px}
@@ -556,6 +566,7 @@ if(char){
 
 </body>
 </html>
+
 
 
 
