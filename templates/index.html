@@ -111,6 +111,26 @@ button.active{box-shadow:0 0 25px red}
   border-bottom:1px solid rgba(255,255,255,.1);
 }
 
+  /* === SUMMARY (pod wykresem) === */
+#summary{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:16px;
+  margin-top:20px;
+}
+.summaryBox{
+  background:rgba(0,0,0,.45);
+  border:1px solid rgba(255,0,0,.35);
+  border-radius:14px;
+  padding:16px;
+  text-align:center;
+}
+.summaryVal{
+  font-size:26px;
+  color:#ff4a4a;
+  margin-top:6px;
+}
+
 footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
 </style>
 </head>
@@ -188,6 +208,25 @@ footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
 <div class="card">
   <div class="section-title">Wykres EXP</div>
   <canvas id="chart" height="140"></canvas>
+  <div id="summary">
+  <div class="summaryBox">
+    Łączny EXP
+    <div class="summaryVal" id="sumExp">—</div>
+  </div>
+  <div class="summaryBox">
+    Średnio / dzień
+    <div class="summaryVal" id="avgExp">—</div>
+  </div>
+  <div class="summaryBox">
+    Ilość dni
+    <div class="summaryVal" id="daysCount">—</div>
+  </div>
+  <div class="summaryBox">
+    % ze speeda
+    <div class="summaryVal" id="speedPct">—</div>
+  </div>
+</div>
+
 </div>
 
 </div>
@@ -400,6 +439,24 @@ function renderDays(){
     </div>`;
   });
   renderChart();
+  function updateSummary(){
+  if(!days.length){
+    sumExp.innerText="—";
+    avgExp.innerText="—";
+    daysCount.innerText="—";
+    speedPct.innerText="—";
+    return;
+  }
+
+  const total=days.reduce((a,b)=>a+b.exp,0);
+  const speed=days.reduce((a,b)=>a+b.speedExp,0);
+
+  sumExp.innerText=total.toLocaleString();
+  avgExp.innerText=Math.round(total/days.length).toLocaleString();
+  daysCount.innerText=days.length;
+  speedPct.innerText=total?Math.round(speed/total*100)+"%":"0%";
+}
+
 }
 function delDay(i){
   days.splice(i,1);
@@ -412,9 +469,11 @@ let chart=null;
 function renderChart(){
   const ctx=document.getElementById("chart").getContext("2d");
   if(chart)chart.destroy();
+
   const grad=ctx.createLinearGradient(0,0,0,300);
   grad.addColorStop(0,"rgba(255,80,80,.9)");
   grad.addColorStop(1,"rgba(255,80,80,.1)");
+
   chart=new Chart(ctx,{
     type:"line",
     data:{
@@ -426,18 +485,29 @@ function renderChart(){
         backgroundColor:grad,
         fill:true,
         tension:.35,
-        pointRadius:4
+        pointRadius:4,
+        pointBackgroundColor:"#ff4a4a"
       }]
     },
     options:{
-      plugins:{legend:{display:false}},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          callbacks:{
+            label:(c)=>"EXP: "+c.parsed.y.toLocaleString()
+          }
+        }
+      },
       scales:{
         x:{ticks:{color:"#ffd0d0"}},
         y:{ticks:{color:"#ffd0d0"}}
       }
     }
   });
+
+  updateSummary();
 }
+
 
 /* INIT */
 const speedPercentEl=document.getElementById("speedPercent");
@@ -454,3 +524,4 @@ if(char){
 
 </body>
 </html>
+
