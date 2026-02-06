@@ -36,26 +36,41 @@ body{
 #intro{
   position:fixed;
   inset:0;
-  background:
-    linear-gradient(rgba(0,0,0,.6), rgba(0,0,0,.85)),
-    url("/static/bg.jpg") center/cover no-repeat;
+  background:black;
   display:flex;
   align-items:center;
   justify-content:center;
   z-index:9999;
+  overflow:hidden;
 }
+
+/* VIDEO TŁA */
+#intro video{
+  position:absolute;
+  inset:0;
+  width:100vw;
+  height:100vh;
+  object-fit:cover;
+  z-index:0;
+}
+
+/* LOGO – BEZ ZMIAN W ANIMACJI */
 #intro img{
+  position:relative;
+  z-index:2;
   width:480px;
   max-width:90%;
   opacity:0;
   transform:scale(.85);
   animation:introIn 1.8s forwards;
 }
+
 @keyframes introIn{
   0%{opacity:0;transform:scale(.85)}
   60%{opacity:1;transform:scale(1.05)}
   100%{opacity:1;transform:scale(1)}
 }
+
 
 header{text-align:center;padding:30px}
 header img{max-width:420px;filter:drop-shadow(0 0 30px rgba(255,0,0,.9))}
@@ -161,7 +176,12 @@ footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
   <div id="clockDate"></div>
 </div>
 
-<div id="intro"><img src="/static/intro/logo.png"></div>
+<div id="intro">
+  <video autoplay muted playsinline loop preload="auto">
+    <source src="/static/video/intro.mp4" type="video/mp4">
+  </video>
+  <img src="/static/intro/logo.png">
+</div>
 
 <header><img src="/static/header/apo-tracker.png"></header>
 
@@ -544,5 +564,6 @@ if(char){
 
 </body>
 </html>
+
 
 
