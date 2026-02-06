@@ -1,0 +1,36 @@
+// ===== CINEMATIC INTRO =====
+const intro = document.getElementById('cinematic-intro');
+const video = document.getElementById('intro-video');
+const text = document.querySelector('.intro-text');
+const skip = document.getElementById('intro-skip');
+
+if (intro && video) {
+  let ended = false;
+
+  // pokaż napis po chwili
+  setTimeout(() => {
+    text.classList.add('show');
+  }, 1200);
+
+  function endIntro() {
+    if (ended) return;
+    ended = true;
+
+    intro.classList.add('fade-out');
+    setTimeout(() => intro.remove(), 1200);
+  }
+
+  // koniec video
+  video.addEventListener('ended', endIntro);
+
+  // SKIP klik
+  skip.addEventListener('click', endIntro);
+
+  // SKIP ESC
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') endIntro();
+  });
+
+  // fallback
+  setTimeout(endIntro, 12000);
+}
