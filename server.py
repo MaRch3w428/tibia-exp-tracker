@@ -14,7 +14,7 @@ CORS(app)
 
 # ===== CACHE =====
 CACHE = {}
-CACHE_TTL = 60   # sekundy
+CACHE_TTL = 60  # sekundy
 
 @app.route("/")
 def home():
@@ -24,7 +24,6 @@ def home():
 def player(name):
     now = time.time()
 
-    # CACHE
     if name in CACHE and now - CACHE[name]["time"] < CACHE_TTL:
         return jsonify(CACHE[name]["data"])
 
@@ -52,15 +51,12 @@ def player(name):
     experience = extract_int(r"Doświadczenie:\s*(\d+)", 0)
 
     vocation = extract_str(
-    r"Profesja:\s*(Rycerz|Paladyn|Druid|Czarodziej|Rook|Brak)",
-    "Rook"
-)
-
+        r"Profesja:\s*(Rycerz|Paladyn|Druid|Czarodziej|Rook|Brak)",
+        "Rook"
     )
 
     if vocation.lower() in ["brak", "rook"]:
-    vocation = "Rook"
-
+        vocation = "Rook"
 
     data = {
         "name": name,
@@ -80,4 +76,3 @@ def player(name):
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
-
