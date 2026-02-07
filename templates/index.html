@@ -396,7 +396,10 @@ let speedPercent=50;
 let speedDuration=80;
 let speedStart=null;
 let speedInterval=null;
-let lastExpAtSpeedStart=0;
+let lastExpAtSpeedStart=0
+let lastGlobalExp = 0;
+
+  
 
 function renderSpeedBtns(){
   speedBtns.innerHTML="";
@@ -480,6 +483,26 @@ function runTimer(){
     }
   },1000);
 }
+  async function trackExpTick(){
+  if(!currentDay) return;
+
+  const d = await fetchPlayer();
+  const gained = d.experience - lastGlobalExp;
+
+  if(gained <= 0) return;
+
+  if(speedStart){
+    const speedPart = Math.round(gained * (speedPercent / 100));
+    currentDay.speedExp += speedPart;
+    currentDay.normalExp += (gained - speedPart);
+  } else {
+    currentDay.normalExp += gained;
+  }
+
+  lastGlobalExp = d.experience;
+  localStorage.setItem(key("currentDay"), JSON.stringify(currentDay));
+}
+
 
 /* DAY STATS */
 let days=[];
@@ -499,28 +522,41 @@ function loadDays(){
 
 async function startDay(){
   const d=await fetchPlayer();
-  currentDay={date:new Date().toLocaleDateString(),expStart:d.experience,lvlFrom:d.level,speedExp:0};
+ currentDay = {
+  date: new Date().toLocaleDateString(),
+  expStart: d.experience,
+  lvlFrom: d.level,
+  speedExp: 0,
+  normalExp: 0
+};
+
+lastGlobalExp = d.experience;
+
   localStorage.setItem(key("currentDay"),JSON.stringify(currentDay));
   dayStatus.innerText="DZIEŃ AKTYWNY";
 }
 async function endDay(){
-  if(!currentDay)return;
-  const d=await fetchPlayer();
-  const total=d.experience-currentDay.expStart;
+  if(!currentDay) return;
+
+  const d = await fetchPlayer();
+  const total = currentDay.speedExp + currentDay.normalExp;
+
   days.push({
-    date:currentDay.date,
-    exp:total,
-    speedExp:currentDay.speedExp,
-    normalExp:total-currentDay.speedExp,
-    pct:total?Math.round(currentDay.speedExp/total*100):0,
-    lvls:`${currentDay.lvlFrom} → ${d.level}`
+    date: currentDay.date,
+    exp: total,
+    speedExp: currentDay.speedExp,
+    normalExp: currentDay.normalExp,
+    pct: total ? Math.round(currentDay.speedExp / total * 100) : 0,
+    lvls: `${currentDay.lvlFrom} → ${d.level}`
   });
-  localStorage.setItem(key("days"),JSON.stringify(days));
+
+  localStorage.setItem(key("days"), JSON.stringify(days));
   localStorage.removeItem(key("currentDay"));
-  currentDay=null;
-  dayStatus.innerText="—";
+  currentDay = null;
+  dayStatus.innerText = "—";
   renderDays();
 }
+
 function renderDays(){
   dayList.innerHTML="";
   days.forEach((d,i)=>{
@@ -617,6 +653,8 @@ if(char){
   refresh();
   loadState();
 }
+  setInterval(trackExpTick, 60_000);
+
 
   /* CLOCK – ZAWSZE WIDOCZNY */
 function startClock(){
@@ -706,6 +744,7 @@ syncDayStatus();
 
 </body>
 </html>
+
 
 
 
