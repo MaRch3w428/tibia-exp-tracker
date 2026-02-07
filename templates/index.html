@@ -655,8 +655,58 @@ syncDayStatus();
 </script>
 <script src="/static/js/app.js"></script>
 
+<script>
+(function HARD_CLOCK(){
+  console.log("HARD CLOCK INIT");
+
+  let box = document.getElementById("clockBox");
+
+  // jeśli zegarka nie było w HTML – tworzymy go
+  if(!box){
+    box = document.createElement("div");
+    box.id = "clockBox";
+    box.innerHTML = `
+      <div id="clockTime"></div>
+      <div id="clockDate"></div>
+    `;
+    document.body.appendChild(box);
+  }
+
+  // wymuszamy widoczność (nadpisuje CSS)
+  Object.assign(box.style, {
+    position: "fixed",
+    top: "20px",
+    right: "30px",
+    zIndex: "999999",
+    color: "#ff6a6a",
+    textShadow: "0 0 15px rgba(255,0,0,.7)",
+    fontFamily: "Cinzel, serif",
+    pointerEvents: "none",
+    display: "block",
+    opacity: "1",
+    visibility: "visible"
+  });
+
+  const timeEl = box.querySelector("#clockTime");
+  const dateEl = box.querySelector("#clockDate");
+
+  function tick(){
+    const n = new Date();
+    timeEl.textContent = n.toLocaleTimeString();
+    dateEl.textContent = n.toLocaleDateString();
+  }
+
+  tick();
+  setInterval(tick, 1000);
+
+  console.log("HARD CLOCK RUNNING");
+})();
+</script>
+
+
 </body>
 </html>
+
 
 
 
