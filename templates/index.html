@@ -356,22 +356,25 @@ function setChar(){
 
 async function refresh(){
   if(!char) return;
-  const d=await fetchPlayer();
 
-  charNameBig.innerText=d.name;
-  charStats.innerText=`${d.vocation} | Level ${d.level} | Magic ${d.magic}`;
-  expValue.innerText=d.experience.toLocaleString();
-  trackExpTick();
+  const d = await fetchPlayer();
 
+  charNameBig.innerText = d.name;
+  charStats.innerText = `${d.vocation} | Level ${d.level} | Magic ${d.magic}`;
+  expValue.innerText = d.experience.toLocaleString();
 
-  const v=d.vocation.toLowerCase();
-  vocationIcon.src="/static/icons/"+(
-    v.includes("druid")?"druid.png":
-    v.includes("paladyn")?"paladin.png":
-    v.includes("czaro")?"sorcerer.png":
-    v.includes("rycerz")?"knight.png":"rook.png"
+  const v = d.vocation.toLowerCase();
+  vocationIcon.src = "/static/icons/" + (
+    v.includes("druid") ? "druid.png" :
+    v.includes("paladyn") ? "paladin.png" :
+    v.includes("czaro") ? "sorcerer.png" :
+    v.includes("rycerz") ? "knight.png" : "rook.png"
   );
+
+  // 🔥 TO JEST KLUCZ
+  trackExpTick(d.experience);
 }
+
 
 /* AUTO REFRESH */
 let autoTimer=null;
@@ -483,12 +486,10 @@ function runTimer(){
   }, 1000);
 }
 
-  async function trackExpTick(){
+ function trackExpTick(currentExp){
   if(!currentDay) return;
 
-  const d = await fetchPlayer();
-  const gained = d.experience - lastGlobalExp;
-
+  const gained = currentExp - lastGlobalExp;
   if(gained <= 0) return;
 
   if(speedStart){
@@ -499,9 +500,10 @@ function runTimer(){
     currentDay.normalExp += gained;
   }
 
-  lastGlobalExp = d.experience;
+  lastGlobalExp = currentExp;
   localStorage.setItem(key("currentDay"), JSON.stringify(currentDay));
 }
+
 
 
 /* DAY STATS */
@@ -521,16 +523,24 @@ function loadDays(){
 }
 
 async function startDay(){
-  const d=await fetchPlayer();
- currentDay = {
-  date: new Date().toLocaleDateString(),
-  expStart: d.experience,
-  lvlFrom: d.level,
-  speedExp: 0,
-  normalExp: 0
-};
+  const d = await fetchPlayer();
 
-lastGlobalExp = d.experience;
+  currentDay = {
+    date: new Date().toLocaleDateString(),
+    expStart: d.experience,
+    lvlFrom: d.level,
+    speedExp: 0,
+    normalExp: 0
+  };
+
+  lastGlobalExp = d.experience; // <-- TYLKO TU
+
+  localStorage.setItem(key("currentDay"), JSON.stringify(currentDay));
+  dayStatus.innerText = "DZIEŃ AKTYWNY";
+}
+
+
+
 
   localStorage.setItem(key("currentDay"),JSON.stringify(currentDay));
   dayStatus.innerText="DZIEŃ AKTYWNY";
@@ -744,6 +754,7 @@ syncDayStatus();
 
 </body>
 </html>
+
 
 
 
