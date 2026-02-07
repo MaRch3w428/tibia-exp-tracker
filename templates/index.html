@@ -371,9 +371,10 @@ async function refresh(){
     v.includes("rycerz") ? "knight.png" : "rook.png"
   );
 
-  // 🔥 TO JEST KLUCZ
+  // 🔥 TU LICZY SIĘ EXP
   trackExpTick(d.experience);
 }
+
 
 
 /* AUTO REFRESH */
@@ -486,7 +487,7 @@ function runTimer(){
   }, 1000);
 }
 
- function trackExpTick(currentExp){
+function trackExpTick(currentExp){
   if(!currentDay) return;
 
   const gained = currentExp - lastGlobalExp;
@@ -503,7 +504,6 @@ function runTimer(){
   lastGlobalExp = currentExp;
   localStorage.setItem(key("currentDay"), JSON.stringify(currentDay));
 }
-
 
 
 /* DAY STATS */
@@ -533,18 +533,13 @@ async function startDay(){
     normalExp: 0
   };
 
-  lastGlobalExp = d.experience; // <-- TYLKO TU
+  lastGlobalExp = d.experience;
 
   localStorage.setItem(key("currentDay"), JSON.stringify(currentDay));
   dayStatus.innerText = "DZIEŃ AKTYWNY";
 }
 
 
-
-
-  localStorage.setItem(key("currentDay"),JSON.stringify(currentDay));
-  dayStatus.innerText="DZIEŃ AKTYWNY";
-}
 async function endDay(){
   if(!currentDay) return;
 
@@ -566,6 +561,7 @@ async function endDay(){
   dayStatus.innerText = "—";
   renderDays();
 }
+
 
 function renderDays(){
   dayList.innerHTML="";
@@ -663,8 +659,7 @@ if(char){
   refresh();
   loadState();
 }
-  setInterval(trackExpTick, 60_000);
-
+ 
 
   /* CLOCK – ZAWSZE WIDOCZNY */
 function startClock(){
@@ -754,6 +749,7 @@ syncDayStatus();
 
 </body>
 </html>
+
 
 
 
