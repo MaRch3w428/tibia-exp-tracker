@@ -85,7 +85,14 @@ body{
 
 
 header{text-align:center;padding:30px}
-header img{max-width:420px;filter:drop-shadow(0 0 30px rgba(255,0,0,.9))}
+header img{
+  max-width:560px;
+  opacity:.85;
+  filter:
+    drop-shadow(0 0 40px rgba(255,0,0,.9))
+    drop-shadow(0 0 80px rgba(255,0,0,.35));
+}
+
 
 .container{max-width:1200px;margin:auto;padding:20px}
 
@@ -146,7 +153,12 @@ button:hover{box-shadow:0 0 15px rgba(255,0,0,.7)}
 button.active{box-shadow:0 0 25px red}
 
 #charHero{text-align:center}
-#vocationIcon{width:140px}
+#vocationIcon{
+  width:200px;
+  margin-bottom:10px;
+  filter:drop-shadow(0 0 20px rgba(255,0,0,.6));
+}
+
 #charNameBig{font-size:38px;color:#ff4a4a}
 #charStats{font-size:20px;margin-top:6px}
 #expValue{font-size:36px;color:#ff4a4a;margin-top:10px}
@@ -200,22 +212,8 @@ footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
 
 <body>
   
-  <!-- CINEMATIC INTRO -->
-  <div id="cinematic-intro">
-   <video
-    id="intro-video"
-    muted
-    autoplay
-    playsinline
-    preload="auto"
-  >
-    <source src="/static/video/intro.webm" type="video/webm">
-  </video>
 
-    <div class="intro-overlay"></div>
-
- 
-    <!-- RESZTA STRONY (TWÓJ TRACKER) -->
+  <!-- RESZTA STRONY (TWÓJ TRACKER) -->
 
 
 <div id="clockBox">
@@ -491,7 +489,14 @@ function loadDays(){
   days=JSON.parse(localStorage.getItem(key("days"))||"[]");
   currentDay=JSON.parse(localStorage.getItem(key("currentDay"))||"null");
   renderDays();
+
+  if(currentDay){
+    dayStatus.innerText="DZIEŃ AKTYWNY";
+  }else{
+    dayStatus.innerText="—";
+  }
 }
+
 async function startDay(){
   const d=await fetchPlayer();
   currentDay={date:new Date().toLocaleDateString(),expStart:d.experience,lvlFrom:d.level,speedExp:0};
@@ -636,6 +641,7 @@ startClock();
 
 </body>
 </html>
+
 
 
 
