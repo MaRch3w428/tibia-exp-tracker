@@ -361,6 +361,8 @@ async function refresh(){
   charNameBig.innerText=d.name;
   charStats.innerText=`${d.vocation} | Level ${d.level} | Magic ${d.magic}`;
   expValue.innerText=d.experience.toLocaleString();
+  trackExpTick();
+
 
   const v=d.vocation.toLowerCase();
   vocationIcon.src="/static/icons/"+(
@@ -742,6 +744,7 @@ syncDayStatus();
 
 </body>
 </html>
+
 
 
 
