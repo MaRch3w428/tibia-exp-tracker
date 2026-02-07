@@ -636,11 +636,28 @@ function startClock(){
 }
 
 startClock();
+
+function syncDayStatus(){
+  const cd = localStorage.getItem(key("currentDay"));
+  if(cd){
+    dayStatus.innerText = "DZIEŃ AKTYWNY";
+  }else{
+    dayStatus.innerText = "—";
+  }
+}
+
+  if(char){
+  refresh();
+  loadState();
+}
+syncDayStatus();
+
 </script>
 <script src="/static/js/app.js"></script>
 
 </body>
 </html>
+
 
 
 
