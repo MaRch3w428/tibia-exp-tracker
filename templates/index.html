@@ -461,28 +461,26 @@ function resetSpeed(){
 }
 function runTimer(){
   clearInterval(speedInterval);
-  speedInterval=setInterval(async()=>{
-    const left=speedDuration*60-
-      Math.floor((Date.now()-speedStart)/1000);
 
-    if(left<=0){
-      speedTimer.innerText="SPEED ZAKOŃCZONY";
+  speedInterval = setInterval(() => {
+    const left =
+      speedDuration * 60 -
+      Math.floor((Date.now() - speedStart) / 1000);
+
+    if(left <= 0){
+      speedTimer.innerText = "SPEED ZAKOŃCZONY";
       clearInterval(speedInterval);
+      speedStart = null;
+      saveSpeed();
       return;
     }
 
-    speedTimer.innerText=`Pozostało: ${String(Math.floor(left/60)).padStart(2,"0")}:${String(left%60).padStart(2,"0")}`;
-
-    if(currentDay){
-      const d=await fetchPlayer();
-      const gained=d.experience-lastExpAtSpeedStart;
-      const speedPart=Math.round(gained*(speedPercent/100));
-      currentDay.speedExp+=speedPart;
-      lastExpAtSpeedStart=d.experience;
-      localStorage.setItem(key("currentDay"),JSON.stringify(currentDay));
-    }
-  },1000);
+    speedTimer.innerText =
+      `Pozostało: ${String(Math.floor(left / 60)).padStart(2, "0")}:` +
+      `${String(left % 60).padStart(2, "0")}`;
+  }, 1000);
 }
+
   async function trackExpTick(){
   if(!currentDay) return;
 
@@ -744,6 +742,7 @@ syncDayStatus();
 
 </body>
 </html>
+
 
 
 
