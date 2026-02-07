@@ -25,12 +25,14 @@ body{
   top:20px;
   right:30px;
   text-align:right;
-  z-index:10000;
+  z-index:20000; /* MUSI być wyższe niż intro */
   color:#ff6a6a;
   text-shadow:0 0 15px rgba(255,0,0,.7);
+  pointer-events:none;
 }
 #clockTime{font-size:32px;font-weight:700}
 #clockDate{font-size:16px;opacity:.85}
+
 
 /* INTRO */
 #intro{
@@ -610,11 +612,31 @@ if(char){
   refresh();
   loadState();
 }
+
+  /* CLOCK – ZAWSZE WIDOCZNY */
+function startClock(){
+  const timeEl = document.getElementById("clockTime");
+  const dateEl = document.getElementById("clockDate");
+
+  if(!timeEl || !dateEl) return;
+
+  function tick(){
+    const n = new Date();
+    timeEl.innerText = n.toLocaleTimeString();
+    dateEl.innerText = n.toLocaleDateString();
+  }
+
+  tick();
+  setInterval(tick, 1000);
+}
+
+startClock();
 </script>
 <script src="/static/js/app.js"></script>
 
 </body>
 </html>
+
 
 
 
