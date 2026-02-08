@@ -498,21 +498,7 @@ function runTimer(){
   }, 1000);
 }
 
-);
 
-  if(gained <= 0) return;
-
-  if(speedStart){
-    const speedPart = Math.round(gained * (speedPercent / 100));
-    currentDay.speedExp += speedPart;
-    currentDay.normalExp += (gained - speedPart);
-  } else {
-    currentDay.normalExp += gained;
-  }
-
-  lastGlobalExp = currentExp;
-  localStorage.setItem(key("currentDay"), JSON.stringify(currentDay));
-}
 
 
 
@@ -964,6 +950,7 @@ document.addEventListener("DOMContentLoaded",()=>{
 
 </body>
 </html>
+
 
 
 
