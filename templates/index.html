@@ -857,6 +857,111 @@ endDay = async function(){
 };
 </script>
 
+
+<div id="dayIndicator" class="day-indicator hidden">
+  DZIEŃ AKTYWNY<span class="dots"></span>
+</div>
+
+<!-- === PERSISTENCE + ACTIVE DAY INDICATOR + STACKED CHART === -->
+<script>
+/* ---------- PERSISTENCE STATE ---------- */
+function loadSpeedState(){
+  return JSON.parse(localStorage.getItem(key("speedState")) || "null");
+}
+function saveSpeedState(s){
+  localStorage.setItem(key("speedState"), JSON.stringify(s));
+}
+function clearSpeedState(){
+  localStorage.removeItem(key("speedState"));
+}
+
+/* ---------- ACTIVE DAY INDICATOR ---------- */
+function showDayIndicator(){
+  const el=document.getElementById("dayIndicator");
+  if(el) el.classList.remove("hidden");
+}
+function hideDayIndicator(){
+  const el=document.getElementById("dayIndicator");
+  if(el) el.classList.add("hidden");
+}
+
+/* ---------- SPEED TIMER RESUME ---------- */
+function resumeSpeedIfNeeded(){
+  const s=loadSpeedState();
+  if(!s || !s.active) return;
+  const elapsed = Date.now() - s.startTs;
+  const total = s.durationMin*60*1000;
+  const left = total - elapsed;
+  if(left<=0){
+    checkpoint();
+    window.speedActive=false;
+    clearSpeedState();
+    return;
+  }
+  window.speedActive=true;
+  speedStart = Date.now() - elapsed;
+  runTimer();
+}
+
+/* ---------- HOOK START DAY ---------- */
+const __startDay2 = startDay;
+startDay = async function(){
+  await __startDay2();
+  currentDay.dayStartTs = Date.now();
+  localStorage.setItem(key("currentDay"), JSON.stringify(currentDay));
+  showDayIndicator();
+};
+
+/* ---------- HOOK START SPEED ---------- */
+const __startSpeed2 = startSpeed;
+startSpeed = async function(){
+  const s={
+    active:true,
+    percent:speedPercent,
+    durationMin:speedDuration,
+    startTs:Date.now()
+  };
+  saveSpeedState(s);
+  window.speedActive=true;
+  return __startSpeed2();
+};
+
+/* ---------- AUTO END SPEED ---------- */
+const __runTimer2 = runTimer;
+runTimer = function(){
+  __runTimer2();
+  clearInterval(speedInterval);
+  speedInterval=setInterval(async ()=>{
+    const s=loadSpeedState();
+    if(!s || !s.active) return;
+    const left=s.durationMin*60*1000-(Date.now()-s.startTs);
+    if(left<=0){
+      await checkpoint();
+      window.speedActive=false;
+      clearSpeedState();
+      clearInterval(speedInterval);
+    }
+  },1000);
+};
+
+/* ---------- HOOK END DAY ---------- */
+const __endDay2 = endDay;
+endDay = async function(){
+  await checkpoint();
+  clearSpeedState();
+  hideDayIndicator();
+  return __endDay2();
+};
+
+/* ---------- RESUME ON LOAD ---------- */
+document.addEventListener("DOMContentLoaded",()=>{
+  if(currentDay){
+    showDayIndicator();
+    resumeSpeedIfNeeded();
+  }
+});
+</script>
+
 </body>
 </html>
 
