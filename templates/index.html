@@ -502,6 +502,14 @@ function trackExpTick(currentExp){
   if(!currentDay) return;
 
   const gained = currentExp - lastGlobalExp;
+
+  console.log("TICK", {
+    currentExp,
+    lastGlobalExp,
+    gained,
+    speed: speedStart ? "ON" : "OFF"
+  });
+
   if(gained <= 0) return;
 
   if(speedStart){
@@ -518,6 +526,7 @@ function trackExpTick(currentExp){
 
 
 
+
 /* DAY STATS */
 let days=[];
 let currentDay=null;
@@ -525,16 +534,18 @@ let currentDay=null;
 
 
 function loadDays(){
-  days=JSON.parse(localStorage.getItem(key("days"))||"[]");
-  currentDay=JSON.parse(localStorage.getItem(key("currentDay"))||"null");
+  days = JSON.parse(localStorage.getItem(key("days")) || "[]");
+  currentDay = JSON.parse(localStorage.getItem(key("currentDay")) || "null");
   renderDays();
 
   if(currentDay){
-    dayStatus.innerText="DZIEŃ AKTYWNY";
+    dayStatus.innerText = "DZIEŃ AKTYWNY";
+    lastGlobalExp = currentDay.expStart; // <<< TO JEST KLUCZ
   }else{
-    dayStatus.innerText="—";
+    dayStatus.innerText = "—";
   }
 }
+
 
 async function startDay(){
   const d = await fetchPlayer();
@@ -783,6 +794,7 @@ syncDayStatus();
 
 </body>
 </html>
+
 
 
 
