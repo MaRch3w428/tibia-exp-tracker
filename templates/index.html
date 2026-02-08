@@ -791,9 +791,66 @@ syncDayStatus();
 })();
 </script>
 
+  
+<!-- === CHECKPOINT SPEED BONUS OVERRIDES (ADDED, NOTHING REMOVED) === -->
+<script>
+/* --- checkpoint state --- */
+window.lastCheckpointExp = window.lastCheckpointExp || 0;
+window.speedActive = false;
+
+/* --- checkpoint core --- */
+async function checkpoint(){
+  if(!window.currentDay) return;
+  const d = await fetchPlayer();
+  const gained = d.experience - window.lastCheckpointExp;
+  if(gained <= 0) return;
+
+  if(window.speedActive){
+    const bonus = Math.round(gained * (speedPercent / 100));
+    currentDay.speedExp += bonus;
+    currentDay.normalExp += gained;
+  }else{
+    currentDay.normalExp += gained;
+  }
+  window.lastCheckpointExp = d.experience;
+  localStorage.setItem(key("currentDay"), JSON.stringify(currentDay));
+}
+
+/* --- hook lifecycle actions --- */
+const _startDay = startDay;
+startDay = async function(){
+  await _startDay();
+  const d = await fetchPlayer();
+  window.lastCheckpointExp = d.experience;
+  window.speedActive = false;
+};
+
+const _startSpeed = startSpeed;
+startSpeed = async function(){
+  await checkpoint();
+  window.speedActive = true;
+  return _startSpeed();
+};
+
+const _resetSpeed = resetSpeed;
+resetSpeed = async function(){
+  await checkpoint();
+  window.speedActive = false;
+  return _resetSpeed();
+};
+
+const _endDay = endDay;
+endDay = async function(){
+  await checkpoint();
+  return _endDay();
+};
+</script>
 
 </body>
 </html>
+
+
+
 
 
 
