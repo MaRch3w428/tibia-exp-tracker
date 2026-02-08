@@ -280,6 +280,10 @@ footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
   <div class="section-title">Statystyka dzienna</div>
   <button onclick="startDay()">START DNIA</button>
   <button onclick="endDay()">ZAKOŃCZ DZIEŃ</button>
+  <div id="dayActiveIndicator" class="day-indicator hidden">
+  ● DZIEŃ AKTYWNY<span class="dots"></span>
+</div>
+
   <div id="dayStatus">—</div>
 
   <div class="list-header">
@@ -807,8 +811,102 @@ async function checkpoint(){
 })();
 </script>
 
+<style>
+.day-indicator{
+  margin-top:10px;
+  color:#ff4a4a;
+  font-weight:700;
+  letter-spacing:.06em;
+  animation:pulse 1.6s infinite;
+}
+.day-indicator .dots::after{
+  content:"";
+  animation:dots 1.5s steps(3,end) infinite;
+}
+.hidden{display:none;}
+@keyframes pulse{0%{opacity:.4}50%{opacity:1}100%{opacity:.4}}
+@keyframes dots{0%{content:""}33%{content:"."}66%{content:".."}100%{content:"..."}}
+</style>
+
+<script>
+/* ===== OPERACYJNY RDZEŃ ===== */
+window.__op = JSON.parse(localStorage.getItem("op_state")||"null") || {
+  dayActive:false,
+  dayStartExp:0,
+  lastExp:0,
+  speedActive:false,
+  speedExp:0
+};
+
+function showDay(){document.getElementById("dayActiveIndicator")?.classList.remove("hidden")}
+function hideDay(){document.getElementById("dayActiveIndicator")?.classList.add("hidden")}
+function save(){localStorage.setItem("op_state",JSON.stringify(__op))}
+
+async function hardRefresh(){
+  const d = await fetchPlayer();
+  if(__op.dayActive){
+    const gained = d.experience - (__op.lastExp||d.experience);
+    if(gained>0 && __op.speedActive) __op.speedExp += gained;
+    __op.lastExp = d.experience;
+    save();
+  }
+  return d;
+}
+
+/* HOOKI – KAŻDA AKCJA = hardRefresh */
+const _startDay = window.startDay;
+window.startDay = async function(){
+  await hardRefresh();
+  const d = await fetchPlayer();
+  __op.dayActive=true;
+  __op.dayStartExp=d.experience;
+  __op.lastExp=d.experience;
+  __op.speedExp=0;
+  save(); showDay();
+  return _startDay && _startDay();
+};
+
+const _endDay = window.endDay;
+window.endDay = async function(){
+  await hardRefresh();
+  __op.dayActive=false;
+  save(); hideDay();
+  return _endDay && _endDay();
+};
+
+const _startSpeed = window.startSpeed;
+window.startSpeed = async function(){
+  await hardRefresh();
+  __op.speedActive=true;
+  save();
+  return _startSpeed && _startSpeed();
+};
+
+const _resetSpeed = window.resetSpeed;
+window.resetSpeed = async function(){
+  await hardRefresh();
+  __op.speedActive=false;
+  save();
+  return _resetSpeed && _resetSpeed();
+};
+
+/* RESUME */
+if(__op.dayActive) showDay(); else hideDay();
+
+/* DANE DO TABELI / WYKRESU */
+window.getDayStats = async function(){
+  const d = await fetchPlayer();
+  const total = Math.max(0, d.experience - __op.dayStartExp);
+  const speed = Math.min(__op.speedExp, total);
+  const outside = Math.max(0, total - speed);
+  const pct = total ? Math.round(speed/total*100) : 0;
+  return { total, speed, outside, pct };
+};
+</script>
+
 </body>
 </html>
+
 
 
 
