@@ -6,7 +6,22 @@
 
 <link rel="stylesheet" href="/static/css/style.css">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js">
+/* === DAY INDICATOR SYNC === */
+function syncDayIndicator(){
+  const el=document.getElementById("dayActiveIndicator");
+  if(!el) return;
+  if(currentDay) el.classList.remove("hidden");
+  else el.classList.add("hidden");
+}
+
+/* === HARD REFRESH BEFORE ANY ACTION === */
+async function refreshBeforeAction(){
+  const d = await fetchPlayer();
+  trackExpTick(d.experience);
+}
+
+</script>
 
 <style>
 *{box-sizing:border-box}
@@ -207,6 +222,23 @@ button.active{box-shadow:0 0 25px red}
 }
 
 footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
+
+/* === DAY ACTIVE INDICATOR === */
+.day-indicator{
+  margin-top:10px;
+  color:#ff4a4a;
+  font-weight:700;
+  letter-spacing:.06em;
+  animation:pulse 1.6s infinite;
+}
+.day-indicator .dots::after{
+  content:"";
+  animation:dots 1.5s steps(3,end) infinite;
+}
+.hidden{display:none;}
+@keyframes pulse{0%{opacity:.4}50%{opacity:1}100%{opacity:.4}}
+@keyframes dots{0%{content:""}33%{content:"."}66%{content:".."}100%{content:"..."}}
+
 </style>
 </head>
 
@@ -444,6 +476,7 @@ function loadSpeed(){
 }
 
 async function startSpeed(){
+  refreshBeforeAction();{
   const d=await fetchPlayer();
   speedStart=Date.now();
   lastExpAtSpeedStart=d.experience;
@@ -451,6 +484,7 @@ async function startSpeed(){
   runTimer();
 }
 function resetSpeed(){
+  refreshBeforeAction();{
   speedPercent=50;
   speedDuration=80;
   speedStart=null;
@@ -493,6 +527,7 @@ function loadDays(){
   days=JSON.parse(localStorage.getItem(key("days"))||"[]");
   currentDay=JSON.parse(localStorage.getItem(key("currentDay"))||"null");
   renderDays();
+  syncDayIndicator();
 
   if(currentDay){
     dayStatus.innerText="DZIEŃ AKTYWNY";
@@ -502,12 +537,14 @@ function loadDays(){
 }
 
 async function startDay(){
+  await refreshBeforeAction();{
   const d=await fetchPlayer();
   currentDay={date:new Date().toLocaleDateString(),expStart:d.experience,lvlFrom:d.level,speedExp:0};
   localStorage.setItem(key("currentDay"),JSON.stringify(currentDay));
   dayStatus.innerText="DZIEŃ AKTYWNY";
 }
 async function endDay(){
+  await refreshBeforeAction();{
   if(!currentDay)return;
   const d=await fetchPlayer();
   const total=d.experience-currentDay.expStart;
@@ -524,6 +561,7 @@ async function endDay(){
   currentDay=null;
   dayStatus.innerText="—";
   renderDays();
+  syncDayIndicator();
 }
 function renderDays(){
   dayList.innerHTML="";
@@ -563,6 +601,7 @@ function delDay(i){
   days.splice(i,1);
   localStorage.setItem(key("days"),JSON.stringify(days));
   renderDays();
+  syncDayIndicator();
 }
 
 /* CHART */
@@ -726,6 +765,23 @@ syncDayStatus();
 .hidden{display:none;}
 @keyframes pulse{0%{opacity:.4}50%{opacity:1}100%{opacity:.4}}
 @keyframes dots{0%{content:""}33%{content:"."}66%{content:".."}100%{content:"..."}}
+
+/* === DAY ACTIVE INDICATOR === */
+.day-indicator{
+  margin-top:10px;
+  color:#ff4a4a;
+  font-weight:700;
+  letter-spacing:.06em;
+  animation:pulse 1.6s infinite;
+}
+.day-indicator .dots::after{
+  content:"";
+  animation:dots 1.5s steps(3,end) infinite;
+}
+.hidden{display:none;}
+@keyframes pulse{0%{opacity:.4}50%{opacity:1}100%{opacity:.4}}
+@keyframes dots{0%{content:""}33%{content:"."}66%{content:".."}100%{content:"..."}}
+
 </style>
 
 <script>
