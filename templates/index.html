@@ -797,6 +797,801 @@ async function checkpoint(){
 // auto-zamykanie speeda po timerze (jeśli istnieje runTimer)
 if(typeof runTimer === "function"){
   const _runTimer = runTimer;
+  runTimer = function<div class="list-head"><!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<title>APO Podkarpacki OTS Tracker</title>
+
+<link rel="stylesheet" href="/static/css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:'Cinzel',serif;
+  color:#f3caca;
+  background:
+    linear-gradient(rgba(0,0,0,.82), rgba(0,0,0,.95)),
+    url("/static/bg.jpg") center/cover no-repeat fixed;
+}
+
+/* CLOCK */
+#clockBox{
+  position:fixed;
+  top:20px;
+  right:30px;
+  text-align:right;
+  z-index:20000; /* MUSI być wyższe niż intro */
+  color:#ff6a6a;
+  text-shadow:0 0 15px rgba(255,0,0,.7);
+  pointer-events:none;
+}
+#clockTime{font-size:32px;font-weight:700}
+#clockDate{font-size:16px;opacity:.85}
+
+
+/* INTRO */
+#intro{
+  position:fixed;
+  inset:0;
+  background:black;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+  overflow:hidden;
+  transition:
+    opacity 1.2s ease,
+    filter 1.2s ease;
+}
+
+#intro.fade-out{
+  opacity:0;
+  filter:blur(8px);
+  pointer-events:none;
+}
+
+
+/* VIDEO TŁA */
+#intro video{
+  position:absolute;
+  inset:0;
+  width:100vw;
+  height:100vh;
+  object-fit:cover;
+  z-index:0;
+}
+
+/* LOGO – BEZ ZMIAN W ANIMACJI */
+#intro img{
+  position:relative;
+  z-index:2;
+  width:480px;
+  max-width:90%;
+  opacity:0;
+  transform:scale(.85);
+  animation:introIn 1.8s forwards;
+}
+
+@keyframes introIn{
+  0%{opacity:0;transform:scale(.85)}
+  60%{opacity:1;transform:scale(1.05)}
+  100%{opacity:1;transform:scale(1)}
+}
+
+
+header{text-align:center;padding:30px}
+header img{
+  max-width:560px;
+  opacity:.85;
+  filter:
+    drop-shadow(0 0 40px rgba(255,0,0,.9))
+    drop-shadow(0 0 80px rgba(255,0,0,.35));
+}
+
+
+.container{max-width:1200px;margin:auto;padding:20px}
+
+.card{
+  background:rgba(5,0,0,.82);
+  border:1px solid rgba(255,0,0,.45);
+  border-radius:16px;
+  padding:26px;
+  margin-bottom:26px;
+
+  backdrop-filter: blur(6px);
+  box-shadow:
+    0 0 25px rgba(255,0,0,.12),
+    inset 0 0 30px rgba(0,0,0,.4);
+
+  transition:
+    transform .25s ease,
+    box-shadow .25s ease,
+    border-color .25s ease;
+}
+
+  .card:hover{
+  transform: translateY(-3px);
+  border-color:#ff4a4a;
+  box-shadow:
+    0 0 40px rgba(255,0,0,.28),
+    inset 0 0 30px rgba(0,0,0,.4);
+}
+
+
+.section-title{
+  font-size:22px;
+  color:#ff6a6a;
+  margin-bottom:18px;
+  letter-spacing:.08em;
+  text-shadow:0 0 12px rgba(255,0,0,.45);
+}
+
+  .card::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:16px;
+  pointer-events:none;
+  box-shadow:inset 0 0 40px rgba(0,0,0,.6);
+}
+.card{ position:relative; }
+
+button,input{
+  background:#0b0000;
+  color:#ffd0d0;
+  border:1px solid #aa2222;
+  padding:8px 14px;
+  font-family:'Cinzel',serif;
+  cursor:pointer;
+}
+button:hover{box-shadow:0 0 15px rgba(255,0,0,.7)}
+button.active{box-shadow:0 0 25px red}
+
+#charHero{text-align:center}
+#vocationIcon{
+  width:200px;
+  margin-bottom:10px;
+  filter:drop-shadow(0 0 20px rgba(255,0,0,.6));
+}
+
+#charNameBig{font-size:38px;color:#ff4a4a}
+#charStats{font-size:20px;margin-top:6px}
+#expValue{font-size:36px;color:#ff4a4a;margin-top:10px}
+
+/* SPEED */
+#speedBox{text-align:center}
+#speedPercent{font-size:52px;color:#ff4a4a}
+.speedBtns button{margin:4px;min-width:60px}
+#speedTimer{font-size:26px;margin-top:10px}
+
+/* LIST */
+.list-header,.list-row{
+  display:grid;
+  grid-template-columns:120px 120px 120px 120px 90px 180px 60px;
+  gap:10px;
+}
+.list-header{
+  font-size:14px;
+  font-weight:bold;
+  border-bottom:1px solid rgba(255,255,255,.2);
+}
+.list-row{
+  font-size:17px;
+  padding:10px 0;
+  border-bottom:1px solid rgba(255,255,255,.1);
+}
+
+  /* === SUMMARY (pod wykresem) === */
+#summary{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:16px;
+  margin-top:20px;
+}
+.summaryBox{
+  background:rgba(0,0,0,.45);
+  border:1px solid rgba(255,0,0,.35);
+  border-radius:14px;
+  padding:16px;
+  text-align:center;
+}
+.summaryVal{
+  font-size:26px;
+  color:#ff4a4a;
+  margin-top:6px;
+}
+
+footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
+
+<style>
+/* === CZYTELNOSC LICZB (KROK 2) === */
+#expValue,
+#speedPercent,
+.summaryVal{
+  color:#ffecec;
+  text-shadow:0 0 6px rgba(255,80,80,.6);
+}
+
+
+</style>
+</head>
+
+<body>
+  
+
+  <!-- RESZTA STRONY (TWÓJ TRACKER) -->
+
+
+<div id="clockBox">
+  <div id="clockTime"></div>
+  <div id="clockDate"></div>
+</div>
+
+<div id="intro">
+  <video autoplay muted playsinline loop preload="auto">
+    <source src="/static/video/intro.mp4" type="video/mp4">
+  </video>
+  <img src="/static/intro/logo.png">
+</div>
+
+<header><img src="/static/header/apo-tracker.png"></header>
+
+<div class="container">
+
+<!-- PANEL POSTACI -->
+<div class="card card-active">
+  <div class="section-title">Postać</div>
+  Nick:
+  <input id="charInput">
+  <button onclick="setChar()">USTAW</button>
+
+  <div id="charHero">
+    <img id="vocationIcon">
+    <div id="charNameBig">—</div>
+    <div id="charStats">—</div>
+    <div id="expValue">—</div>
+  </div>
+
+  <div style="margin-top:15px">
+    <button onclick="refresh()">Odśwież</button>
+    <button id="autoBtn" onclick="toggleAuto()">Auto-odśwież: WYŁ</button>
+  </div>
+</div>
+
+<!-- SPEED -->
+<div class="card">
+  <div class="section-title">EXP w trakcie SPEED</div>
+
+  <div id="speedBox">
+    <div id="speedPercent">50%</div>
+    <div class="speedBtns" id="speedBtns"></div>
+
+    <div style="margin-top:10px">
+      <label><input type="radio" name="speedTime" value="80"> 80 min</label>
+      <label style="margin-left:20px">
+        <input type="radio" name="speedTime" value="60"> 60 min</label>
+    </div>
+
+    <div style="margin-top:15px">
+      <button onclick="startSpeed()">UŻYJ SPEEDA</button>
+      <button onclick="resetSpeed()">RESTART SPEED</button>
+    </div>
+
+    <div id="speedTimer">—</div>
+  </div>
+</div>
+
+<!-- STATYSTYKA DNIA -->
+<div class="card">
+  <div class="section-title">Statystyka dzienna</div>
+  <button onclick="startDay()">START DNIA</button>
+  <button onclick="endDay()">ZAKOŃCZ DZIEŃ</button>
+  
+
+  <div class="list-header">
+    <div>Data</div><div>EXP</div><div>EXP w trakcie SPEED</div><div>EXP poza SPEED</div><div>Udział SPEED</div><div>Lvle</div><div>Usuń</div>
+  </div>
+  <div id="dayList"></div>
+</div>
+
+<!-- WYKRES -->
+<div class="card">
+  <div class="section-title">Wykres EXP</div>
+  <canvas id="chart" height="140"></canvas>
+  <div id="summary">
+  <div class="summaryBox">
+    Łączny EXP
+    <div class="summaryVal" id="sumExp">—</div>
+  </div>
+  <div class="summaryBox">
+    Średnio / dzień
+    <div class="summaryVal" id="avgExp">—</div>
+  </div>
+  <div class="summaryBox">
+    Ilość dni
+    <div class="summaryVal" id="daysCount">—</div>
+  </div>
+  <div class="summaryBox">
+    % ze speeda
+    <div class="summaryVal" id="speedPct">—</div>
+  </div>
+</div>
+
+</div>
+
+</div>
+
+<footer>designed by Zohanek © <span id="year"></span></footer>
+
+<script>
+/* CLOCK + INTRO */
+const introEl = document.getElementById("intro");
+if(introEl){
+  setTimeout(()=>{
+    introEl.classList.add("fade-out");
+
+    setTimeout(()=>{
+      introEl.remove();
+    },1200); // czas fade (musi pasować do CSS)
+  },5000); // długość intro
+}
+
+year.innerText=new Date().getFullYear();
+
+/* GLOBAL */
+let char=localStorage.getItem("apo_last_char")||"";
+charInput.value=char;
+charInput.addEventListener("keydown",e=>{if(e.key==="Enter")setChar();});
+
+/* HELPERS */
+function key(k){return `apo_${char}_${k}`}
+
+/* API */
+async function fetchPlayer(){
+  const r=await fetch(`/player/${char}`);
+  return r.json();
+}
+
+/* PANEL POSTACI */
+function setChar(){
+  char=charInput.value.trim();
+  localStorage.setItem("apo_last_char",char);
+  refresh();
+  loadState();
+}
+
+async function refresh(){
+  if(!char) return;
+
+  const d = await fetchPlayer();
+
+  charNameBig.innerText = d.name;
+  charStats.innerText = `${d.vocation} | Level ${d.level} | Magic ${d.magic}`;
+  expValue.innerText = d.experience.toLocaleString();
+
+  const v = d.vocation.toLowerCase();
+  vocationIcon.src = "/static/icons/" + (
+    v.includes("druid") ? "druid.png" :
+    v.includes("paladyn") ? "paladin.png" :
+    v.includes("czaro") ? "sorcerer.png" :
+    v.includes("rycerz") ? "knight.png" : "rook.png"
+  );
+
+  // 🔥 TU LICZY SIĘ EXP
+}
+
+
+
+/* AUTO REFRESH */
+let autoTimer=null;
+function toggleAuto(){
+  const on=localStorage.getItem(key("auto"))==="1";
+  if(on){
+    clearInterval(autoTimer);
+    localStorage.setItem(key("auto"),"0");
+    autoBtn.innerText="Auto-odśwież: WYŁ";
+  }else{
+    autoTimer=setInterval(refresh,600000);
+    localStorage.setItem(key("auto"),"1");
+    autoBtn.innerText="Auto-odśwież: WŁ";
+  }
+}
+function initAuto(){
+  if(localStorage.getItem(key("auto"))==="1"){
+    toggleAuto();
+  }
+}
+
+/* SPEED */
+let speedPercent=50;
+let speedDuration=80;
+let speedStart=null;
+let speedInterval=null;
+let lastExpAtSpeedStart=0
+function renderSpeedBtns(){
+  speedBtns.innerHTML="";
+  for(let i=5;i<=50;i+=5){
+    const b=document.createElement("button");
+    b.innerText=i+"%";
+    if(i===speedPercent) b.classList.add("active");
+    b.onclick=()=>{
+      speedPercent=i;
+      speedPercentEl.innerText=i+"%";
+      saveSpeed();
+      renderSpeedBtns();
+    };
+    speedBtns.appendChild(b);
+  }
+}
+function saveSpeed(){
+  localStorage.setItem(key("speed"),JSON.stringify({
+    percent:speedPercent,
+    duration:speedDuration,
+    start:speedStart,
+    lastExp:lastExpAtSpeedStart
+  }));
+}
+function loadSpeed(){
+  const s=JSON.parse(localStorage.getItem(key("speed"))||"{}");
+  speedPercent=s.percent||50;
+  speedDuration=s.duration||80;
+  speedStart=s.start||null;
+  lastExpAtSpeedStart=s.lastExp||0;
+
+  speedPercentEl.innerText=speedPercent+"%";
+
+  document.querySelectorAll('input[name="speedTime"]').forEach(r=>{
+    r.checked=Number(r.value)===speedDuration;
+    r.onchange=()=>{speedDuration=Number(r.value);saveSpeed();}
+  });
+
+  renderSpeedBtns();
+  if(speedStart) runTimer();
+}
+
+async function startSpeed(){
+  window.speedActive = true;
+  const d=await fetchPlayer();
+  speedStart=Date.now();
+  lastExpAtSpeedStart=d.experience;
+  saveSpeed();
+  runTimer();
+}
+function resetSpeed(){
+  speedPercent=50;
+  speedDuration=80;
+  speedStart=null;
+  lastExpAtSpeedStart=0;
+  saveSpeed();
+  speedTimer.innerText="—";
+  speedPercentEl.innerText="50%";
+  renderSpeedBtns();
+}
+function runTimer(){
+  clearInterval(speedInterval);
+
+  speedInterval = setInterval(() => {
+    const left =
+      speedDuration * 60 -
+      Math.floor((Date.now() - speedStart) / 1000);
+
+    if(left <= 0){
+      speedTimer.innerText = "SPEED ZAKOŃCZONY";
+      clearInterval(speedInterval);
+      speedStart = null;
+      saveSpeed();
+      return;
+    }
+
+    speedTimer.innerText =
+      `Pozostało: ${String(Math.floor(left / 60)).padStart(2, "0")}:` +
+      `${String(left % 60).padStart(2, "0")}`;
+  }, 1000);
+}
+
+
+
+
+
+
+/* DAY STATS */
+let days=[];
+let currentDay=null;
+
+
+
+function loadDays(){
+  days = JSON.parse(localStorage.getItem(key("days")) || "[]");
+  currentDay = JSON.parse(localStorage.getItem(key("currentDay")) || "null");
+  renderDays();
+
+  if(currentDay){
+    dayStatus.innerText = "DZIEŃ AKTYWNY";
+ // <<< TO JEST KLUCZ
+  }else{
+    dayStatus.innerText = "—";
+  }
+}
+
+
+async function startDay(){
+  const d = await fetchPlayer();
+
+currentDay={
+  date:new Date().toLocaleDateString(),
+  expStart:d.experience,
+  lvlFrom:d.level,
+  speedExp:0,
+  normalExp:0
+};
+
+
+  localStorage.setItem(key("currentDay"), JSON.stringify(currentDay));
+  dayStatus.innerText = "DZIEŃ AKTYWNY";
+}
+
+
+async function endDay(){
+  if(!currentDay) return;
+
+  const d = await fetchPlayer();
+
+  // PRAWDZIWY EXP DNIA
+  const totalExp = d.experience - currentDay.expStart;
+
+  // SPEED z ticków
+  const speedExp = currentDay.speedExp || 0;
+
+  // NORMAL = reszta
+  const normalExp = totalExp - speedExp;
+
+  days.push({
+    date: currentDay.date,
+    exp: totalExp,
+    speedExp: speedExp,
+    normalExp: normalExp,
+    pct: totalExp > 0 ? Math.round((speedExp / totalExp) * 100) : 0,
+    lvls: `${currentDay.lvlFrom} → ${d.level}`
+  });
+
+  localStorage.setItem(key("days"), JSON.stringify(days));
+  localStorage.removeItem(key("currentDay"));
+  currentDay = null;
+  dayStatus.innerText = "—";
+
+  renderDays();
+}
+
+
+
+function renderDays(){
+  dayList.innerHTML="";
+  days.forEach((d,i)=>{
+    dayList.innerHTML+=`
+    <div class="list-row">
+      <div>${d.date}</div>
+      <div>${d.exp.toLocaleString()}</div>
+      <div>${d.speedExp.toLocaleString()}</div>
+      <div>${d.normalExp.toLocaleString()}</div>
+      <div>${d.pct}%</div>
+      <div>${d.lvls}</div>
+      <div><button onclick="delDay(${i})">X</button></div>
+    </div>`;
+  });
+  renderChart();
+ 
+
+}
+function delDay(i){
+  days.splice(i,1);
+  localStorage.setItem(key("days"),JSON.stringify(days));
+  renderDays();
+}
+
+function updateSummary(){
+  if(!days.length){
+    sumExp.innerText="—";
+    avgExp.innerText="—";
+    daysCount.innerText="—";
+    speedPct.innerText="—";
+    return;
+  }
+
+  const total = days.reduce((a,b)=>a+b.exp,0);
+  const speed = days.reduce((a,b)=>a+b.speedExp,0);
+
+  sumExp.innerText = total.toLocaleString();
+  avgExp.innerText = Math.round(total / days.length).toLocaleString();
+  daysCount.innerText = days.length;
+  speedPct.innerText = total ? Math.round(speed / total * 100) + "%" : "0%";
+}
+
+/* CHART */
+let chart=null;
+function renderChart(){
+  const ctx=document.getElementById("chart").getContext("2d");
+  if(chart)chart.destroy();
+
+  const grad=ctx.createLinearGradient(0,0,0,300);
+  grad.addColorStop(0,"rgba(255,80,80,.9)");
+  grad.addColorStop(1,"rgba(255,80,80,.1)");
+
+  chart=new Chart(ctx,{
+    type:"line",
+    data:{
+      labels:days.map(d=>d.date),
+      datasets:[{
+        data:days.map(d=>d.exp),
+        borderColor:"#ff4a4a",
+        borderWidth:4,
+        backgroundColor:grad,
+        fill:true,
+        tension:.35,
+        pointRadius:4,
+        pointBackgroundColor:"#ff4a4a"
+      }]
+    },
+    options:{
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          callbacks:{
+            label:(c)=>"EXP: "+c.parsed.y.toLocaleString()
+          }
+        }
+      },
+      scales:{
+        x:{ticks:{color:"#ffd0d0"}},
+        y:{ticks:{color:"#ffd0d0"}}
+      }
+    }
+  });
+
+  updateSummary();
+}
+
+
+/* INIT */
+const speedPercentEl=document.getElementById("speedPercent");
+function loadState(){
+  loadSpeed();
+  loadDays();
+  initAuto();
+}
+if(char){
+  refresh();
+  loadState();
+}
+syncDayStatus();
+
+/* === EXP TRACK TICK === */
+
+
+ 
+
+  /* CLOCK – ZAWSZE WIDOCZNY */
+function startClock(){
+  const timeEl = document.getElementById("clockTime");
+  const dateEl = document.getElementById("clockDate");
+
+  if(!timeEl || !dateEl) return;
+
+  function tick(){
+    const n = new Date();
+    timeEl.innerText = n.toLocaleTimeString();
+    dateEl.innerText = n.toLocaleDateString();
+  }
+
+  tick();
+  setInterval(tick, 1000);
+}
+
+startClock();
+
+function syncDayStatus(){
+  const cd = localStorage.getItem(key("currentDay"));
+  if(cd){
+    dayStatus.innerText = "DZIEŃ AKTYWNY";
+  }else{
+    dayStatus.innerText = "—";
+  }
+}
+
+  if(char){
+  refresh();
+  loadState();
+}
+syncDayStatus();
+
+</script>
+<script src="/static/js/app.js"></script>
+
+<script>
+(function HARD_CLOCK(){
+  console.log("HARD CLOCK INIT");
+
+  let box = document.getElementById("clockBox");
+
+  // jeśli zegarka nie było w HTML – tworzymy go
+  if(!box){
+    box = document.createElement("div");
+    box.id = "clockBox";
+    box.innerHTML = `
+      <div id="clockTime"></div>
+      <div id="clockDate"></div>
+    `;
+    document.body.appendChild(box);
+  }
+
+  // wymuszamy widoczność (nadpisuje CSS)
+  Object.assign(box.style, {
+    position: "fixed",
+    top: "20px",
+    right: "30px",
+    zIndex: "999999",
+    color: "#ff6a6a",
+    textShadow: "0 0 15px rgba(255,0,0,.7)",
+    fontFamily: "Cinzel, serif",
+    pointerEvents: "none",
+    display: "block",
+    opacity: "1",
+    visibility: "visible"
+  });
+
+  const timeEl = box.querySelector("#clockTime");
+  const dateEl = box.querySelector("#clockDate");
+
+  function tick(){
+    const n = new Date();
+    timeEl.textContent = n.toLocaleTimeString();
+    dateEl.textContent = n.toLocaleDateString();
+  }
+
+  tick();
+  setInterval(tick, 1000);
+
+  console.log("HARD CLOCK RUNNING");
+})();
+</script>
+
+
+
+<!-- === MODEL V2: EXP W TRAKCIE SPEED (AUTO-END) === -->
+<script>
+/*
+ZMIANA SEMANTYKI (bez ruszania UI):
+- EXP            = całkowity EXP dnia
+- speedExp       = EXP W TRAKCIE SPEED (surowy)
+- normalExp      = EXP POZA SPEED
+- %              = (speedExp / EXP) * 100
+*/
+
+// nadpisanie checkpointu
+async function checkpoint(){
+  if(!window.currentDay) return;
+
+  const d = await fetchPlayer();
+  const gained = d.experience - window.lastCheckpointExp;
+  if(gained <= 0) return;
+
+  if(window.speedActive){
+    // surowy EXP wbity w trakcie speeda
+    currentDay.speedExp += gained;
+  }else{
+    currentDay.normalExp += gained;
+  }
+
+  window.lastCheckpointExp = d.experience;
+  localStorage.setItem(key("currentDay"), JSON.stringify(currentDay));
+}
+
+// auto-zamykanie speeda po timerze (jeśli istnieje runTimer)
+if(typeof runTimer === "function"){
+  const _runTimer = runTimer;
   runTimer = function(){
     _runTimer();
     clearInterval(speedInterval);
@@ -950,6 +1745,189 @@ document.addEventListener("DOMContentLoaded",()=>{
 
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    _runTimer();
+    clearInterval(speedInterval);
+    speedInterval = setInterval(async () => {
+      if(!speedStart) return;
+      const left =
+        speedDuration * 60 -
+        Math.floor((Date.now() - speedStart) / 1000);
+
+      if(left <= 0){
+        await checkpoint();
+        window.speedActive = false;
+        clearInterval(speedInterval);
+      }
+    }, 1000);
+  }
+}
+
+// nadpisanie endDay – liczenie % od CAŁOŚCI DNIA
+const __endDay = endDay;
+endDay = async function(){
+  if(!window.currentDay) return;
+  await checkpoint();
+
+  const d = await fetchPlayer();
+  const totalExp = d.experience - currentDay.expStart;
+  const expDuringSpeed = currentDay.speedExp;
+  const expOutsideSpeed = totalExp - expDuringSpeed;
+
+  days.push({
+    date: currentDay.date,
+    exp: totalExp,
+    speedExp: expDuringSpeed,
+    normalExp: expOutsideSpeed,
+    pct: totalExp ? Math.round(expDuringSpeed / totalExp * 100) : 0,
+    lvls: `${currentDay.lvlFrom} → ${d.level}`
+  });
+
+  localStorage.setItem(key("days"), JSON.stringify(days));
+  localStorage.removeItem(key("currentDay"));
+  currentDay = null;
+  dayStatus.innerText = "—";
+  renderDays();
+};
+</script>
+
+
+<div id="dayIndicator" class="day-indicator hidden">
+  DZIEŃ AKTYWNY<span class="dots"></span>
+</div>
+
+<!-- === PERSISTENCE + ACTIVE DAY INDICATOR + STACKED CHART === -->
+<script>
+/* ---------- PERSISTENCE STATE ---------- */
+function loadSpeedState(){
+  return JSON.parse(localStorage.getItem(key("speedState")) || "null");
+}
+function saveSpeedState(s){
+  localStorage.setItem(key("speedState"), JSON.stringify(s));
+}
+function clearSpeedState(){
+  localStorage.removeItem(key("speedState"));
+}
+
+/* ---------- ACTIVE DAY INDICATOR ---------- */
+function showDayIndicator(){
+  const el=document.getElementById("dayIndicator");
+  if(el) el.classList.remove("hidden");
+}
+function hideDayIndicator(){
+  const el=document.getElementById("dayIndicator");
+  if(el) el.classList.add("hidden");
+}
+
+/* ---------- SPEED TIMER RESUME ---------- */
+function resumeSpeedIfNeeded(){
+  const s=loadSpeedState();
+  if(!s || !s.active) return;
+  const elapsed = Date.now() - s.startTs;
+  const total = s.durationMin*60*1000;
+  const left = total - elapsed;
+  if(left<=0){
+    checkpoint();
+    window.speedActive=false;
+    clearSpeedState();
+    return;
+  }
+  window.speedActive=true;
+  speedStart = Date.now() - elapsed;
+  runTimer();
+}
+
+/* ---------- HOOK START DAY ---------- */
+const __startDay2 = startDay;
+startDay = async function(){
+  await __startDay2();
+  currentDay.dayStartTs = Date.now();
+  localStorage.setItem(key("currentDay"), JSON.stringify(currentDay));
+  showDayIndicator();
+};
+
+/* ---------- HOOK START SPEED ---------- */
+const __startSpeed2 = startSpeed;
+startSpeed = async function(){
+  const s={
+    active:true,
+    percent:speedPercent,
+    durationMin:speedDuration,
+    startTs:Date.now()
+  };
+  saveSpeedState(s);
+  window.speedActive=true;
+  return __startSpeed2();
+};
+
+/* ---------- AUTO END SPEED ---------- */
+const __runTimer2 = runTimer;
+runTimer = function(){
+  __runTimer2();
+  clearInterval(speedInterval);
+  speedInterval=setInterval(async ()=>{
+    const s=loadSpeedState();
+    if(!s || !s.active) return;
+    const left=s.durationMin*60*1000-(Date.now()-s.startTs);
+    if(left<=0){
+      await checkpoint();
+      window.speedActive=false;
+      clearSpeedState();
+      clearInterval(speedInterval);
+    }
+  },1000);
+};
+
+/* ---------- HOOK END DAY ---------- */
+const __endDay2 = endDay;
+endDay = async function(){
+  await checkpoint();
+  clearSpeedState();
+  hideDayIndicator();
+  return __endDay2();
+};
+
+/* ---------- RESUME ON LOAD ---------- */
+document.addEventListener("DOMContentLoaded",()=>{
+  if(currentDay){
+    showDayIndicator();
+    resumeSpeedIfNeeded();
+  }
+});
+</script>
+
+</body>
+</html>
+
 
 
 
