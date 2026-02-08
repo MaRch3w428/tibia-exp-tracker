@@ -501,7 +501,7 @@ function runTimer(){
 function trackExpTick(currentExp){
   if(!currentDay) return;
 
-  const gained = currentExp - ;
+  const gained = currentExp - lastGlobalExp;
   if(gained <= 0) return;
 
   if(speedStart){
@@ -515,6 +515,7 @@ function trackExpTick(currentExp){
   lastGlobalExp = currentExp;
   localStorage.setItem(key("currentDay"), JSON.stringify(currentDay));
 }
+
 
 
 /* DAY STATS */
@@ -671,6 +672,15 @@ if(char){
   refresh();
   loadState();
 }
+syncDayStatus();
+
+/* === EXP TRACK TICK === */
+setInterval(async () => {
+  if(!currentDay) return;
+  const d = await fetchPlayer();
+  trackExpTick(d.experience);
+}, 60000);
+
  
 
   /* CLOCK – ZAWSZE WIDOCZNY */
@@ -761,6 +771,7 @@ syncDayStatus();
 
 </body>
 </html>
+
 
 
 
