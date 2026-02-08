@@ -520,6 +520,8 @@ function trackExpTick(currentExp){
 /* DAY STATS */
 let days=[];
 let currentDay=null;
+let lastGlobalExp=0;
+
 
 function loadDays(){
   days=JSON.parse(localStorage.getItem(key("days"))||"[]");
@@ -536,15 +538,14 @@ function loadDays(){
 async function startDay(){
   const d = await fetchPlayer();
 
-  currentDay = {
-    date: new Date().toLocaleDateString(),
-    expStart: d.experience,
-    lvlFrom: d.level,
-    speedExp: 0,
-    normalExp: 0
-  };
-
-  lastGlobalExp = d.experience;
+currentDay={
+  date:new Date().toLocaleDateString(),
+  expStart:d.experience,
+  lvlFrom:d.level,
+  speedExp:0,
+  normalExp:0
+};
+lastGlobalExp=d.experience;
 
   localStorage.setItem(key("currentDay"), JSON.stringify(currentDay));
   dayStatus.innerText = "DZIEŃ AKTYWNY";
@@ -760,6 +761,7 @@ syncDayStatus();
 
 </body>
 </html>
+
 
 
 
