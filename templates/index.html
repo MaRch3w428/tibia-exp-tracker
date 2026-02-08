@@ -704,6 +704,109 @@ syncDayStatus();
 </script>
 
 
+
+<!-- === OPERATIONAL PATCH: DAY + SPEED STATS (SAFE OVERRIDE) === -->
+<script>
+/* === STATE === */
+window.__op = window.__op || {
+  dayActive:false,
+  dayStartExp:0,
+  speedActive:false,
+  speedStartTs:0,
+  speedDurationMin:0,
+  speedExp:0,
+  lastExp:0
+};
+
+/* === UI DAY INDICATOR === */
+(function(){
+  const btn = document.querySelector("button");
+  if(!btn) return;
+  const ind = document.createElement("div");
+  ind.id="dayActiveIndicator";
+  ind.style.marginTop="8px";
+  ind.style.color="#ff5a5a";
+  ind.style.fontWeight="600";
+  ind.style.display="none";
+  ind.innerHTML="● DZIEŃ AKTYWNY";
+  btn.parentElement.appendChild(ind);
+  window.__showDay = ()=>ind.style.display="block";
+  window.__hideDay = ()=>ind.style.display="none";
+})();
+
+/* === HELPERS === */
+async function __fetchExp(){
+  const d = await fetchPlayer();
+  return d.experience;
+}
+
+/* === DAY === */
+const __startDayOld = window.startDay;
+window.startDay = async function(){
+  if(__startDayOld) await __startDayOld();
+  const exp = await __fetchExp();
+  __op.dayActive=true;
+  __op.dayStartExp=exp;
+  __op.lastExp=exp;
+  __op.speedExp=0;
+  localStorage.setItem("op_state",JSON.stringify(__op));
+  window.__showDay && window.__showDay();
+};
+
+const __endDayOld = window.endDay;
+window.endDay = async function(){
+  await checkpoint();
+  if(__endDayOld) await __endDayOld();
+  __op.dayActive=false;
+  localStorage.setItem("op_state",JSON.stringify(__op));
+  window.__hideDay && window.__hideDay();
+};
+
+/* === SPEED === */
+const __startSpeedOld = window.startSpeed;
+window.startSpeed = async function(){
+  await checkpoint();
+  __op.speedActive=true;
+  __op.speedStartTs=Date.now();
+  __op.speedDurationMin=window.speedDuration||60;
+  localStorage.setItem("op_state",JSON.stringify(__op));
+  if(__startSpeedOld) return __startSpeedOld();
+};
+
+const __resetSpeedOld = window.resetSpeed;
+window.resetSpeed = async function(){
+  await checkpoint();
+  __op.speedActive=false;
+  localStorage.setItem("op_state",JSON.stringify(__op));
+  if(__resetSpeedOld) return __resetSpeedOld();
+};
+
+/* === CHECKPOINT === */
+async function checkpoint(){
+  if(!__op.dayActive) return;
+  const exp = await __fetchExp();
+  const gained = exp - (__op.lastExp||exp);
+  if(gained>0){
+    if(__op.speedActive){
+      __op.speedExp += gained;
+    }
+    __op.lastExp = exp;
+    localStorage.setItem("op_state",JSON.stringify(__op));
+  }
+}
+
+/* === RESUME === */
+(function(){
+  const s = localStorage.getItem("op_state");
+  if(!s) return;
+  Object.assign(__op, JSON.parse(s));
+  if(__op.dayActive){
+    window.__showDay && window.__showDay();
+    __op.lastExp = __op.lastExp || __op.dayStartExp;
+  }
+})();
+</script>
+
 </body>
 </html>
 
