@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<div class="list-head"><!DOCTYPE html>
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
@@ -265,7 +265,7 @@ footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
 
 <!-- SPEED -->
 <div class="card">
-  <div class="section-title">Speed</div>
+  <div class="section-title">EXP w trakcie SPEED</div>
 
   <div id="speedBox">
     <div id="speedPercent">50%</div>
@@ -294,7 +294,7 @@ footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
   <div id="dayStatus">—</div>
 
   <div class="list-header">
-    <div>Data</div><div>EXP</div><div>Speed</div><div>Normal</div><div>%</div><div>Lvle</div><div>Usuń</div>
+    <div>Data</div><div>EXP</div><div>EXP w trakcie SPEED</div><div>EXP poza SPEED</div><div>Udział SPEED</div><div>Lvle</div><div>Usuń</div>
   </div>
   <div id="dayList"></div>
 </div>
@@ -498,17 +498,7 @@ function runTimer(){
   }, 1000);
 }
 
-function trackExpTick(currentExp){
-  if(!currentDay) return;
-
-  const gained = currentExp - lastGlobalExp;
-
-  console.log("TICK", {
-    currentExp,
-    lastGlobalExp,
-    gained,
-    speed: speedStart ? "ON" : "OFF"
-  });
+);
 
   if(gained <= 0) return;
 
@@ -698,11 +688,7 @@ if(char){
 syncDayStatus();
 
 /* === EXP TRACK TICK === */
-setInterval(async () => {
-  if(!currentDay) return;
-  const d = await fetchPlayer();
-  trackExpTick(d.experience);
-}, 60000);
+
 
  
 
@@ -898,56 +884,5 @@ endDay = async function(){
 
 
 
-<!-- === CHECKPOINT SPEED BONUS OVERRIDES (ADDED, NOTHING REMOVED) === -->
-<script>
-/* --- checkpoint state --- */
-window.lastCheckpointExp = window.lastCheckpointExp || 0;
-window.speedActive = false;
 
-/* --- checkpoint core --- */
-async function checkpoint(){
-  if(!window.currentDay) return;
-  const d = await fetchPlayer();
-  const gained = d.experience - window.lastCheckpointExp;
-  if(gained <= 0) return;
 
-  if(window.speedActive){
-    const bonus = Math.round(gained * (speedPercent / 100));
-    currentDay.speedExp += bonus;
-    currentDay.normalExp += gained;
-  }else{
-    currentDay.normalExp += gained;
-  }
-  window.lastCheckpointExp = d.experience;
-  localStorage.setItem(key("currentDay"), JSON.stringify(currentDay));
-}
-
-/* --- hook lifecycle actions --- */
-const _startDay = startDay;
-startDay = async function(){
-  await _startDay();
-  const d = await fetchPlayer();
-  window.lastCheckpointExp = d.experience;
-  window.speedActive = false;
-};
-
-const _startSpeed = startSpeed;
-startSpeed = async function(){
-  await checkpoint();
-  window.speedActive = true;
-  return _startSpeed();
-};
-
-const _resetSpeed = resetSpeed;
-resetSpeed = async function(){
-  await checkpoint();
-  window.speedActive = false;
-  return _resetSpeed();
-};
-
-const _endDay = endDay;
-endDay = async function(){
-  await checkpoint();
-  return _endDay();
-};
-</script>
