@@ -3,370 +3,44 @@
 /* =========================
    CINEMATIC INTRO
    ========================= */
-window.addEventListener("load", () => {
-  const intro = document.getElementById("intro");
-  if (!intro) return;
+const intro = document.getElementById("cinematic-intro") || document.getElementById("intro");
+const video = document.getElementById("intro-video") || intro?.querySelector("video");
+const text = document.querySelector(".intro-text");
+const skip = document.getElementById("intro-skip");
 
+if (intro) {
   let ended = false;
+
+  if (text) {
+    setTimeout(() => text.classList.add("show"), 1200);
+  }
 
   function endIntro() {
     if (ended) return;
     ended = true;
+
     intro.classList.add("fade-out");
     setTimeout(() => intro.remove(), 1200);
   }
 
-  setTimeout(endIntro, 5000);
-});
+  if (video) video.addEventListener("ended", endIntro);
+  if (skip) skip.addEventListener("click", endIntro);
+
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") endIntro();
+  });
+
+  setTimeout(endIntro, 12000);
+}
 
 /* =========================
-   CLOCK (JEDEN, STAŁY)
-   ========================= */
-(function () {
-  const timeEl = document.getElementById("clockTime");
-  const dateEl = document.getElementById("clockDate");
-  if (!timeEl || !dateEl) return;
-
-  function tick() {
-    const n = new Date();
-    timeEl.textContent = n.toLocaleTimeString();
-    dateEl.textContent = n.toLocaleDateString();
-  }
-
-  tick();
-  setInterval(tick, 1000);
-})();
-
-/* =========================
-   GLOBAL
+   CHARACTER / API
    ========================= */
 let char = localStorage.getItem("apo_last_char") || "";
-const charInput = document.getElementById("charInput");
-if (charInput) charInput.value = char;
 
 function key(k) {
   return `apo_${char}_${k}`;
 }
 
-/* =========================
-   API
-   ========================= */
 async function fetchPlayer() {
-  if (!char) throw new Error("Brak postaci");
-  const r = await fetch(`/player/${char}`);
-  return r.json();
-}
-
-/* =========================
-   POSTAĆ
-   ========================= */
-async function refresh() {
-  if (!char) return;
-  const d = await fetchPlayer();
-
-  charNameBig.innerText = d.name;
-  charStats.innerText = `${d.vocation} | Level ${d.level} | Magic ${d.magic}`;
-  expValue.innerText = d.experience.toLocaleString();
-
-  const v = d.vocation.toLowerCase();
-  vocationIcon.src =
-    "/static/icons/" +
-    (v.includes("druid")
-      ? "druid.png"
-      : v.includes("paladyn")
-      ? "paladin.png"
-      : v.includes("czaro")
-      ? "sorcerer.png"
-      : v.includes("rycerz")
-      ? "knight.png"
-      : "rook.png");
-}
-
-function setChar() {
-  char = charInput.value.trim();
-  localStorage.setItem("apo_last_char", char);
-  refresh();
-  loadState();
-}
-
-/* =========================
-   AUTO REFRESH
-   ========================= */
-let autoTimer = null;
-
-function toggleAuto() {
-  const on = localStorage.getItem(key("auto")) === "1";
-  if (on) {
-    clearInterval(autoTimer);
-    localStorage.setItem(key("auto"), "0");
-    autoBtn.innerText = "Auto-odśwież: WYŁ";
-  } else {
-    autoTimer = setInterval(refresh, 600000);
-    localStorage.setItem(key("auto"), "1");
-    autoBtn.innerText = "Auto-odśwież: WŁ";
-  }
-}
-
-function initAuto() {
-  if (localStorage.getItem(key("auto")) === "1") toggleAuto();
-}
-
-/* =========================
-   SPEED
-   ========================= */
-let speedPercent = 50;
-let speedDuration = 80;
-let speedStart = null;
-let speedInterval = null;
-let lastExpAtSpeedStart = 0;
-
-const speedPercentEl = document.getElementById("speedPercent");
-
-function renderSpeedBtns() {
-  speedBtns.innerHTML = "";
-  for (let i = 5; i <= 50; i += 5) {
-    const b = document.createElement("button");
-    b.innerText = i + "%";
-    if (i === speedPercent) b.classList.add("active");
-    b.onclick = () => {
-      speedPercent = i;
-      speedPercentEl.innerText = i + "%";
-      saveSpeed();
-      renderSpeedBtns();
-    };
-    speedBtns.appendChild(b);
-  }
-}
-
-function saveSpeed() {
-  localStorage.setItem(
-    key("speed"),
-    JSON.stringify({
-      percent: speedPercent,
-      duration: speedDuration,
-      start: speedStart,
-      lastExp: lastExpAtSpeedStart,
-    })
-  );
-}
-
-function loadSpeed() {
-  const s = JSON.parse(localStorage.getItem(key("speed")) || "{}");
-  speedPercent = s.percent || 50;
-  speedDuration = s.duration || 80;
-  speedStart = s.start || null;
-  lastExpAtSpeedStart = s.lastExp || 0;
-
-  speedPercentEl.innerText = speedPercent + "%";
-
-  document.querySelectorAll('input[name="speedTime"]').forEach((r) => {
-    r.checked = Number(r.value) === speedDuration;
-    r.onchange = () => {
-      speedDuration = Number(r.value);
-      saveSpeed();
-    };
-  });
-
-  renderSpeedBtns();
-  if (speedStart) runTimer();
-}
-
-async function startSpeed() {
-  const d = await fetchPlayer();
-  speedStart = Date.now();
-  lastExpAtSpeedStart = d.experience;
-  saveSpeed();
-  runTimer();
-}
-
-function resetSpeed() {
-  speedPercent = 50;
-  speedDuration = 80;
-  speedStart = null;
-  lastExpAtSpeedStart = 0;
-  saveSpeed();
-  speedTimer.innerText = "—";
-  speedPercentEl.innerText = "50%";
-  renderSpeedBtns();
-}
-
-function runTimer() {
-  clearInterval(speedInterval);
-  speedInterval = setInterval(async () => {
-    const left =
-      speedDuration * 60 -
-      Math.floor((Date.now() - speedStart) / 1000);
-
-    if (left <= 0) {
-      speedTimer.innerText = "SPEED ZAKOŃCZONY";
-      clearInterval(speedInterval);
-      return;
-    }
-
-    speedTimer.innerText = `Pozostało: ${String(
-      Math.floor(left / 60)
-    ).padStart(2, "0")}:${String(left % 60).padStart(2, "0")}`;
-
-    if (currentDay) {
-      const d = await fetchPlayer();
-      const gained = d.experience - lastExpAtSpeedStart;
-      if (gained > 0) {
-        const speedPart = Math.round(
-          gained * (speedPercent / 100)
-        );
-        currentDay.speedExp += speedPart;
-        lastExpAtSpeedStart = d.experience;
-        localStorage.setItem(
-          key("currentDay"),
-          JSON.stringify(currentDay)
-        );
-      }
-    }
-  }, 1000);
-}
-
-/* =========================
-   DAY STATS
-   ========================= */
-let days = [];
-let currentDay = null;
-
-function loadDays() {
-  days = JSON.parse(localStorage.getItem(key("days")) || "[]");
-  currentDay = JSON.parse(
-    localStorage.getItem(key("currentDay")) || "null"
-  );
-  dayStatus.innerText = currentDay ? "DZIEŃ AKTYWNY" : "—";
-  renderDays();
-}
-
-async function startDay() {
-  const d = await fetchPlayer();
-  currentDay = {
-    date: new Date().toLocaleDateString(),
-    expStart: d.experience,
-    lvlFrom: d.level,
-    speedExp: 0,
-  };
-  localStorage.setItem(
-    key("currentDay"),
-    JSON.stringify(currentDay)
-  );
-  dayStatus.innerText = "DZIEŃ AKTYWNY";
-}
-
-async function endDay() {
-  if (!currentDay) return;
-  const d = await fetchPlayer();
-  const total = d.experience - currentDay.expStart;
-
-  days.push({
-    date: currentDay.date,
-    exp: total,
-    speedExp: currentDay.speedExp,
-    normalExp: total - currentDay.speedExp,
-    pct: total
-      ? Math.round((currentDay.speedExp / total) * 100)
-      : 0,
-    lvls: `${currentDay.lvlFrom} → ${d.level}`,
-  });
-
-  localStorage.setItem(key("days"), JSON.stringify(days));
-  localStorage.removeItem(key("currentDay"));
-  currentDay = null;
-  dayStatus.innerText = "—";
-  renderDays();
-}
-
-function renderDays() {
-  dayList.innerHTML = "";
-  days.forEach((d, i) => {
-    dayList.innerHTML += `
-      <div class="list-row">
-        <div>${d.date}</div>
-        <div>${d.exp.toLocaleString()}</div>
-        <div>${d.speedExp.toLocaleString()}</div>
-        <div>${d.normalExp.toLocaleString()}</div>
-        <div>${d.pct}%</div>
-        <div>${d.lvls}</div>
-        <div><button onclick="delDay(${i})">X</button></div>
-      </div>`;
-  });
-  renderChart();
-}
-
-function delDay(i) {
-  days.splice(i, 1);
-  localStorage.setItem(key("days"), JSON.stringify(days));
-  renderDays();
-}
-
-/* =========================
-   CHART + SUMMARY
-   ========================= */
-let chart = null;
-
-function renderChart() {
-  const ctx = document.getElementById("chart").getContext("2d");
-  if (chart) chart.destroy();
-
-  const grad = ctx.createLinearGradient(0, 0, 0, 300);
-  grad.addColorStop(0, "rgba(255,80,80,.9)");
-  grad.addColorStop(1, "rgba(255,80,80,.1)");
-
-  chart = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: days.map((d) => d.date),
-      datasets: [
-        {
-          data: days.map((d) => d.exp),
-          borderColor: "#ff4a4a",
-          borderWidth: 4,
-          backgroundColor: grad,
-          fill: true,
-          tension: 0.35,
-        },
-      ],
-    },
-    options: {
-      plugins: { legend: { display: false } },
-    },
-  });
-
-  updateSummary();
-}
-
-function updateSummary() {
-  if (!days.length) {
-    sumExp.innerText = "—";
-    avgExp.innerText = "—";
-    daysCount.innerText = "—";
-    speedPct.innerText = "—";
-    return;
-  }
-
-  const total = days.reduce((a, b) => a + b.exp, 0);
-  const speed = days.reduce((a, b) => a + b.speedExp, 0);
-
-  sumExp.innerText = total.toLocaleString();
-  avgExp.innerText = Math.round(total / days.length).toLocaleString();
-  daysCount.innerText = days.length;
-  speedPct.innerText = total
-    ? Math.round((speed / total) * 100) + "%"
-    : "0%";
-}
-
-/* =========================
-   INIT
-   ========================= */
-function loadState() {
-  loadSpeed();
-  loadDays();
-  initAuto();
-}
-
-if (char) {
-  refresh();
-  loadState();
-}
+  if (!char) throw new Err
