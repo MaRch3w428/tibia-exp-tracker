@@ -593,6 +593,8 @@ async function endDay(){
   currentDay=null;
   dayStatus.innerText="—";
   renderDays();
+  liveTotal.textContent = "—";
+
 }
 function renderDays(){
   dayList.innerHTML="";
@@ -798,6 +800,7 @@ syncDayStatus();
 
 </body>
 </html>
+
 
 
 
