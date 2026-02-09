@@ -1,36 +1,46 @@
-// ===== CINEMATIC INTRO =====
-const intro = document.getElementById('cinematic-intro');
-const video = document.getElementById('intro-video');
-const text = document.querySelector('.intro-text');
-const skip = document.getElementById('intro-skip');
+"use strict";
 
-if (intro && video) {
+/* =========================
+   CINEMATIC INTRO
+   ========================= */
+const intro = document.getElementById("cinematic-intro") || document.getElementById("intro");
+const video = document.getElementById("intro-video") || intro?.querySelector("video");
+const text = document.querySelector(".intro-text");
+const skip = document.getElementById("intro-skip");
+
+if (intro) {
   let ended = false;
 
-  // pokaż napis po chwili
-  setTimeout(() => {
-    text.classList.add('show');
-  }, 1200);
+  if (text) {
+    setTimeout(() => text.classList.add("show"), 1200);
+  }
 
   function endIntro() {
     if (ended) return;
     ended = true;
 
-    intro.classList.add('fade-out');
+    intro.classList.add("fade-out");
     setTimeout(() => intro.remove(), 1200);
   }
 
-  // koniec video
-  video.addEventListener('ended', endIntro);
+  if (video) video.addEventListener("ended", endIntro);
+  if (skip) skip.addEventListener("click", endIntro);
 
-  // SKIP klik
-  skip.addEventListener('click', endIntro);
-
-  // SKIP ESC
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') endIntro();
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") endIntro();
   });
 
-  // fallback
   setTimeout(endIntro, 12000);
 }
+
+/* =========================
+   CHARACTER / API
+   ========================= */
+let char = localStorage.getItem("apo_last_char") || "";
+
+function key(k) {
+  return `apo_${char}_${k}`;
+}
+
+async function fetchPlayer() {
+  if (!char) throw new Err
