@@ -6,7 +6,9 @@
 
 <link rel="stylesheet" href="/static/css/style.css">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
 /* === DAY INDICATOR SYNC === */
 function syncDayIndicator(){
   const el=document.getElementById("dayActiveIndicator");
@@ -179,6 +181,8 @@ button.active{box-shadow:0 0 25px red}
 #expValue{font-size:36px;color:#ff4a4a;margin-top:10px}
 
 /* SPEED */
+const speedPercentEl = document.getElementById("speedPercent");
+
 #speedBox{text-align:center}
 #speedPercent{font-size:52px;color:#ff4a4a}
 .speedBtns button{margin:4px;min-width:60px}
@@ -374,6 +378,8 @@ charInput.value=char;
 charInput.addEventListener("keydown",e=>{if(e.key==="Enter")setChar();});
 
 /* HELPERS */
+function trackExpTick(){ /* placeholder to prevent crash */ }
+
 function key(k){return `apo_${char}_${k}`}
 
 /* API */
@@ -428,6 +434,8 @@ function initAuto(){
 }
 
 /* SPEED */
+const speedPercentEl = document.getElementById("speedPercent");
+
 let speedPercent=50;
 let speedDuration=80;
 let speedStart=null;
@@ -563,6 +571,15 @@ async function endDay(){
   renderDays();
   syncDayIndicator();
 }
+function updateSummary(){
+  if(!days.length){
+    sumExp.innerText="—";
+    avgExp.innerText="—";
+    daysCount.innerText="—";
+    speedPct.innerText="—";
+    return;
+  }
+
 function renderDays(){
   dayList.innerHTML="";
   days.forEach((d,i)=>{
@@ -578,16 +595,7 @@ function renderDays(){
     </div>`;
   });
   renderChart();
-  function updateSummary(){
-  if(!days.length){
-    sumExp.innerText="—";
-    avgExp.innerText="—";
-    daysCount.innerText="—";
-    speedPct.innerText="—";
-    return;
-  }
-
-  const total=days.reduce((a,b)=>a+b.exp,0);
+    const total=days.reduce((a,b)=>a+b.exp,0);
   const speed=days.reduce((a,b)=>a+b.speedExp,0);
 
   sumExp.innerText=total.toLocaleString();
@@ -650,7 +658,7 @@ function renderChart(){
 
 
 /* INIT */
-const speedPercentEl=document.getElementById("speedPercent");
+
 function loadState(){
   loadSpeed();
   loadDays();
@@ -678,7 +686,7 @@ function startClock(){
   setInterval(tick, 1000);
 }
 
-startClock();
+// startClock();
 
 function syncDayStatus(){
   const cd = localStorage.getItem(key("currentDay"));
@@ -786,6 +794,7 @@ syncDayStatus();
 
 </body>
 </html>
+
 
 
 
