@@ -691,6 +691,8 @@ function loadState(){
 if(char){
   refresh();
   loadState();
+  initAutoRefresh();
+
 }
 
   /* CLOCK – ZAWSZE WIDOCZNY */
@@ -794,12 +796,31 @@ syncDayStatus();
   liveTotal.textContent = total.toLocaleString();
 }
 
+  function initAutoRefresh(){
+  const stored = localStorage.getItem(key("auto"));
+
+  // JEŚLI NIGDY NIC NIE BYŁO USTAWIONE → DOMYŚLNIE WŁ
+  if(stored === null){
+    localStorage.setItem(key("auto"), "1");
+  }
+
+  const on = localStorage.getItem(key("auto")) === "1";
+
+  if(on){
+    autoTimer = setInterval(refresh, 60000);
+    autoBtn.innerText = "Auto-odśwież: WŁ";
+  }else{
+    autoBtn.innerText = "Auto-odśwież: WYŁ";
+  }
+}
+
 
 </script>
 
 
 </body>
 </html>
+
 
 
 
