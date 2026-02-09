@@ -704,7 +704,8 @@ function syncDayStatus(){
 syncDayStatus();
 
 </script>
-<script src="/static/js/app.js"></script>
+<!-- app.js odłączony – plik ma błąd składni -->
+
 
 <script>
 (function HARD_CLOCK(){
@@ -791,9 +792,28 @@ syncDayStatus();
 @keyframes dots{0%{content:""}33%{content:"."}66%{content:".."}100%{content:"..."}}
 
 </style>
+<script>
+/* === FORCE INTRO EXIT – HARD MODE === */
+window.addEventListener("load", () => {
+  const intro = document.getElementById("intro");
+  if(!intro) return;
+
+  setTimeout(() => {
+    intro.classList.add("fade-out");
+
+    setTimeout(() => {
+      intro.remove();
+      document.body.style.overflow = "auto";
+      console.log("INTRO REMOVED – APP LIVE");
+    }, 1200);
+
+  }, 3000);
+});
+</script>
 
 </body>
 </html>
+
 
 
 
