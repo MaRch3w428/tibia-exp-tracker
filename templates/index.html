@@ -72,25 +72,126 @@ body{
   60%{opacity:1;transform:scale(1.05)}
   100%{opacity:1;transform:scale(1)}
 }
+
+/* LAYOUT */
+header{text-align:center;padding:30px}
+header img{
+  max-width:560px;
+  opacity:.85;
+  filter:
+    drop-shadow(0 0 40px rgba(255,0,0,.9))
+    drop-shadow(0 0 80px rgba(255,0,0,.35));
+}
+.container{max-width:1200px;margin:auto;padding:20px}
+
+/* KARTY */
+.card{
+  background:rgba(15,0,0,.55);
+  border:1px solid rgba(255,0,0,.45);
+  border-radius:16px;
+  padding:26px;
+  margin-bottom:26px;
+  backdrop-filter:blur(6px);
+}
+.section-title{
+  font-size:22px;
+  color:#ff6a6a;
+  margin-bottom:18px;
+  letter-spacing:.08em;
+}
+
+/* BUTTONS */
+button,input{
+  background:#0b0000;
+  color:#ffd0d0;
+  border:1px solid #aa2222;
+  padding:8px 14px;
+  font-family:'Cinzel',serif;
+  cursor:pointer;
+}
+button:hover{box-shadow:0 0 15px rgba(255,0,0,.7)}
+button.active{box-shadow:0 0 25px red}
+
+/* HERO */
+#charHero{text-align:center}
+#vocationIcon{
+  width:200px;
+  margin-bottom:10px;
+}
+#charNameBig{font-size:38px;color:#ff4a4a}
+#charStats{font-size:20px;margin-top:6px}
+#expValue{font-size:36px;color:#ff4a4a;margin-top:10px}
+
+/* SPEED */
+#speedBox{text-align:center}
+#speedPercent{font-size:52px;color:#ff4a4a}
+#speedTimer{font-size:26px;margin-top:10px}
+
+/* LIST */
+.list-header,.list-row{
+  display:grid;
+  grid-template-columns:120px 120px 120px 120px 90px 180px 60px;
+  gap:10px;
+}
+.list-header{
+  font-size:14px;
+  font-weight:bold;
+  border-bottom:1px solid rgba(255,255,255,.2);
+}
+.list-row{
+  font-size:17px;
+  padding:10px 0;
+  border-bottom:1px solid rgba(255,255,255,.1);
+}
+
+/* SUMMARY */
+#summary{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:16px;
+  margin-top:20px;
+}
+.summaryBox{
+  background:rgba(0,0,0,.45);
+  border:1px solid rgba(255,0,0,.35);
+  border-radius:14px;
+  padding:16px;
+  text-align:center;
+}
+.summaryVal{
+  font-size:26px;
+  color:#ff4a4a;
+  margin-top:6px;
+}
+
+/* FOOTER */
+footer{
+  text-align:right;
+  padding:10px 20px;
+  font-size:12px;
+  color:#aa5555;
+}
 </style>
 </head>
 
 <body>
 
+<!-- CLOCK -->
 <div id="clockBox">
   <div id="clockTime"></div>
   <div id="clockDate"></div>
 </div>
 
+<!-- INTRO -->
 <div id="intro">
-  <video autoplay muted playsinline loop>
+  <video autoplay muted playsinline loop preload="auto">
     <source src="/static/video/intro.mp4" type="video/mp4">
   </video>
   <img src="/static/intro/logo.png">
 </div>
 
-<header style="text-align:center;padding:30px">
-  <img src="/static/header/apo-tracker.png" style="max-width:560px;opacity:.85">
+<header>
+  <img src="/static/header/apo-tracker.png">
 </header>
 
 <div class="container">
@@ -102,8 +203,8 @@ body{
   <input id="charInput">
   <button onclick="setChar()">USTAW</button>
 
-  <div id="charHero" style="text-align:center">
-    <img id="vocationIcon" style="width:200px">
+  <div id="charHero">
+    <img id="vocationIcon">
     <div id="charNameBig">—</div>
     <div id="charStats">—</div>
     <div id="expValue">—</div>
@@ -118,13 +219,21 @@ body{
 <!-- SPEED -->
 <div class="card">
   <div class="section-title">Speed</div>
-  <div id="speedBox" style="text-align:center">
+  <div id="speedBox">
     <div id="speedPercent">50%</div>
     <div id="speedBtns"></div>
+
+    <div style="margin-top:10px">
+      <label><input type="radio" name="speedTime" value="80"> 80 min</label>
+      <label style="margin-left:20px">
+        <input type="radio" name="speedTime" value="60"> 60 min</label>
+    </div>
+
     <div style="margin-top:15px">
       <button onclick="startSpeed()">UŻYJ SPEEDA</button>
       <button onclick="resetSpeed()">RESTART SPEED</button>
     </div>
+
     <div id="speedTimer">—</div>
   </div>
 </div>
@@ -136,6 +245,9 @@ body{
   <button onclick="endDay()">ZAKOŃCZ DZIEŃ</button>
   <div id="dayStatus">—</div>
 
+  <div class="list-header">
+    <div>Data</div><div>EXP</div><div>Speed</div><div>Normal</div><div>%</div><div>Lvle</div><div>Usuń</div>
+  </div>
   <div id="dayList"></div>
 </div>
 
@@ -143,14 +255,22 @@ body{
 <div class="card">
   <div class="section-title">Wykres EXP</div>
   <canvas id="chart" height="140"></canvas>
+
+  <div id="summary">
+    <div class="summaryBox">Łączny EXP<div class="summaryVal" id="sumExp">—</div></div>
+    <div class="summaryBox">Średnio / dzień<div class="summaryVal" id="avgExp">—</div></div>
+    <div class="summaryBox">Ilość dni<div class="summaryVal" id="daysCount">—</div></div>
+    <div class="summaryBox">% ze speeda<div class="summaryVal" id="speedPct">—</div></div>
+  </div>
 </div>
 
 </div>
 
-<footer style="text-align:right;padding:10px 20px;font-size:12px;color:#aa5555">
+<footer>
   designed by Zohanek © <span id="year"></span>
 </footer>
 
+<!-- JEDYNY JS -->
 <script src="/static/js/app.js" defer></script>
 </body>
 </html>
