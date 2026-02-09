@@ -316,7 +316,7 @@ footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
   <div style="margin-top:15px">
     <button onclick="refresh()">Odśwież</button>
     <button id="autoBtn" onclick="toggleAuto()">Auto-odśwież: WYŁ</button>
-    toggleAuto(true);
+ 
   </div>
 </div>
 
@@ -391,6 +391,9 @@ footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
 <footer>designed by Zohanek © <span id="year"></span></footer>
 
 <script>
+let speedFrozen = false;
+let speedStartExp = null;
+
 /* CLOCK + INTRO */
 const introEl = document.getElementById("intro");
 if(introEl){
@@ -448,22 +451,38 @@ async function refresh(){
 /* AUTO REFRESH */
 let autoTimer = null;
 
-function toggleAuto(force){
-  const on = force !== undefined
-    ? force
-    : localStorage.getItem(key("auto")) === "1";
+let autoTimer = null;
 
-  clearInterval(autoTimer);
+  function initAuto(){
+  const stored = localStorage.getItem(key("auto"));
 
-  if(on){
+  if(stored === null){
+    localStorage.setItem(key("auto"), "1"); // domyślnie WŁ
+  }
+
+  if(localStorage.getItem(key("auto")) === "1"){
     autoTimer = setInterval(refresh, 60000);
-    localStorage.setItem(key("auto"), "1");
     autoBtn.innerText = "Auto-odśwież: WŁ";
   }else{
-    localStorage.setItem(key("auto"), "0");
     autoBtn.innerText = "Auto-odśwież: WYŁ";
   }
 }
+
+
+function toggleAuto(){
+  const on = localStorage.getItem(key("auto")) === "1";
+
+  if(on){
+    clearInterval(autoTimer);
+    localStorage.setItem(key("auto"), "0");
+    autoBtn.innerText = "Auto-odśwież: WYŁ";
+  }else{
+    autoTimer = setInterval(refresh, 60000);
+    localStorage.setItem(key("auto"), "1");
+    autoBtn.innerText = "Auto-odśwież: WŁ";
+  }
+}
+
 
 function initAuto(){
   if(localStorage.getItem(key("auto"))==="1"){
@@ -525,6 +544,8 @@ async function startSpeed(){
   lastExpAtSpeedStart=d.experience;
   saveSpeed();
   runTimer();
+  speedStartExp = lastGlobalExp;
+
 }
 function resetSpeed(){
   speedPercent=50;
@@ -820,6 +841,8 @@ syncDayStatus();
     autoBtn.innerText = "Auto-odśwież: WYŁ";
   }
 }
+  initAuto();
+
 
 
 </script>
@@ -827,6 +850,7 @@ syncDayStatus();
 
 </body>
 </html>
+
 
 
 
