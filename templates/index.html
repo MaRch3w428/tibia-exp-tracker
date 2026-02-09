@@ -618,10 +618,23 @@ function loadDays(){
 
 async function startDay(){
   const d=await fetchPlayer();
-  currentDay={date:new Date().toLocaleDateString(),expStart:d.experience,lvlFrom:d.level,speedExp:0};
+
+  currentDay={
+    date:new Date().toLocaleDateString(),
+    expStart:d.experience,
+    lvlFrom:d.level,
+    speedExp:0
+  };
+
+  /* 🔧 SYNC SPEED Z DNIEM */
+  if(speedStart){
+    lastExpAtSpeedStart = d.experience;
+  }
+
   localStorage.setItem(key("currentDay"),JSON.stringify(currentDay));
   dayStatus.innerText="DZIEŃ AKTYWNY";
 }
+
 async function endDay(){
   if(!currentDay)return;
   const d=await fetchPlayer();
@@ -834,6 +847,7 @@ syncDayStatus();
 
 </body>
 </html>
+
 
 
 
