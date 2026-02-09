@@ -295,19 +295,9 @@ footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
   <img src="/static/intro/logo.png">
 </div>
 
-<script>
-  setTimeout(() => {
-    const intro = document.getElementById("intro");
-    if (intro) {
-      intro.style.transition = "opacity 0.5s ease";
-      intro.style.opacity = "0";
-      setTimeout(() => intro.remove(), 500);
-    }
-  }, 5000);
-</script>
-
 <header><img src="/static/header/apo-tracker.png"></header>
 
+<div class="container">
 
 <!-- PANEL POSTACI -->
 <div class="card card-active">
@@ -326,7 +316,6 @@ footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
   <div style="margin-top:15px">
     <button onclick="refresh()">Odśwież</button>
     <button id="autoBtn" onclick="toggleAuto()">Auto-odśwież: WYŁ</button>
- 
   </div>
 </div>
 
@@ -365,11 +354,6 @@ footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
   </div>
   <div id="dayList"></div>
 </div>
-  <div class="card" id="liveBox">
-  <div class="section-title">LIVE</div>
-  <div>EXP dziś (live): <span id="liveTotal">—</span></div>
-</div>
-
 
 <!-- WYKRES -->
 <div class="card">
@@ -401,9 +385,6 @@ footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
 <footer>designed by Zohanek © <span id="year"></span></footer>
 
 <script>
-let speedFrozen = false;
-let speedStartExp = null;
-
 /* CLOCK + INTRO */
 const introEl = document.getElementById("intro");
 if(introEl){
@@ -455,45 +436,22 @@ async function refresh(){
     v.includes("czaro")?"sorcerer.png":
     v.includes("rycerz")?"knight.png":"rook.png"
   );
-    updateLiveTotal();
 }
 
 /* AUTO REFRESH */
-let autoTimer = null;
-
-let autoTimer = null;
-
-  function initAuto(){
-  const stored = localStorage.getItem(key("auto"));
-
-  if(stored === null){
-    localStorage.setItem(key("auto"), "1"); // domyślnie WŁ
-  }
-
-  if(localStorage.getItem(key("auto")) === "1"){
-    autoTimer = setInterval(refresh, 60000);
-    autoBtn.innerText = "Auto-odśwież: WŁ";
-  }else{
-    autoBtn.innerText = "Auto-odśwież: WYŁ";
-  }
-}
-
-
+let autoTimer=null;
 function toggleAuto(){
-  const on = localStorage.getItem(key("auto")) === "1";
-
+  const on=localStorage.getItem(key("auto"))==="1";
   if(on){
     clearInterval(autoTimer);
-    localStorage.setItem(key("auto"), "0");
-    autoBtn.innerText = "Auto-odśwież: WYŁ";
+    localStorage.setItem(key("auto"),"0");
+    autoBtn.innerText="Auto-odśwież: WYŁ";
   }else{
-    autoTimer = setInterval(refresh, 60000);
-    localStorage.setItem(key("auto"), "1");
-    autoBtn.innerText = "Auto-odśwież: WŁ";
+    autoTimer=setInterval(refresh,600000);
+    localStorage.setItem(key("auto"),"1");
+    autoBtn.innerText="Auto-odśwież: WŁ";
   }
 }
-
-
 function initAuto(){
   if(localStorage.getItem(key("auto"))==="1"){
     toggleAuto();
@@ -554,8 +512,6 @@ async function startSpeed(){
   lastExpAtSpeedStart=d.experience;
   saveSpeed();
   runTimer();
-  speedStartExp = lastGlobalExp;
-
 }
 function resetSpeed(){
   speedPercent=50;
@@ -631,8 +587,6 @@ async function endDay(){
   currentDay=null;
   dayStatus.innerText="—";
   renderDays();
-  liveTotal.textContent = "—";
-
 }
 function renderDays(){
   dayList.innerHTML="";
@@ -729,8 +683,6 @@ function loadState(){
 if(char){
   refresh();
   loadState();
-  initAutoRefresh();
-
 }
 
   /* CLOCK – ZAWSZE WIDOCZNY */
@@ -825,52 +777,11 @@ syncDayStatus();
   }
 })();
 
-  async function updateLiveTotal(){
-  if(!currentDay) return;
-
-  const d = await fetchPlayer();
-  const total = d.experience - currentDay.expStart;
-
-  liveTotal.textContent = total.toLocaleString();
-}
-
-  function initAutoRefresh(){
-  const stored = localStorage.getItem(key("auto"));
-
-  // JEŚLI NIGDY NIC NIE BYŁO USTAWIONE → DOMYŚLNIE WŁ
-  if(stored === null){
-    localStorage.setItem(key("auto"), "1");
-  }
-
-  const on = localStorage.getItem(key("auto")) === "1";
-
-  if(on){
-    autoTimer = setInterval(refresh, 60000);
-    autoBtn.innerText = "Auto-odśwież: WŁ";
-  }else{
-    autoBtn.innerText = "Auto-odśwież: WYŁ";
-  }
-}
-  initAuto();
-function updateSummary(){
-  // placeholder – żeby JS się nie wysypywał
-}
-
-
-
 </script>
 
 
 </body>
 </html>
-
-
-
-
-
-
-
-
 
 
 
