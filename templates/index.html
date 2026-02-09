@@ -272,6 +272,54 @@ button.active{box-shadow:0 0 25px red}
   font-size:14px;
 }
 
+  /* === SPEED ACTIVE GLOW === */
+.speed-active #speedPercent{
+  text-shadow:0 0 28px rgba(255,0,0,.85);
+}
+
+.speed-active #speedTimer{
+  text-shadow:0 0 18px rgba(255,0,0,.6);
+}
+
+.speed-active{
+  animation:speedPulse 2.8s infinite;
+}
+
+@keyframes speedPulse{
+  0%{box-shadow:0 0 18px rgba(255,0,0,.25)}
+  50%{box-shadow:0 0 38px rgba(255,0,0,.55)}
+  100%{box-shadow:0 0 18px rgba(255,0,0,.25)}
+}
+
+  /* === DAY ACTIVE BADGE === */
+#dayStatus{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  margin-top:14px;
+  padding:8px 18px;
+  border-radius:999px;
+  border:1px solid #ff4a4a;
+  color:#ff4a4a;
+  font-weight:700;
+  letter-spacing:.08em;
+  background:rgba(40,0,0,.35);
+  box-shadow:0 0 18px rgba(255,0,0,.35);
+}
+
+#dayStatus::before{
+  content:"●";
+  font-size:14px;
+  animation:dayPulse 1.6s infinite;
+}
+
+@keyframes dayPulse{
+  0%{opacity:.4}
+  50%{opacity:1}
+  100%{opacity:.4}
+}
+
+
 
 footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
 </style>
@@ -512,6 +560,8 @@ async function startSpeed(){
   lastExpAtSpeedStart=d.experience;
   saveSpeed();
   runTimer();
+  document.getElementById("speedBox").classList.add("speed-active");
+
 }
 function resetSpeed(){
   speedPercent=50;
@@ -529,11 +579,13 @@ function runTimer(){
     const left=speedDuration*60-
       Math.floor((Date.now()-speedStart)/1000);
 
-    if(left<=0){
-      speedTimer.innerText="SPEED ZAKOŃCZONY";
-      clearInterval(speedInterval);
-      return;
-    }
+   if(left<=0){
+  speedTimer.innerText="SPEED ZAKOŃCZONY";
+  document.getElementById("speedBox").classList.remove("speed-active");
+  clearInterval(speedInterval);
+  return;
+}
+
 
     speedTimer.innerText=`Pozostało: ${String(Math.floor(left/60)).padStart(2,"0")}:${String(left%60).padStart(2,"0")}`;
 
@@ -782,6 +834,7 @@ syncDayStatus();
 
 </body>
 </html>
+
 
 
 
