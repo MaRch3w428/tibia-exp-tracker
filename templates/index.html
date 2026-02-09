@@ -768,11 +768,21 @@ syncDayStatus();
 
   console.log("HARD CLOCK RUNNING");
 })();
+
+  /* === SYNC STATUS DNIA PO RELOADZIE === */
+(function syncDayIndicatorOnLoad(){
+  const cd = localStorage.getItem(key("currentDay"));
+  if(cd){
+    dayStatus.innerText = "DZIEŃ AKTYWNY";
+  }
+})();
+
 </script>
 
 
 </body>
 </html>
+
 
 
 
