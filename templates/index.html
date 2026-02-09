@@ -453,7 +453,7 @@ function toggleAuto(){
     localStorage.setItem(key("auto"),"0");
     autoBtn.innerText="Auto-odśwież: WYŁ";
   }else{
-    autoTimer=setInterval(refresh,600000);
+    autoTimer=setInterval(refresh,60000);
     localStorage.setItem(key("auto"),"1");
     autoBtn.innerText="Auto-odśwież: WŁ";
   }
@@ -800,6 +800,7 @@ syncDayStatus();
 
 </body>
 </html>
+
 
 
 
