@@ -295,9 +295,19 @@ footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
   <img src="/static/intro/logo.png">
 </div>
 
+<script>
+  setTimeout(() => {
+    const intro = document.getElementById("intro");
+    if (intro) {
+      intro.style.transition = "opacity 0.5s ease";
+      intro.style.opacity = "0";
+      setTimeout(() => intro.remove(), 500);
+    }
+  }, 5000);
+</script>
+
 <header><img src="/static/header/apo-tracker.png"></header>
 
-<div class="container">
 
 <!-- PANEL POSTACI -->
 <div class="card card-active">
@@ -853,6 +863,7 @@ function updateSummary(){
 
 </body>
 </html>
+
 
 
 
