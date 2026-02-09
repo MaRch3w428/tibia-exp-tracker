@@ -354,6 +354,11 @@ footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
   </div>
   <div id="dayList"></div>
 </div>
+  <div class="card" id="liveBox">
+  <div class="section-title">LIVE</div>
+  <div>EXP dziś (live): <span id="liveTotal">—</span></div>
+</div>
+
 
 <!-- WYKRES -->
 <div class="card">
@@ -436,6 +441,7 @@ async function refresh(){
     v.includes("czaro")?"sorcerer.png":
     v.includes("rycerz")?"knight.png":"rook.png"
   );
+    updateLiveTotal();
 }
 
 /* AUTO REFRESH */
@@ -777,11 +783,22 @@ syncDayStatus();
   }
 })();
 
+  async function updateLiveTotal(){
+  if(!currentDay) return;
+
+  const d = await fetchPlayer();
+  const total = d.experience - currentDay.expStart;
+
+  liveTotal.textContent = total.toLocaleString();
+}
+
+
 </script>
 
 
 </body>
 </html>
+
 
 
 
