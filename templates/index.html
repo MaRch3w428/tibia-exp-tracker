@@ -316,6 +316,7 @@ footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
   <div style="margin-top:15px">
     <button onclick="refresh()">Odśwież</button>
     <button id="autoBtn" onclick="toggleAuto()">Auto-odśwież: WYŁ</button>
+    toggleAuto(true);
   </div>
 </div>
 
@@ -445,19 +446,25 @@ async function refresh(){
 }
 
 /* AUTO REFRESH */
-let autoTimer=null;
-function toggleAuto(){
-  const on=localStorage.getItem(key("auto"))==="1";
+let autoTimer = null;
+
+function toggleAuto(force){
+  const on = force !== undefined
+    ? force
+    : localStorage.getItem(key("auto")) === "1";
+
+  clearInterval(autoTimer);
+
   if(on){
-    clearInterval(autoTimer);
-    localStorage.setItem(key("auto"),"0");
-    autoBtn.innerText="Auto-odśwież: WYŁ";
+    autoTimer = setInterval(refresh, 60000);
+    localStorage.setItem(key("auto"), "1");
+    autoBtn.innerText = "Auto-odśwież: WŁ";
   }else{
-    autoTimer=setInterval(refresh,60000);
-    localStorage.setItem(key("auto"),"1");
-    autoBtn.innerText="Auto-odśwież: WŁ";
+    localStorage.setItem(key("auto"), "0");
+    autoBtn.innerText = "Auto-odśwież: WYŁ";
   }
 }
+
 function initAuto(){
   if(localStorage.getItem(key("auto"))==="1"){
     toggleAuto();
@@ -820,6 +827,7 @@ syncDayStatus();
 
 </body>
 </html>
+
 
 
 
