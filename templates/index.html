@@ -739,6 +739,21 @@ function syncDayStatus(){
 }
 syncDayStatus();
 
+  
+  /* INTRO – PEWNE ODPALENIE */
+document.addEventListener("DOMContentLoaded", () => {
+  const introEl = document.getElementById("intro");
+  if(!introEl) return;
+
+  setTimeout(() => {
+    introEl.classList.add("fade-out");
+
+    setTimeout(() => {
+      introEl.remove();
+    }, 1200);
+  }, 5000);
+});
+  
 </script>
 <script src="/static/js/app.js"></script>
 
@@ -797,19 +812,6 @@ syncDayStatus();
   }
 })();
 
-  /* INTRO – PEWNE ODPALENIE */
-document.addEventListener("DOMContentLoaded", () => {
-  const introEl = document.getElementById("intro");
-  if(!introEl) return;
-
-  setTimeout(() => {
-    introEl.classList.add("fade-out");
-
-    setTimeout(() => {
-      introEl.remove();
-    }, 1200);
-  }, 5000);
-});
 
 
 </script>
@@ -817,6 +819,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 </body>
 </html>
+
 
 
 
