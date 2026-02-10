@@ -396,7 +396,7 @@ charInput.addEventListener("keydown",e=>{if(e.key==="Enter")setChar();});
 
 /* HELPERS */
 function key(k){return `apo_${char}_${k}`}
-  const AUTO_KEY = key("auto");
+
 
 if(localStorage.getItem(AUTO_KEY) === null){
   localStorage.setItem(AUTO_KEY, "1"); // DOMYŚLNIE WŁĄCZONE
@@ -740,16 +740,20 @@ function syncDayStatus(){
 syncDayStatus();
 
   
-/* INTRO – PEWNE ODPALENIE */
-window.addEventListener("load", () => {
+/* INTRO – DEFINITYWNE */
+setTimeout(() => {
   const introEl = document.getElementById("intro");
-  if(!introEl) return;
+  if (!introEl) return;
+
+  introEl.classList.add("fade-out");
 
   setTimeout(() => {
-    introEl.classList.add("fade-out");
-    setTimeout(() => introEl.remove(), 1200);
-  }, 5000);
-});
+    if (introEl.parentNode) {
+      introEl.parentNode.removeChild(introEl);
+    }
+  }, 1200);
+}, 5000);
+
 
   
 </script>
@@ -817,6 +821,7 @@ window.addEventListener("load", () => {
 
 </body>
 </html>
+
 
 
 
