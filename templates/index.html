@@ -453,10 +453,16 @@ function toggleAuto(){
   }
 }
 function initAuto(){
-  if(localStorage.getItem(key("auto"))==="1"){
-    toggleAuto();
+  if (localStorage.getItem(key("auto")) === null) {
+    localStorage.setItem(key("auto"), "1"); // DOMYŚLNIE WŁ
+  }
+
+  if (localStorage.getItem(key("auto")) === "1") {
+    autoTimer = setInterval(refresh, 600000);
+    autoBtn.innerText = "Auto-odśwież: WŁ";
   }
 }
+
 
 /* SPEED */
 let speedPercent=50;
@@ -539,10 +545,18 @@ function runTimer(){
 
     if(currentDay){
       const d=await fetchPlayer();
-      const gained=d.experience-lastExpAtSpeedStart;
-      const speedPart=Math.round(gained*(speedPercent/100));
-      currentDay.speedExp+=speedPart;
-      lastExpAtSpeedStart=d.experience;
+      const gained = d.experience - lastExpAtSpeedStart;
+
+// BLOKADA: brak minusowego EXP
+if (gained <= 0) {
+  lastExpAtSpeedStart = d.experience;
+  return;
+}
+
+const speedPart = Math.round(gained * (speedPercent / 100));
+currentDay.speedExp += speedPart;
+lastExpAtSpeedStart = d.experience;
+
       localStorage.setItem(key("currentDay"),JSON.stringify(currentDay));
     }
   },1000);
@@ -579,7 +593,7 @@ async function endDay(){
     exp:total,
     speedExp:currentDay.speedExp,
     normalExp:total-currentDay.speedExp,
-    pct:total?Math.round(currentDay.speedExp/total*100):0,
+    pct: total ? Math.min(100, Math.round(currentDay.speedExp / total * 100)) : 0,
     lvls:`${currentDay.lvlFrom} → ${d.level}`
   });
   localStorage.setItem(key("days"),JSON.stringify(days));
@@ -782,6 +796,7 @@ syncDayStatus();
 
 </body>
 </html>
+
 
 
 
