@@ -396,6 +396,9 @@ charInput.addEventListener("keydown",e=>{if(e.key==="Enter")setChar();});
 
 /* HELPERS */
 function key(k){return `apo_${char}_${k}`}
+if (typeof window.AUTO_KEY === "undefined") {
+  window.AUTO_KEY = key("auto");
+}
 
 
 if(localStorage.getItem(AUTO_KEY) === null){
@@ -436,9 +439,7 @@ async function refresh(){
 
 /* AUTO REFRESH – CLEAN */
 let autoTimer = null;
-if (typeof window.AUTO_KEY === "undefined") {
-  window.AUTO_KEY = key("auto");
-}
+
 
 
 function startAutoRefresh(){
@@ -841,6 +842,7 @@ syncDayStatus();
 
 </body>
 </html>
+
 
 
 
