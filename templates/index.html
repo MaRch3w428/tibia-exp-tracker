@@ -773,6 +773,24 @@ syncDayStatus();
   
 </script>
 <script src="/static/js/app.js"></script>
+</script>   <!-- zamknięcie TEGO DUŻEGO, ZEPSUTEGO JS -->
+
+<!-- 🔥 TEN BLOK WKLEJASZ TUTAJ 🔥 -->
+<script>
+  console.log("INTRO SCRIPT ALIVE");
+
+  setTimeout(function () {
+    var intro = document.getElementById("intro");
+    if (intro) {
+      intro.style.display = "none";
+      console.log("INTRO HIDDEN");
+    }
+  }, 5000);
+</script>
+<!-- 🔥 KONIEC BLOKU 🔥 -->
+
+</body>
+</html>
 
 <script>
 (function HARD_CLOCK(){
@@ -836,6 +854,7 @@ syncDayStatus();
 
 </body>
 </html>
+
 
 
 
