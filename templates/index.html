@@ -385,17 +385,7 @@ footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
 <footer>designed by Zohanek © <span id="year"></span></footer>
 
 <script>
-/* CLOCK + INTRO */
-const introEl = document.getElementById("intro");
-if(introEl){
-  setTimeout(()=>{
-    introEl.classList.add("fade-out");
 
-    setTimeout(()=>{
-      introEl.remove();
-    },1200); // czas fade (musi pasować do CSS)
-  },5000); // długość intro
-}
 
 year.innerText=new Date().getFullYear();
 
@@ -807,11 +797,27 @@ syncDayStatus();
   }
 })();
 
+  /* INTRO – PEWNE ODPALENIE */
+document.addEventListener("DOMContentLoaded", () => {
+  const introEl = document.getElementById("intro");
+  if(!introEl) return;
+
+  setTimeout(() => {
+    introEl.classList.add("fade-out");
+
+    setTimeout(() => {
+      introEl.remove();
+    }, 1200);
+  }, 5000);
+});
+
+
 </script>
 
 
 </body>
 </html>
+
 
 
 
