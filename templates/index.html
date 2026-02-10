@@ -385,17 +385,17 @@ footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
 <footer>designed by Zohanek © <span id="year"></span></footer>
 
 <script>
+/* CLOCK + INTRO */
+const introEl = document.getElementById("intro");
+if(introEl){
+  setTimeout(()=>{
+    introEl.classList.add("fade-out");
 
-  /* === INTRO – MUSI WYSTARTOWAĆ ZANIM COKOLWIEK INNEGO SIĘ WYSYPIE === */
-setTimeout(() => {
-  const introEl = document.getElementById("intro");
-  if (!introEl) return;
-
-  introEl.classList.add("fade-out");
-  setTimeout(() => introEl.remove(), 1200);
-}, 5000);
-
-
+    setTimeout(()=>{
+      introEl.remove();
+    },1200); // czas fade (musi pasować do CSS)
+  },5000); // długość intro
+}
 
 year.innerText=new Date().getFullYear();
 
@@ -406,15 +406,6 @@ charInput.addEventListener("keydown",e=>{if(e.key==="Enter")setChar();});
 
 /* HELPERS */
 function key(k){return `apo_${char}_${k}`}
-if (typeof window.AUTO_KEY === "undefined") {
-  window.AUTO_KEY = key("auto");
-}
-
-
-if(localStorage.getItem(AUTO_KEY) === null){
-  localStorage.setItem(AUTO_KEY, "1"); // DOMYŚLNIE WŁĄCZONE
-}
-
 
 /* API */
 async function fetchPlayer(){
@@ -447,39 +438,25 @@ async function refresh(){
   );
 }
 
-/* AUTO REFRESH – CLEAN */
-let autoTimer = null;
-
-
-
-function startAutoRefresh(){
-  if(autoTimer) return;
-  autoTimer = setInterval(refresh, 600000); // 10 min
-}
-
-function stopAutoRefresh(){
-  if(!autoTimer) return;
-  clearInterval(autoTimer);
-  autoTimer = null;
-}
-
-function syncAutoRefresh(){
-  const on = localStorage.getItem(AUTO_KEY) === "1";
+/* AUTO REFRESH */
+let autoTimer=null;
+function toggleAuto(){
+  const on=localStorage.getItem(key("auto"))==="1";
   if(on){
-    startAutoRefresh();
-    autoBtn.innerText = "Auto-odśwież: WŁ";
+    clearInterval(autoTimer);
+    localStorage.setItem(key("auto"),"0");
+    autoBtn.innerText="Auto-odśwież: WYŁ";
   }else{
-    stopAutoRefresh();
-    autoBtn.innerText = "Auto-odśwież: WYŁ";
+    autoTimer=setInterval(refresh,600000);
+    localStorage.setItem(key("auto"),"1");
+    autoBtn.innerText="Auto-odśwież: WŁ";
   }
 }
-
-function toggleAuto(){
-  const on = localStorage.getItem(AUTO_KEY) === "1";
-  localStorage.setItem(AUTO_KEY, on ? "0" : "1");
-  syncAutoRefresh();
+function initAuto(){
+  if(localStorage.getItem(key("auto"))==="1"){
+    toggleAuto();
+  }
 }
-
 
 /* SPEED */
 let speedPercent=50;
@@ -560,25 +537,16 @@ function runTimer(){
 
     speedTimer.innerText=`Pozostało: ${String(Math.floor(left/60)).padStart(2,"0")}:${String(left%60).padStart(2,"0")}`;
 
-    if (currentDay) {
-  const d = await fetchPlayer();
-
-  const gained = d.experience - lastGlobalExp;
-  if (gained <= 0) return;
-
-  if (speedStart) {
-    const speedPart = Math.round(gained * (speedPercent / 100));
-    currentDay.speedExp += speedPart;
-    currentDay.normalExp += (gained - speedPart);
-  } else {
-    currentDay.normalExp += gained;
-  }
-
-  lastGlobalExp = d.experience;
-
-  localStorage.setItem(key("currentDay"), JSON.stringify(currentDay));
+    if(currentDay){
+      const d=await fetchPlayer();
+      const gained=d.experience-lastExpAtSpeedStart;
+      const speedPart=Math.round(gained*(speedPercent/100));
+      currentDay.speedExp+=speedPart;
+      lastExpAtSpeedStart=d.experience;
+      localStorage.setItem(key("currentDay"),JSON.stringify(currentDay));
+    }
+  },1000);
 }
-
 
 /* DAY STATS */
 let days=[];
@@ -710,8 +678,7 @@ const speedPercentEl=document.getElementById("speedPercent");
 function loadState(){
   loadSpeed();
   loadDays();
-  syncAutoRefresh();
-
+  initAuto();
 }
 if(char){
   refresh();
@@ -751,46 +718,9 @@ function syncDayStatus(){
   loadState();
 }
 syncDayStatus();
- setTimeout(killIntro, 5000);
-  setTimeout(killIntro, 6000);
-  setTimeout(killIntro, 7000);
 
-  const observer = new MutationObserver(() => {
-    if(!killed){
-      killIntro();
-    } else {
-      observer.disconnect();
-    }
-  });
-
-  observer.observe(document.documentElement, {
-    childList: true,
-    subtree: true
-  });
-})();
-
-
-  
 </script>
 <script src="/static/js/app.js"></script>
-</script>   <!-- zamknięcie TEGO DUŻEGO, ZEPSUTEGO JS -->
-
-<!-- 🔥 TEN BLOK WKLEJASZ TUTAJ 🔥 -->
-<script>
-  console.log("INTRO SCRIPT ALIVE");
-
-  setTimeout(function () {
-    var intro = document.getElementById("intro");
-    if (intro) {
-      intro.style.display = "none";
-      console.log("INTRO HIDDEN");
-    }
-  }, 5000);
-</script>
-<!-- 🔥 KONIEC BLOKU 🔥 -->
-
-</body>
-</html>
 
 <script>
 (function HARD_CLOCK(){
@@ -847,24 +777,11 @@ syncDayStatus();
   }
 })();
 
-
-
 </script>
 
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
 
 
 
