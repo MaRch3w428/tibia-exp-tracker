@@ -386,6 +386,16 @@ footer{text-align:right;padding:10px 20px;font-size:12px;color:#aa5555}
 
 <script>
 
+  /* === INTRO – MUSI WYSTARTOWAĆ ZANIM COKOLWIEK INNEGO SIĘ WYSYPIE === */
+setTimeout(() => {
+  const introEl = document.getElementById("intro");
+  if (!introEl) return;
+
+  introEl.classList.add("fade-out");
+  setTimeout(() => introEl.remove(), 1200);
+}, 5000);
+
+
 
 year.innerText=new Date().getFullYear();
 
@@ -742,22 +752,7 @@ function syncDayStatus(){
   loadState();
 }
 syncDayStatus();
-
-  
-/* INTRO – FORCE KILL (OSTATECZNE) */
-(function(){
-  let killed = false;
-
-  function killIntro(){
-    const intro = document.getElementById("intro");
-    if(intro){
-      intro.remove();
-      killed = true;
-      console.log("INTRO KILLED");
-    }
-  }
-
-  setTimeout(killIntro, 5000);
+ setTimeout(killIntro, 5000);
   setTimeout(killIntro, 6000);
   setTimeout(killIntro, 7000);
 
@@ -842,6 +837,7 @@ syncDayStatus();
 
 </body>
 </html>
+
 
 
 
