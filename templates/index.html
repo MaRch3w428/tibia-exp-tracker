@@ -740,19 +740,17 @@ function syncDayStatus(){
 syncDayStatus();
 
   
-  /* INTRO – PEWNE ODPALENIE */
-document.addEventListener("DOMContentLoaded", () => {
+/* INTRO – PEWNE ODPALENIE */
+window.addEventListener("load", () => {
   const introEl = document.getElementById("intro");
   if(!introEl) return;
 
   setTimeout(() => {
     introEl.classList.add("fade-out");
-
-    setTimeout(() => {
-      introEl.remove();
-    }, 1200);
+    setTimeout(() => introEl.remove(), 1200);
   }, 5000);
 });
+
   
 </script>
 <script src="/static/js/app.js"></script>
@@ -819,6 +817,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 </body>
 </html>
+
 
 
 
