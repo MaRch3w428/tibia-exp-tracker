@@ -406,8 +406,6 @@ charInput.addEventListener("keydown",e=>{if(e.key==="Enter")setChar();});
 
 /* HELPERS */
 function key(k){return `apo_${char}_${k}`}
-// === AUTO REFRESH – STATE ===
-const AUTO_KEY = key("auto_refresh"); // "1" / "0"
 
 /* API */
 async function fetchPlayer(){
@@ -440,38 +438,25 @@ async function refresh(){
   );
 }
 
-// === AUTO REFRESH – STABILNE ===
-let autoTimer = null;
-
-function startAutoRefresh(){
-  if(autoTimer) return;
-  autoTimer = setInterval(refresh, 600000); // 10 min
-  autoBtn.innerText = "Auto-odśwież: WŁ";
-}
-
-function stopAutoRefresh(){
-  if(!autoTimer) return;
-  clearInterval(autoTimer);
-  autoTimer = null;
-  autoBtn.innerText = "Auto-odśwież: WYŁ";
-}
-
-function syncAutoRefresh(){
-  // domyślnie WŁ tylko przy pierwszym uruchomieniu
-  if(localStorage.getItem(AUTO_KEY) === null){
-    localStorage.setItem(AUTO_KEY, "1");
-  }
-
-  const on = localStorage.getItem(AUTO_KEY) === "1";
-  on ? startAutoRefresh() : stopAutoRefresh();
-}
-
+/* AUTO REFRESH */
+let autoTimer=null;
 function toggleAuto(){
-  const on = localStorage.getItem(AUTO_KEY) === "1";
-  localStorage.setItem(AUTO_KEY, on ? "0" : "1");
-  syncAutoRefresh();
+  const on=localStorage.getItem(key("auto"))==="1";
+  if(on){
+    clearInterval(autoTimer);
+    localStorage.setItem(key("auto"),"0");
+    autoBtn.innerText="Auto-odśwież: WYŁ";
+  }else{
+    autoTimer=setInterval(refresh,600000);
+    localStorage.setItem(key("auto"),"1");
+    autoBtn.innerText="Auto-odśwież: WŁ";
+  }
 }
-
+function initAuto(){
+  if(localStorage.getItem(key("auto"))==="1"){
+    toggleAuto();
+  }
+}
 
 /* SPEED */
 let speedPercent=50;
@@ -552,22 +537,16 @@ function runTimer(){
 
     speedTimer.innerText=`Pozostało: ${String(Math.floor(left/60)).padStart(2,"0")}:${String(left%60).padStart(2,"0")}`;
 
-if(currentDay){
-  const d = await fetchPlayer();
-  const gained = d.experience - lastExpAtSpeedStart;
-
-  // === FIX: blokada minusowego EXP ===
-  if (gained <= 0) {
-    lastExpAtSpeedStart = d.experience;
-    return;
-  }
-
-  const speedPart = Math.round(gained * (speedPercent / 100));
-  currentDay.speedExp += speedPart;
-  lastExpAtSpeedStart = d.experience;
-  localStorage.setItem(key("currentDay"), JSON.stringify(currentDay));
+    if(currentDay){
+      const d=await fetchPlayer();
+      const gained=d.experience-lastExpAtSpeedStart;
+      const speedPart=Math.round(gained*(speedPercent/100));
+      currentDay.speedExp+=speedPart;
+      lastExpAtSpeedStart=d.experience;
+      localStorage.setItem(key("currentDay"),JSON.stringify(currentDay));
+    }
+  },1000);
 }
-
 
 /* DAY STATS */
 let days=[];
@@ -704,8 +683,6 @@ function loadState(){
 if(char){
   refresh();
   loadState();
-    syncAutoRefresh();
-
 }
 
   /* CLOCK – ZAWSZE WIDOCZNY */
@@ -805,7 +782,6 @@ syncDayStatus();
 
 </body>
 </html>
-
 
 
 
