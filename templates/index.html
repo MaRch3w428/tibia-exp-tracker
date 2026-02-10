@@ -406,6 +406,12 @@ charInput.addEventListener("keydown",e=>{if(e.key==="Enter")setChar();});
 
 /* HELPERS */
 function key(k){return `apo_${char}_${k}`}
+  const AUTO_KEY = key("auto");
+
+if(localStorage.getItem(AUTO_KEY) === null){
+  localStorage.setItem(AUTO_KEY, "1"); // DOMYŚLNIE WŁĄCZONE
+}
+
 
 /* API */
 async function fetchPlayer(){
@@ -438,25 +444,38 @@ async function refresh(){
   );
 }
 
-/* AUTO REFRESH */
-let autoTimer=null;
-function toggleAuto(){
-  const on=localStorage.getItem(key("auto"))==="1";
+/* AUTO REFRESH – CLEAN */
+let autoTimer = null;
+const AUTO_KEY = key("auto"); // "1" / "0"
+
+function startAutoRefresh(){
+  if(autoTimer) return;
+  autoTimer = setInterval(refresh, 600000); // 10 min
+}
+
+function stopAutoRefresh(){
+  if(!autoTimer) return;
+  clearInterval(autoTimer);
+  autoTimer = null;
+}
+
+function syncAutoRefresh(){
+  const on = localStorage.getItem(AUTO_KEY) === "1";
   if(on){
-    clearInterval(autoTimer);
-    localStorage.setItem(key("auto"),"0");
-    autoBtn.innerText="Auto-odśwież: WYŁ";
+    startAutoRefresh();
+    autoBtn.innerText = "Auto-odśwież: WŁ";
   }else{
-    autoTimer=setInterval(refresh,600000);
-    localStorage.setItem(key("auto"),"1");
-    autoBtn.innerText="Auto-odśwież: WŁ";
+    stopAutoRefresh();
+    autoBtn.innerText = "Auto-odśwież: WYŁ";
   }
 }
-function initAuto(){
-  if(localStorage.getItem(key("auto"))==="1"){
-    toggleAuto();
-  }
+
+function toggleAuto(){
+  const on = localStorage.getItem(AUTO_KEY) === "1";
+  localStorage.setItem(AUTO_KEY, on ? "0" : "1");
+  syncAutoRefresh();
 }
+
 
 /* SPEED */
 let speedPercent=50;
@@ -537,15 +556,25 @@ function runTimer(){
 
     speedTimer.innerText=`Pozostało: ${String(Math.floor(left/60)).padStart(2,"0")}:${String(left%60).padStart(2,"0")}`;
 
-    if(currentDay){
-      const d=await fetchPlayer();
-      const gained=d.experience-lastExpAtSpeedStart;
-      const speedPart=Math.round(gained*(speedPercent/100));
-      currentDay.speedExp+=speedPart;
-      lastExpAtSpeedStart=d.experience;
-      localStorage.setItem(key("currentDay"),JSON.stringify(currentDay));
-    }
-  },1000);
+    if (currentDay) {
+  const d = await fetchPlayer();
+
+  const gained = d.experience - lastGlobalExp;
+  if (gained <= 0) return;
+
+  if (speedStart) {
+    const speedPart = Math.round(gained * (speedPercent / 100));
+    currentDay.speedExp += speedPart;
+    currentDay.normalExp += (gained - speedPart);
+  } else {
+    currentDay.normalExp += gained;
+  }
+
+  lastGlobalExp = d.experience;
+
+  localStorage.setItem(key("currentDay"), JSON.stringify(currentDay));
+}
+
 }
 
 /* DAY STATS */
@@ -678,7 +707,8 @@ const speedPercentEl=document.getElementById("speedPercent");
 function loadState(){
   loadSpeed();
   loadDays();
-  initAuto();
+  syncAutoRefresh();
+
 }
 if(char){
   refresh();
@@ -782,6 +812,7 @@ syncDayStatus();
 
 </body>
 </html>
+
 
 
 
