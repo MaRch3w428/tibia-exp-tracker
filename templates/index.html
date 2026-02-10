@@ -436,7 +436,10 @@ async function refresh(){
 
 /* AUTO REFRESH – CLEAN */
 let autoTimer = null;
-const AUTO_KEY = key("auto"); // "1" / "0"
+if (typeof window.AUTO_KEY === "undefined") {
+  window.AUTO_KEY = key("auto");
+}
+
 
 function startAutoRefresh(){
   if(autoTimer) return;
@@ -838,6 +841,7 @@ syncDayStatus();
 
 </body>
 </html>
+
 
 
 
