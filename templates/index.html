@@ -740,19 +740,36 @@ function syncDayStatus(){
 syncDayStatus();
 
   
-/* INTRO – DEFINITYWNE */
-setTimeout(() => {
-  const introEl = document.getElementById("intro");
-  if (!introEl) return;
+/* INTRO – FORCE KILL (OSTATECZNE) */
+(function(){
+  let killed = false;
 
-  introEl.classList.add("fade-out");
-
-  setTimeout(() => {
-    if (introEl.parentNode) {
-      introEl.parentNode.removeChild(introEl);
+  function killIntro(){
+    const intro = document.getElementById("intro");
+    if(intro){
+      intro.remove();
+      killed = true;
+      console.log("INTRO KILLED");
     }
-  }, 1200);
-}, 5000);
+  }
+
+  setTimeout(killIntro, 5000);
+  setTimeout(killIntro, 6000);
+  setTimeout(killIntro, 7000);
+
+  const observer = new MutationObserver(() => {
+    if(!killed){
+      killIntro();
+    } else {
+      observer.disconnect();
+    }
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true
+  });
+})();
 
 
   
@@ -821,6 +838,7 @@ setTimeout(() => {
 
 </body>
 </html>
+
 
 
 
